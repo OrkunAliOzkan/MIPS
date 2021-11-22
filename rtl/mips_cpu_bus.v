@@ -51,30 +51,34 @@ module mips_cpu_bus(
 */
 typedef enum logics[5:0]
 {
-    ITYPE_ADDIU = 6'd9,
-    ITYPE_ANDI = 6'd12,
-    ITYPE_BEQ = 6'd4,
-    ITYPE_BGEZ = 6'd1,  //FIXME:    Need to differentiate by RT
-    ITYPE_BGEZAL = 6'd1,//FIXME:    Need to differentiate by RT
-    ITYPE_BGTZ = 6'd7,
-    ITYPE_BLEZ = 6'd6,
-    ITYPE_BLTZ = 6'd1,  //FIXME:    Need to differentiate by RT
-    ITYPE_BLTZAL = 6'd1,//FIXME:    Need to differentiate by RT
-    ITYPE_BNE = 6'd5,
-    ITYPE_LUI = 6'd15,
-    ITYPE_ORI = 6'd13,
-    ITYPE_SLTI = 6'd10,
-    ITYPE_SLTIU = 6'd11,
-    ITYPE_XORI = 6'd14
-    ITYPE_LB = 6'd32,
-    ITYPE_LBU = 6'd36,
-    ITYPE_LH = 6'd33,
-    ITYPE_LHU = 6'd37,
-    ITYPE_LW = 6'd35,
-    ITYPE_SB = 6'd40,
-    ITYPE_SH = 6'd41,
-    ITYPE_SW = 6'd43,
-} i_type_opcode;
+    OPCODE_R = 6'd0,
+    OPCODE_J1 = 6'd2,
+    OPCODE_J2 = 6'd3,
+
+    OPCODE_ADDIU = 6'd9,
+    OPCODE_ANDI = 6'd12,
+    OPCODE_BEQ = 6'd4,
+    OPCODE_BGEZ = 6'd1,  //FIXME:    Need to differentiate by RT
+    OPCODE_BGEZAL = 6'd1,//FIXME:    Need to differentiate by RT
+    OPCODE_BGTZ = 6'd7,
+    OPCODE_BLEZ = 6'd6,
+    OPCODE_BLTZ = 6'd1,  //FIXME:    Need to differentiate by RT
+    OPCODE_BLTZAL = 6'd1,//FIXME:    Need to differentiate by RT
+    OPCODE_BNE = 6'd5,
+    OPCODE_LUI = 6'd15,
+    OPCODE_ORI = 6'd13,
+    OPCODE_SLTI = 6'd10,
+    OPCODE_SLTIU = 6'd11,
+    OPCODE_XORI = 6'd14
+    OPCODE_LB = 6'd32,
+    OPCODE_LBU = 6'd36,
+    OPCODE_LH = 6'd33,
+    OPCODE_LHU = 6'd37,
+    OPCODE_LW = 6'd35,
+    OPCODE_SB = 6'd40,
+    OPCODE_SH = 6'd41,
+    OPCODE_SW = 6'd43,
+} opcode_t
 
 
 /*
@@ -157,10 +161,178 @@ typedef enum logics[1:0]
         else if (state == state_t.EXEC2) begin //EXEC2
             
         end
-
     }
     end
 
 
 
 endmodule
+
+/*
+case(opcode)
+    //  R type instructions
+    (OPCODE_R): begin
+        //  We have to determine what the R type instruction is by virtue of its function code
+        case(fcode_t)
+            (FUNCTION_CODE_ADDU): begin
+                
+            end
+
+            (FUNCTION_CODE_AND): begin
+                
+            end
+
+            (FUNCTION_CODE_OR): begin
+                
+            end
+
+            (FUNCTION_CODE_SLT): begin
+                
+            end
+
+            (FUNCTION_CODE_SLTU): begin
+                
+            end
+
+            (FUNCTION_CODE_SUBU): begin
+                
+            end
+
+            (FUNCTION_CODE_XOR): begin
+                
+            end
+
+            (FUNCTION_CODE_SLL): begin
+                
+            end
+
+            (FUNCTION_CODE_SLLV): begin
+                
+            end
+
+            (FUNCTION_CODE_SRA): begin
+                
+            end
+
+            (FUNCTION_CODE_SRAV): begin
+                
+            end
+
+            (FUNCTION_CODE_SRL): begin
+                
+            end
+
+            (FUNCTION_CODE_SRLV): begin
+                
+            end
+
+            (FUNCTION_CODE_DIV): begin
+                
+            end
+
+            (FUNCTION_CODE_DIVU): begin
+                
+            end
+
+            (FUNCTION_CODE_MULT): begin
+                
+            end
+
+            (FUNCTION_CODE_MULTU): begin
+                
+            end
+
+            (FUNCTION_CODE_MTHI): begin
+                
+            end
+
+            (FUNCTION_CODE_MTLO): begin
+                
+            end
+        endcase
+    end
+
+    //  J type instructions
+    (OPCODE_J1 || OPCODE_J2): begin
+        case(): begin
+
+        endcase
+
+    end
+
+    (ITYPE_ADDIU): begin
+
+    end
+
+    //  I type instructions
+    (OPCODE_ADDIU) : begin
+
+    end
+    (OPCODE_ANDI) : begin
+
+    end
+    (OPCODE_BEQ) : begin
+
+    end
+    (OPCODE_BGEZ) : begin
+
+    end
+    (OPCODE_BGEZAL) : begin
+
+    end
+    (OPCODE_BGTZ) : begin
+
+    end
+    (OPCODE_BLEZ) : begin
+
+    end
+    (OPCODE_BLTZ) : begin
+
+    end
+    (OPCODE_BLTZAL) : begin
+
+    end
+    (OPCODE_BNE) : begin
+
+    end
+    (OPCODE_LUI) : begin
+
+    end
+    (OPCODE_ORI) : begin
+
+    end
+    (OPCODE_SLTI) : begin
+
+    end
+    (OPCODE_SLTIU) : begin
+
+    end
+    (OPCODE_XORI) : begin
+
+    end
+    (OPCODE_LB) : begin
+
+    end
+    (OPCODE_LBU) : begin
+
+    end
+    (OPCODE_LH) : begin
+
+    end
+    (OPCODE_LHU) : begin
+
+    end
+    (OPCODE_LW) : begin
+
+    end
+    (OPCODE_SB) : begin
+
+    end
+    (OPCODE_SH) : begin
+
+    end
+    (OPCODE_SW) : begin
+
+    end
+endcase
+*/
