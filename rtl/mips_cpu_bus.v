@@ -41,6 +41,7 @@ module mips_cpu_bus(
 
     logic[31:0] PC, PC_next, PC_jump;
     logic[1:0] state;
+    //EDIT
 
     /*
     Not sure where to put, but opcode stuff
