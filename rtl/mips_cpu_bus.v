@@ -62,21 +62,30 @@ typedef enum logics[5:0]
 
 typedef enum logics[5:0]
 {
-    OPCODE_ADDIU = 6'd9,
-    OPCODE_ADDU = 6'd0,
-    OPCODE_AND = 6'd0,
-    OPCODE_ANDI = 6'd12,
-    OPCODE_BGEZ = 6'd1,
-    OPCODE_BGEZAL = 6'd1,
-    OPCODE_BGTZ = 6'd7,
-    OPCODE_BLEZ = 6'd6,
-    OPCODE_BLTZ = 6'd1,
-    OPCODE_BLTZAL = 6'd1,
-    OPCODE_BNE = 6'd5,
-    OPCODE_DIV = 6'd0,
-    OPCODE_DIVU = 6'd0,
-    OPCOCE_J = 6'd2
-} opcode_t;
+    ITYPE_ADDIU = 6'd9,
+    ITYPE_ANDI = 6'd12,
+    ITYPE_BEQ = 6'd4,
+    ITYPE_BGEZ = 6'd1,  //FIXME:    Need to differentiate by RT
+    ITYPE_BGEZAL = 6'd1,//FIXME:    Need to differentiate by RT
+    ITYPE_BGTZ = 6'd7,
+    ITYPE_BLEZ = 6'd6,
+    ITYPE_BLTZ = 6'd1,  //FIXME:    Need to differentiate by RT
+    ITYPE_BLTZAL = 6'd1,//FIXME:    Need to differentiate by RT
+    ITYPE_BNE = 6'd5,
+    ITYPE_LUI = 6'd15,
+    ITYPE_ORI = 6'd13,
+    ITYPE_SLTI = 6'd10,
+    ITYPE_SLTIU = 6'd11,
+    ITYPE_XORI = 6'd14
+} i_type;
+
+typedef enum logics[1:0]
+{
+    FETCH = 2'd0,
+    EXEC1 = 2'd1,
+    EXEC2 = 2'd2,
+    HALTED = 2'd3
+} state_t;
 
 end module
     logic[31:0] PC, PC_next, PC_jump;
