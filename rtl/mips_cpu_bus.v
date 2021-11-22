@@ -25,7 +25,18 @@ module mips_cpu_bus(
     input logic[31:0] readdata
 );
 /*
-    Registers
+    Register formats (ref: https://www.dcc.fc.up.pt/~ricroc/aulas/1920/ac/apontamentos/P04_encoding_mips_instructions.pdf)
+    Title       :       Reg #       :       Usage
+    $zero       :       0           :       Constantly of value 0
+    $v0-$v1     :       2, 3        :       Values for results and expression evaluation
+    $a0-$v3     :       4, 7        :       Argus
+    $t0-$t7     :       8, 15       :       Temps
+    $t8-$t9     :       24, 25      :       More temps
+    $s0-$s7     :       16, 23      :       Saved
+    $gp         :       28          :       Global pointers
+    $sp         :       29          :       Stack Pointer
+    $fp         :       30          :       Frame pointer
+    $ra         :       31          :       Return address
 */
 
 always_ff(posedge clk) begin
