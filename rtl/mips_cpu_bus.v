@@ -30,7 +30,7 @@ module mips_cpu_bus(
 
 always_ff(posedge clk) begin
 {
-    $display("Suck your mum");
+    $display("Suck your mum"); //I see
 }
 end 
 
