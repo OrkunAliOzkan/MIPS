@@ -64,6 +64,8 @@ typedef enum logics[5:0]
     ITYPE_XORI = 6'd14
 } i_type;
 
+typedef enum logics[5:0]
+{
     FUNCTION_CODE_ADDU = 6'd,
     FUNCTION_CODE_ = 6'd,
     FUNCTION_CODE_ = 6'd,
@@ -82,7 +84,6 @@ typedef enum logics[1:0]
     HALTED = 2'd3
 } state_t;
 
-end module
     logic[31:0] PC, PC_next, PC_jump;
     logic[1:0] state;
     //EDIT
