@@ -169,11 +169,11 @@ typedef enum logics[1:0]
 endmodule
 
 /*
-case(opcode)
-    //  R type instructions
-    (OPCODE_R): begin
-        //  We have to determine what the R type instruction is by virtue of its function code
-        case(fcode_t)
+    case(opcode)
+        //  R type instructions
+        (OPCODE_R): begin
+            //  We have to determine what the R type instruction is by virtue of its function code
+            case(fcode_t)
             (FUNCTION_CODE_ADDU): begin
                 
             end
@@ -249,90 +249,90 @@ case(opcode)
             (FUNCTION_CODE_MTLO): begin
                 
             end
-        endcase
-    end
+            endcase
+        end
 
-    //  J type instructions
-    (OPCODE_J1 || OPCODE_J2): begin
-        case(): begin
+        //  J type instructions
+        (OPCODE_J1 || OPCODE_J2): begin
+            case(): begin
 
-        endcase
+            endcase
 
-    end
+        end
 
-    (ITYPE_ADDIU): begin
+        (ITYPE_ADDIU): begin
 
-    end
+        end
 
-    //  I type instructions
-    (OPCODE_ADDIU) : begin
+        //  I type instructions
+        (OPCODE_ADDIU) : begin
 
-    end
-    (OPCODE_ANDI) : begin
+        end
+        (OPCODE_ANDI) : begin
 
-    end
-    (OPCODE_BEQ) : begin
+        end
+        (OPCODE_BEQ) : begin
 
-    end
-    (OPCODE_BGEZ) : begin
+        end
+        (OPCODE_BGEZ) : begin
 
-    end
-    (OPCODE_BGEZAL) : begin
+        end
+        (OPCODE_BGEZAL) : begin
 
-    end
-    (OPCODE_BGTZ) : begin
+        end
+        (OPCODE_BGTZ) : begin
 
-    end
-    (OPCODE_BLEZ) : begin
+        end
+        (OPCODE_BLEZ) : begin
 
-    end
-    (OPCODE_BLTZ) : begin
+        end
+        (OPCODE_BLTZ) : begin
 
-    end
-    (OPCODE_BLTZAL) : begin
+        end
+        (OPCODE_BLTZAL) : begin
 
-    end
-    (OPCODE_BNE) : begin
+        end
+        (OPCODE_BNE) : begin
 
-    end
-    (OPCODE_LUI) : begin
+        end
+        (OPCODE_LUI) : begin
 
-    end
-    (OPCODE_ORI) : begin
+        end
+        (OPCODE_ORI) : begin
 
-    end
-    (OPCODE_SLTI) : begin
+        end
+        (OPCODE_SLTI) : begin
 
-    end
-    (OPCODE_SLTIU) : begin
+        end
+        (OPCODE_SLTIU) : begin
 
-    end
-    (OPCODE_XORI) : begin
+        end
+        (OPCODE_XORI) : begin
 
-    end
-    (OPCODE_LB) : begin
+        end
+        (OPCODE_LB) : begin
 
-    end
-    (OPCODE_LBU) : begin
+        end
+        (OPCODE_LBU) : begin
 
-    end
-    (OPCODE_LH) : begin
+        end
+        (OPCODE_LH) : begin
 
-    end
-    (OPCODE_LHU) : begin
+        end
+        (OPCODE_LHU) : begin
 
-    end
-    (OPCODE_LW) : begin
+        end
+        (OPCODE_LW) : begin
 
-    end
-    (OPCODE_SB) : begin
+        end
+        (OPCODE_SB) : begin
 
-    end
-    (OPCODE_SH) : begin
+        end
+        (OPCODE_SH) : begin
 
-    end
-    (OPCODE_SW) : begin
+        end
+        (OPCODE_SW) : begin
 
-    end
-endcase
+        end
+    endcase
 */
