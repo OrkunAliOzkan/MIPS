@@ -25,4 +25,9 @@ module mips_cpu_bus(
     input logic[31:0] readdata
 );
 
+always_ff@(posedge clk)
+{
+    $display("Suck your mum");
+}
+
 end module
