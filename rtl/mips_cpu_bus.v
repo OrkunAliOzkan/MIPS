@@ -59,12 +59,13 @@ module mips_cpu_bus(
     end
     else if (opcode[1] == 1) begin
         // J-TYPE
+        // ADDR = instr[25:0];
+    end
+    else begin
+        // I-TYPE
         // SOURCE 1 = instr[25:21];
         // SOURCE 2/DEST = instr[20:16];
         // ADDR/DATA = instr[15:0];
-    end
-    else begin
-        // ADDR = instr[25:0];
     end
 
     */
@@ -72,13 +73,13 @@ module mips_cpu_bus(
     always_ff(posedge clk) begin
     {
 
-        if (state == 2b'00) begin //FETCH
+        if (state == state_t.FETCH) begin //FETCH
             PC_next <= PC + 4;
         end
-        else if (state == 2b'01) begin //EXEC1
+        else if (state == state_t.EXEC1) begin //EXEC1
             
         end
-        else if (state == 2b'10) begin //EXEC2
+        else if (state == state_t.EXEC2) begin //EXEC2
             
         end
 
