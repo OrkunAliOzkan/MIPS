@@ -39,11 +39,27 @@ module mips_cpu_bus(
     $ra         :       31          :       Return address
 */
 
-always_ff(posedge clk) begin
-{
-    $display("Suck your mum"); //I see
-    // HELLO ADDING COMMENT HERE.
-}
-end 
+    logic[31:0] PC, PC_next, PC_jump;
+    logic[1:0] state;
 
-end module
+    always_ff(posedge clk) begin
+    {
+        $display("Suck your mum"); //I see
+        // HELLO ADDING COMMENT HERE.
+
+        if(state == 2b'00) begin //FETCH
+            PC_next <= PC + 4;
+        end
+        else if(state == 2b'01) begin //EXEC1
+            
+        end
+        else if(state == 2b'10) begin //EXEC2
+            
+        end
+
+    }
+    end
+
+
+
+endmodule
