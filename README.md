@@ -12,7 +12,7 @@ https://www.youtube.com/watch?v=SWYqp7iY_Tc
   -  In the other folder, name it e.g. Work Station <br>
   -  Now we will be adding this repository as a remote repository:<br>
   > git remote add origin **link** <br> 
-  (link :https://github.com/BigShinyProcessor/MIPS.git) <br>
+  (link :https://github.com/OrkunAliOzkan/MIPS.git) <br>
   
   - You'll notice you'll need to login so I recommend you read the following: https://stackoverflow.com/questions/68775869/support-for-password-authentication-was-removed-please-use-a-personal-access-to
   - Once in, try typing in: <br>
