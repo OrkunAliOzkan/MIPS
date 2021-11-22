@@ -39,6 +39,7 @@ module mips_cpu_bus(
     $ra         :       31          :       Return address
 */
 
+<<<<<<< HEAD
 /*
     Instructions (ref:https://opencores.org/projects/plasma/opcodes)
 */
@@ -68,3 +69,53 @@ always_ff(posedge clk) begin
 end 
 
 end module
+=======
+    logic[31:0] PC, PC_next, PC_jump;
+    logic[1:0] state;
+
+    /*
+    Not sure where to put, but opcode stuff
+
+    logic[31:0] instr;
+    assign logic[31:0] opcode = instr[31:26];
+
+    if (!opcode) begin
+        // R-TYPE
+        // SOURCE 1 = instr[25:21];
+        // SOURCE 2 = instr[20:16];
+        // DEST = instr[15:11];
+        // SHIFT = instr[10:6];
+        // Function code = instr[5:0];
+    end
+    else if (opcode[1] == 1) begin
+        // J-TYPE
+        // SOURCE 1 = instr[25:21];
+        // SOURCE 2/DEST = instr[20:16];
+        // ADDR/DATA = instr[15:0];
+    end
+    else begin
+        // ADDR = instr[25:0];
+    end
+
+    */
+
+    always_ff(posedge clk) begin
+    {
+
+        if (state == 2b'00) begin //FETCH
+            PC_next <= PC + 4;
+        end
+        else if (state == 2b'01) begin //EXEC1
+            
+        end
+        else if (state == 2b'10) begin //EXEC2
+            
+        end
+
+    }
+    end
+
+
+
+endmodule
+>>>>>>> 7f2b6b1e4611bef8903e96f8f8344f6040331bc0
