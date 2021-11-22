@@ -41,8 +41,12 @@ module mips_cpu_bus(
 
 /*
     Instructions (ref:https://opencores.org/projects/plasma/opcodes)
-*/
-/*
+
+    Opcodes:
+    R types have an opcode of 0d0, therefore are differentiated through their function codes
+    J types have an opcode of 0d2 and 0d3, therefore don't need to have their opcode specified
+    I type uniques opcodes
+    
     I type formatting:  For Transfer, branch and immedaiate instructions
 */
 typedef enum logics[5:0]
@@ -58,22 +62,48 @@ typedef enum logics[5:0]
     ITYPE_BLTZAL = 6'd1,//FIXME:    Need to differentiate by RT
     ITYPE_BNE = 6'd5,
     ITYPE_LUI = 6'd15,
-    ITYPE_ORI = 6'd13, 
+    ITYPE_ORI = 6'd13,
     ITYPE_SLTI = 6'd10,
     ITYPE_SLTIU = 6'd11,
     ITYPE_XORI = 6'd14
-} i_type;
+    ITYPE_LB = 6'd32,
+    ITYPE_LBU = 6'd36,
+    ITYPE_LH = 6'd33,
+    ITYPE_LHU = 6'd37,
+    ITYPE_LW = 6'd35,
+    ITYPE_SB = 6'd40,
+    ITYPE_SH = 6'd41,
+    ITYPE_SW = 6'd43,
+} i_type_opcode;
 
+
+/*
+    R types are differentiated through their function code
+*/
 typedef enum logics[5:0]
 {
-    FUNCTION_CODE_ADDU = 6'd,
-    FUNCTION_CODE_ = 6'd,
-    FUNCTION_CODE_ = 6'd,
-    FUNCTION_CODE_ = 6'd,
-    FUNCTION_CODE_ = 6'd,
-    FUNCTION_CODE_ = 6'd,
-    FUNCTION_CODE_ = 6'd,
-    FUNCTION_CODE_ = 6'd,
+    //  TODO:   Are move functions R type?
+    FUNCTION_CODE_ADDU = 6'd33,
+    FUNCTION_CODE_AND = 6'd36,
+    FUNCTION_CODE_OR = 6'd37,
+    FUNCTION_CODE_SLT = 6'd42,
+    FUNCTION_CODE_SLTU = 6'd43,
+    FUNCTION_CODE_SUBU = 6'd35,
+    FUNCTION_CODE_XOR = 6'd38,
+    FUNCTION_CODE_SLL = 6'd0,
+    FUNCTION_CODE_SLLV = 6'd4,
+    FUNCTION_CODE_SRA = 6'd3,
+    FUNCTION_CODE_SRAV = 6'd7,
+    FUNCTION_CODE_SRL = 6'd2,
+    FUNCTION_CODE_SRLV = 6'd6,
+    FUNCTION_CODE_DIV = 6'd26,
+    FUNCTION_CODE_DIVU = 6'd27,
+    FUNCTION_CODE_MULT = 6'd24,
+    FUNCTION_CODE_MULTU = 6'd25,
+    FUNCTION_CODE_MTHI = 6'd17,
+    FUNCTION_CODE_MTLO = 6'd18,
+    FUNCTION_CODE_LWR = 6'd,    //FIXME:Hmmm
+    FUNCTION_CODE_LWL = 6'd,    //FIXME:Hmmm
 } fcode_t;
 
 typedef enum logics[1:0]
