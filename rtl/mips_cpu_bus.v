@@ -77,8 +77,7 @@ typedef enum logics[5:0]
     OPCODE_DIVU = 6'd0,
     OPCOCE_J = 6'd2
 } opcode_t;
-
-end module
+    
     logic[31:0] PC, PC_next, PC_jump;
     logic[1:0] state;
     //EDIT
