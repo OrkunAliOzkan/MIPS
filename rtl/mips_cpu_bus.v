@@ -42,24 +42,9 @@ module mips_cpu_bus(
 /*
     Instructions (ref:https://opencores.org/projects/plasma/opcodes)
 */
-typedef enum logics[5:0]
-{
-    OPCODE_ADDIU = 6'd9,
-    OPCODE_ADDU = 6'd0,
-    OPCODE_AND = 6'd0,
-    OPCODE_ANDI = 6'd12,
-    OPCODE_BGEZ = 6'd1,
-    OPCODE_BGEZAL = 6'd1,
-    OPCODE_BGTZ = 6'd7,
-    OPCODE_BLEZ = 6'd6,
-    OPCODE_BLTZ = 6'd1,
-    OPCODE_BLTZAL = 6'd1,
-    OPCODE_BNE = 6'd5,
-    OPCODE_DIV = 6'd0,
-    OPCODE_DIVU = 6'd0,
-    OPCOCE_J = 6'd2
-} opcode_t;
-
+/*
+    I type formatting:  For Transfer, branch and immedaiate instructions
+*/
 typedef enum logics[5:0]
 {
     ITYPE_ADDIU = 6'd9,
@@ -78,6 +63,16 @@ typedef enum logics[5:0]
     ITYPE_SLTIU = 6'd11,
     ITYPE_XORI = 6'd14
 } i_type;
+
+    FUNCTION_CODE_ADDU = 6'd,
+    FUNCTION_CODE_ = 6'd,
+    FUNCTION_CODE_ = 6'd,
+    FUNCTION_CODE_ = 6'd,
+    FUNCTION_CODE_ = 6'd,
+    FUNCTION_CODE_ = 6'd,
+    FUNCTION_CODE_ = 6'd,
+    FUNCTION_CODE_ = 6'd,
+} fcode_t;
 
 typedef enum logics[1:0]
 {
