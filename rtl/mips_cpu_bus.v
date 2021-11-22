@@ -39,37 +39,46 @@ module mips_cpu_bus(
     $ra         :       31          :       Return address
 */
 
-<<<<<<< HEAD
 /*
     Instructions (ref:https://opencores.org/projects/plasma/opcodes)
 */
 typedef enum logics[5:0]
 {
-    //OPCODE_ADDIU = 6'd,
-    OPCODE_ADDU = 6'd33,
-    OPCODE_AND = 6'd36,
-    //OPCODE_ANDI = 6'd,
-    //OPCODE_BGEZ = 6'd,
-    OPCODE_BGEZAL = 6'd,
-    OPCODE_BGTZ = 6'd,
-    OPCODE_BLEZ = 6'd,
-    OPCODE_BLTZ = 6'd,
-    OPCODE_BLTZAL = 6'd,
-    OPCODE_BNE = 6'd,
-    OPCODE_DIV = 6'd,
-    OPCODE_DIVU = 6'd,
-    OPCOCE_J = 6'd
+    OPCODE_ADDIU = 6'd9,
+    OPCODE_ADDU = 6'd0,
+    OPCODE_AND = 6'd0,
+    OPCODE_ANDI = 6'd12,
+    OPCODE_BGEZ = 6'd1,
+    OPCODE_BGEZAL = 6'd1,
+    OPCODE_BGTZ = 6'd7,
+    OPCODE_BLEZ = 6'd6,
+    OPCODE_BLTZ = 6'd1,
+    OPCODE_BLTZAL = 6'd1,
+    OPCODE_BNE = 6'd5,
+    OPCODE_DIV = 6'd0,
+    OPCODE_DIVU = 6'd0,
+    OPCOCE_J = 6'd2
 } opcode_t;
 
-always_ff(posedge clk) begin
+typedef enum logics[5:0]
 {
-    $display("Suck your mum"); //I see
-    // HELLO ADDING COMMENT HERE.
-}
-end 
+    OPCODE_ADDIU = 6'd9,
+    OPCODE_ADDU = 6'd0,
+    OPCODE_AND = 6'd0,
+    OPCODE_ANDI = 6'd12,
+    OPCODE_BGEZ = 6'd1,
+    OPCODE_BGEZAL = 6'd1,
+    OPCODE_BGTZ = 6'd7,
+    OPCODE_BLEZ = 6'd6,
+    OPCODE_BLTZ = 6'd1,
+    OPCODE_BLTZAL = 6'd1,
+    OPCODE_BNE = 6'd5,
+    OPCODE_DIV = 6'd0,
+    OPCODE_DIVU = 6'd0,
+    OPCOCE_J = 6'd2
+} opcode_t;
 
 end module
-=======
     logic[31:0] PC, PC_next, PC_jump;
     logic[1:0] state;
 
@@ -118,4 +127,3 @@ end module
 
 
 endmodule
->>>>>>> 7f2b6b1e4611bef8903e96f8f8344f6040331bc0
