@@ -24,6 +24,21 @@ module mips_cpu_bus(
     output logic[3:0] byteenable,
     input logic[31:0] readdata
 );
+
+//  Wire declarations
+    logic[31:0] PC, PC_next, PC_jump;
+    logic[1:0] state;
+
+
+/*
+    I have no idea what the heck im doing here,
+    I'm just addding the nessesary wires we probably will need. 
+    Maybe we should make a blueprint!
+*/
+    logic[16:0] instruction;
+    logic[3:0] logic_opcode;
+    logic[11:0] instruction_constants;
+
 /*
     Register formats (ref: https://www.dcc.fc.up.pt/~ricroc/aulas/1920/ac/apontamentos/P04_encoding_mips_instructions.pdf)
     Title       :       Reg #       :       Usage
@@ -80,7 +95,6 @@ typedef enum logics[5:0]
     OPCODE_SW = 6'd43,
 } opcode_t
 
-
 /*
     R types are differentiated through their function code
 */
@@ -124,6 +138,7 @@ typedef enum logics[1:0]
 
     /*
     Not sure where to put, but opcode stuff
+    //  Hey its orkun, check out that phat case block i wrote, i think you may like it
 
     logic[31:0] instr;
     assign logic[31:0] opcode = instr[31:26];
