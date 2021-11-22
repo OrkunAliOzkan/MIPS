@@ -58,7 +58,7 @@ typedef enum logics[5:0]
     ITYPE_BLTZAL = 6'd1,//FIXME:    Need to differentiate by RT
     ITYPE_BNE = 6'd5,
     ITYPE_LUI = 6'd15,
-    ITYPE_ORI = 6'd13,
+    ITYPE_ORI = 6'd13, 
     ITYPE_SLTI = 6'd10,
     ITYPE_SLTIU = 6'd11,
     ITYPE_XORI = 6'd14
