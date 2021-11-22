@@ -29,6 +29,6 @@ always_ff(posedge clk) begin
 {
     $display("Suck your mum");
 }
-end
+end 
 
 end module
