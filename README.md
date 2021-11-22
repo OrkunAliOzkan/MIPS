@@ -1,8 +1,10 @@
 # MIPS
 This is the repository for Group 9
 
-0)  Before anything, please watch this video:
+0)  If youre edgy, watch this:
 https://www.youtube.com/watch?v=SWYqp7iY_Tc
+If not, watch this:
+https://www.youtube.com/watch?v=iv8rSLsi1xo
 
 1)  Now, read this:<br>
   -  Make a folder called e.g. MIPS <br>
