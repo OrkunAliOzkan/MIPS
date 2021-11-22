@@ -5,7 +5,7 @@ This is the repository for Group 9
 https://www.youtube.com/watch?v=SWYqp7iY_Tc
 <br>If not, watch this:
 https://www.youtube.com/watch?v=iv8rSLsi1xo
-
+/*
 1)  Now, read this:<br>
   -  Make a folder called e.g. MIPS <br>
   -  Make two folders within it, one called Requirements <br>
@@ -37,3 +37,4 @@ https://www.youtube.com/watch?v=iv8rSLsi1xo
 > git push
 2)  How I advise you use this repo:
 - Make a folder for your edits, that way we can tell who is doing what. 
+*/
