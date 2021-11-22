@@ -39,6 +39,27 @@ module mips_cpu_bus(
     $ra         :       31          :       Return address
 */
 
+/*
+    Instructions (ref:https://opencores.org/projects/plasma/opcodes)
+*/
+typedef enum logics[5:0]
+{
+    //OPCODE_ADDIU = 6'd,
+    OPCODE_ADDU = 6'd33,
+    OPCODE_AND = 6'd36,
+    //OPCODE_ANDI = 6'd,
+    //OPCODE_BGEZ = 6'd,
+    OPCODE_BGEZAL = 6'd,
+    OPCODE_BGTZ = 6'd,
+    OPCODE_BLEZ = 6'd,
+    OPCODE_BLTZ = 6'd,
+    OPCODE_BLTZAL = 6'd,
+    OPCODE_BNE = 6'd,
+    OPCODE_DIV = 6'd,
+    OPCODE_DIVU = 6'd,
+    OPCOCE_J = 6'd
+} opcode_t;
+
 always_ff(posedge clk) begin
 {
     $display("Suck your mum"); //I see
