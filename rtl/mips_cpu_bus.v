@@ -144,17 +144,21 @@ typedef enum logics[1:0]
         logic[31:0] LO;
 
     //  Wires used in ALU
-        //  Universal
-        opcode_t opcode;
 
-        //  register S and T
+/*
+        Field name: 6 bits |5 bits |5 bits |5 bits  |5 bits     |6 bits     |
+        R format:   op     |rs     |rt     |rd      |shmat      |funct      |
+        I format:   op     |rs     |rt     |address/immediate               |
+        J format:   op     |target address                                  |
+*/
+        opcode_t opcode;
         logic[4:0] rs;
-        logic[4:0] st;
-        
-        //  I type
-        //  J type
-    fcode_t functionCode;
-    logic[3:0] DEST;
+        logic[4:0] rt;
+        logic[4:0] rd;
+        logic[4:0] shmat;
+        fcode_t funct;
+        logic[15:0] address_immediate;
+        logic[25:0] targetAddress;
 
     /*
     Not sure where to put, but opcode stuff
