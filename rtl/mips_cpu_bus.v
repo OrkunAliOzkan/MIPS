@@ -213,17 +213,50 @@ endmodule
         (OPCODE_R): begin
             //  We have to determine what the R type instruction is by virtue of its function code
             case(fcode_t)
+        //  Basic arithematic
             (FUNCTION_CODE_ADDU): begin
-                
-            end
+                    /*
+                        We can conduct register addition with anything except for 
+                        destination being $zero, so use a multiplexer to make this
+                    /*
+                    register[rd] <= (rd != 0) ? ($unsigned(rs) + $unsigned(rt)) : (0);
+                end
 
-            (FUNCTION_CODE_AND): begin
-                
-            end
+                (FUNCTION_CODE_SUBU): begin
+                    /*
+                        Like addition, use a multiplexer to confirm rd is not $zero
+                    /*
+                    register[rd] <= (rd != 0) ? ($unsigned(rs) - $unsigned(rt)) : (0);
+                end
 
-            (FUNCTION_CODE_OR): begin
-                
-            end
+                (FUNCTION_CODE_DIV): begin
+
+                end
+
+                (FUNCTION_CODE_DIVU): begin
+
+                end
+
+                (FUNCTION_CODE_MULT): begin
+
+                end
+
+                (FUNCTION_CODE_MULTU): begin
+
+                end
+
+        //  Bitwise operation
+                (FUNCTION_CODE_AND): begin
+                    register[rd] <= (rd != 0) ? ($unsigned(rs) & $unsigned(rt)) : (0);
+                end
+
+                (FUNCTION_CODE_OR): begin
+                    register[rd] <= (rd != 0) ? ($unsigned(rs) | $unsigned(rt)) : (0);
+                end
+
+                (FUNCTION_CODE_XOR): begin
+                    register[rd] <= (rd != 0) ? ($unsigned(rs) ^ $unsigned(rt)) : (0);
+                end
 
             (FUNCTION_CODE_SLT): begin
                 
@@ -233,12 +266,8 @@ endmodule
                 
             end
 
-            (FUNCTION_CODE_SUBU): begin
-                
-            end
-
             (FUNCTION_CODE_XOR): begin
-                
+                register[rd] <= (rd != 0) ? ($unsigned(rs) ^ $unsigned(rt)) : (0);
             end
 
             (FUNCTION_CODE_SLL): begin
@@ -262,22 +291,6 @@ endmodule
             end
 
             (FUNCTION_CODE_SRLV): begin
-                
-            end
-
-            (FUNCTION_CODE_DIV): begin
-                
-            end
-
-            (FUNCTION_CODE_DIVU): begin
-                
-            end
-
-            (FUNCTION_CODE_MULT): begin
-                
-            end
-
-            (FUNCTION_CODE_MULTU): begin
                 
             end
 
