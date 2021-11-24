@@ -127,7 +127,7 @@ typedef enum logics[5:0]
     logic[31:0] PC, PC_next, PC_jump;
     logic[1:0] state;
 
-    //  Regisgters
+    //  Registers
         //  General Registers
         logic[31:0][31:0] registers;
         //  Special Registers
@@ -167,6 +167,7 @@ typedef enum logics[5:0]
                             destination being $zero, so use a multiplexer to make this
                         */
                         register[rd] <= (rd != 0) ? ($unsigned(rs) + $unsigned(rt)) : (0);
+                        assert(rd != 0) else $fatal(2, "Error, trying to write to zero register");
                     end
 
                     (FUNCTION_CODE_SUBU): begin
@@ -174,6 +175,7 @@ typedef enum logics[5:0]
                             Like addition, use a multiplexer to confirm rd is not $zero
                         */
                         register[rd] <= (rd != 0) ? ($unsigned(rs) - $unsigned(rt)) : (0);
+                        assert(rd != 0) else $fatal(2, "Error, trying to write to zero register");
                     end
 
                     (FUNCTION_CODE_DIV): begin
@@ -379,7 +381,7 @@ typedef enum logics[5:0]
             end
 >>>>>>> 5bb126a25e97c6fb4967c782f7f084a688855f37
 
-        //  Load / Store        //  TODO:   Not begun yet
+        //  Load / Store https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html       //  TODO:   Not begun yet
             (OPCODE_LB) : begin
 
             end
