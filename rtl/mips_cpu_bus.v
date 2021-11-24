@@ -195,8 +195,8 @@ module mips_cpu_bus(
     always_comb() begin
         if (state == FETCH)
         begin
-            read = 1b'1;
-            address = PC;
+            
+            
         end
         //NOT SURE ABOUT TIMING - I DON'T KNOW IF THIS WILL EXECUTE AT THE RIGHT TIME -  IF THIS IS IN PARALLEL WITH THE ALWAYS_FF BLOCK
         else if (state == EXEC1)
@@ -240,25 +240,34 @@ module mips_cpu_bus(
             /*
             On waitrequest - we must delay by a cycle and wait for it to go low if it is high when reading/writing to RAM specifically. 
             This must be implemented in the always_ff block.
-            I am 65% confident in this fact.
+            I am 85% confident in this fact. We might need a separate state for this to just delay by a cycle in order to 
+            prevent the re-execution of instructions.
             */
 
             //get instruction
             //address and read are combinationally set
             //so readdata should have the instruction on the next cycle - EXEC1
             if !(waitrequest) begin
-                state == EXEC1;
+                state <= EXEC1;
             end
 
         end
         else if (state == EXEC1) begin //EXEC1
-            // all instruction arguments should be set
+            // all instruction arguments should be set. For single cycle instructions, remember to jump to FETCH and increment PC and set read high to fetch instruction for next cycle.
 
+            //WAIREQUEST TO BE INCLUDED IN MEMORY ACCESS INSTRUCTIONS
         end
         else if (state == EXEC2) begin //EXEC2
             //increment PC?
 
+
+
+            //so that when FETCH clocks, we send the request for the instruction, so that it is ready for EXEC1. 
+            //PC = address combinationally.
+            //BYTEENABLE NEEDS TO BE HANDLED STILL
+            read <= 1b'1;
             PC <= PC_next;
+            state <= FETCH; //not dependent on waitrequest I don't think. Stay on FETCH if waitrequest is high.
         end
     }
     end
