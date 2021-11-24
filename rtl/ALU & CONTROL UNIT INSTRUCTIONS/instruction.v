@@ -144,6 +144,8 @@ typedef enum logics[5:0]
         fcode_t funct;
         logic[15:0] address_immediate;
         logic[25:0] targetAddress;
+        logic[63:0] multWire;
+        logic[63:0] multWireU;
 
 
 //  Instructions:   (ref: https://uweb.engr.arizona.edu/~ece369/Resources/spim/MIPSReference.pdf)
@@ -180,12 +182,16 @@ typedef enum logics[5:0]
                     end
 
 
-                    (FUNCTION_CODE_MULT): begin //  TODO:   me
-
+                    (FUNCTION_CODE_MULT): begin
+                        multWire = register[rs] * register[rt];
+                        HI <= [63:32] multWire;
+                        LO <=  [31:0] multWire;
                     end
 
-                    (FUNCTION_CODE_MULTU): begin //  TODO:   me
-
+                    (FUNCTION_CODE_MULTU): begin
+                        multWire = $unsigned(register[rs]) * $unsigned(register[rt]);
+                        HI <= [63:32] multWire;
+                        LO <=  [31:0] multWire;
                     end
 
             //  Bitwise operation
@@ -201,7 +207,7 @@ typedef enum logics[5:0]
                         register[rd] <= (rd != 0) ? ($unsigned(rs) ^ $unsigned(rt)) : (0);
                     end
 
-            //  Set operations  //  TODO:   Incomplete, don't know what instructions mean
+            //  Set operations  //  FIXME:  SRA's not finished
                 (FUNCTION_CODE_SLT): begin
                     register[rd] = (rd != 0) ? ((register[rs] < register[rt]) ? (1) : (0)) : (0);
                 end
@@ -210,29 +216,28 @@ typedef enum logics[5:0]
                     register[rd] = (rd != 0) ? (($unsigned(register[rs]) < $unsigned(register[rt])) ? (1) : (0)) : (0);
                 end
 
-
                 (FUNCTION_CODE_SLL): begin
-
+                        register[rd] <= (rd != 0) ? (register[rs] << address_immediate) : (0);
                 end
 
                 (FUNCTION_CODE_SLLV): begin
-
+                        register[rd] <= (rd != 0) ? (register[rs] << register[address_immediate]) : (0);
                 end
 
-                (FUNCTION_CODE_SRA): begin
-
+                (FUNCTION_CODE_SRA): begin  //  FIXME:  What deos this to
+                        register[rd] <= (rd != 0) ? (register[rs] >> address_immediate) : (0);
                 end
 
-                (FUNCTION_CODE_SRAV): begin
-
+                (FUNCTION_CODE_SRAV): begin  //  FIXME:  What deos this to
+                        register[rd] <= (rd != 0) ? (register[rs] >> register[address_immediate]) : (0);
                 end
 
                 (FUNCTION_CODE_SRL): begin
-
+                        register[rd] <= (rd != 0) ? (register[rs] >>> address_immediate) : (0);
                 end
 
                 (FUNCTION_CODE_SRLV): begin
-
+                        register[rd] <= (rd != 0) ? (register[rs] >>> register[address_immediate]) : (0);
                 end
 
             //  Move instructions
@@ -268,7 +273,7 @@ typedef enum logics[5:0]
                 register[rd] <= (rd != 0) ? ($unsigned(register[rs]) ^ $unsigned(register[address_immediate])) : (0);
             end
             (OPCODE_LUI) : begin
-
+                register[rd] <= (rd != 0) ? (address_immediate << 16) : (0);
             end
             (OPCODE_SLTI) : begin
                     register[rd] = (rd != 0) ? ((register[rs] < register[address_immediate]) ? (1) : (0)) : (0);
@@ -309,9 +314,6 @@ typedef enum logics[5:0]
             end
             (OPCODE_BNE) : begin
                 pc <= (register[rs] != register[rt]) ? (address_immediate + 5'd4) : (pc);
-            end
-            (OPCODE_BEQ) : begin
-
             end
             (OPCODE_BGEZ) : begin
 
