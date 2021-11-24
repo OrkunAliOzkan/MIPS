@@ -193,7 +193,7 @@ typedef enum logics[1:0]
     {
         if (reset) begin
             state <= FETCH;
-            pc_next <= 32'hBFC00000;
+            pc_next <= 32'hBFC00000; //instructions begin here
             for (i=0; i<32; i++) begin
                 register[i] <= 0;
             end
