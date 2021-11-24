@@ -64,7 +64,7 @@ module mips_cpu_bus(
     
     I type formatting:  For Transfer, branch and immedaiate instructions
 */
-typedef enum logics[5:0]
+typedef enum logic[5:0]
 {
     OPCODE_R = 6'd0,
     OPCODE_J1 = 6'd2,
