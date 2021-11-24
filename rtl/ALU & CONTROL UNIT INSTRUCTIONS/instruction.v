@@ -175,7 +175,7 @@ typedef enum logics[5:0]
                             We can conduct register addition with anything except for 
                             destination being $zero, so use a multiplexer to make this
                         */
-                        register[rd] <= (rd != 0) ? ($unsigned(rs) + $unsigned(rt)) : (0);
+                        register[rd] <= (rd != 0) ? ($unsigned(register[rs]) + $unsigned(register[rt])) : (0);
                         assert(rd != 0) else $fatal(2, "Error, trying to write to zero register");
                     end
 
@@ -183,7 +183,7 @@ typedef enum logics[5:0]
                         /*
                             Like addition, use a multiplexer to confirm rd is not $zero
                         */
-                        register[rd] <= (rd != 0) ? ($unsigned(rs) - $unsigned(rt)) : (0);
+                        register[rd] <= (rd != 0) ? ($unsigned(register[rs]) - $unsigned(register[rt])) : (0);
                         assert(rd != 0) else $fatal(2, "Error, trying to write to zero register");
                     end
 
@@ -212,49 +212,52 @@ typedef enum logics[5:0]
 
             //  Bitwise operation
                     (FUNCTION_CODE_AND): begin
-                        register[rd] <= (rd != 0) ? ($unsigned(register[rs]) & $unsigned(register[rt])) : (0);
+                        register[rd] <= (rd != 0) ? (register[rs] & register[rt]) : (0);
                     end
 
                     (FUNCTION_CODE_OR): begin
-                        register[rd] <= (rd != 0) ? ($unsigned(register[rs]) | $unsigned(register[rt])) : (0);
+                        register[rd] <= (rd != 0) ? (register[rs] | register[rt]) : (0);
                     end
 
                     (FUNCTION_CODE_XOR): begin
-                        register[rd] <= (rd != 0) ? ($unsigned(register[rs]) ^ $unsigned(register[rt])) : (0);
+                        register[rd] <= (rd != 0) ? (register[rs] ^ register[rt]) : (0);
                     end
 
-            //  Set operations  //  FIXME:  SRA's not finished
+            //  Set operations      FIXME:  SRA's not finished
                 (FUNCTION_CODE_SLT): begin
-                    register[rd] = (rd != 0) ? ((register[rs] < register[rt]) ? (1) : (0)) : (0);
+                    register[rd] = (rd != 0) ? ((register[rs] < register[rt]) ? ({31'b0, 1}) : ({32'b0})) : (0);
                 end
 
                 (FUNCTION_CODE_SLTU): begin
-                    register[rd] = (rd != 0) ? (($unsigned(register[rs]) < $unsigned(register[rt])) ? (1) : (0)) : (0);
+                    register[rd] = (rd != 0) ? (($unsigned(register[rs]) < $unsigned(register[rt])) ? ({31'b0, 1}) : ({32'b0})) : (0);
                 end
 
-                (FUNCTION_CODE_SLL): begin
-                        register[rd] <= (rd != 0) ? (register[rs] << address_immediate) : (0);
-                end
+                //  Logical
+                    (FUNCTION_CODE_SLL): begin
+                            register[rd] <= (rd != 0) ? (register[rs] << shmat) : (0);
+                    end
 
-                (FUNCTION_CODE_SLLV): begin
-                        register[rd] <= (rd != 0) ? (register[rs] << register[address_immediate]) : (0);
-                end
+                    (FUNCTION_CODE_SRL): begin
+                            register[rd] <= (rd != 0) ? (register[rs] >>> shmat) : (0);
+                    end
 
-                (FUNCTION_CODE_SRA): begin  //  FIXME:  What deos this to
-                        register[rd] <= (rd != 0) ? (register[rs] >> address_immediate) : (0);
-                end
+                    (FUNCTION_CODE_SLLV): begin
+                            register[rd] <= (rd != 0) ? (register[rt] << register[rs]) : (0);
+                    end
 
-                (FUNCTION_CODE_SRAV): begin  //  FIXME:  What deos this to
-                        register[rd] <= (rd != 0) ? (register[rs] >> register[address_immediate]) : (0);
-                end
+                    (FUNCTION_CODE_SRLV): begin
+                            register[rd] <= (rd != 0) ? (register[rs] >>> register[shmat]) : (0);
+                    end
+                //  Arithmetic
+                    (FUNCTION_CODE_SRA): begin  //  FIXME:  What deos this to
+                            register[rd] <= (rd != 0) ? (register[rs] >>> shmat) : (0);
+                    end
 
-                (FUNCTION_CODE_SRL): begin
-                        register[rd] <= (rd != 0) ? (register[rs] >>> address_immediate) : (0);
-                end
+                    (FUNCTION_CODE_SRAV): begin  //  FIXME:  What deos this to
+                            register[rd] <= (rd != 0) ? (register[rt] >>> register[rs]) : (0);
+                    end
 
-                (FUNCTION_CODE_SRLV): begin
-                        register[rd] <= (rd != 0) ? (register[rs] >>> register[address_immediate]) : (0);
-                end
+
 
             //  Move instructions
                 (FUNCTION_CODE_MTHI): begin
@@ -269,12 +272,12 @@ typedef enum logics[5:0]
 
         //  J type instructions
             (OPCODE_J) : begin
-                PC_next <= 4*targetAddress
+                PC_next <= targetAddress << 2;
             end
+
             (OPCODE_JAL) : begin
                 register[31] <= PC + 5'd4;
-                PC_next <= 4*targetAddress
-            
+                PC_next <= targetAddress << 2;
             end
 
         //  I type instructions
