@@ -197,15 +197,15 @@ typedef enum logics[1:0]
                 register[i] <= 0;
             end
         end
-        if (state == state_t.FETCH) begin //FETCH
+        if (state == FETCH) begin //FETCH
             if (waitrequest) begin
                 state <= EXEC1;
             end
         end
-        else if (state == state_t.EXEC1) begin //EXEC1
+        else if (state == EXEC1) begin //EXEC1
             
         end
-        else if (state == state_t.EXEC2) begin //EXEC2
+        else if (state == EXEC2) begin //EXEC2
             
         end
     }
