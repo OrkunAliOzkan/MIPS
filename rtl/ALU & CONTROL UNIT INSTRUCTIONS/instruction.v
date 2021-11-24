@@ -8,9 +8,11 @@
  *
  */
 
-module mips_instruction_test(
+module mips_cpu_bus(
     /* Standard signals */
     input logic clk,
+    input logic reset,
+    output logic active,
     output logic[31:0] register_v0,
 
     /* Avalon memory mapped bus controller (master) */
@@ -68,8 +70,6 @@ typedef enum logic[5:0]
     OPCODE_J = 6'd2,
     OPCODE_JAL = 6'd3,
 
-    OPCODE_ADDIU = 6'd9,
-    OPCODE_ANDI = 6'd12,
     OPCODE_BEQ = 6'd4,
     OPCODE_BGEZ = 6'd1,  //FIXME:    Need to differentiate by RT
     OPCODE_BGEZAL = 6'd1,//FIXME:    Need to differentiate by RT
@@ -78,11 +78,15 @@ typedef enum logic[5:0]
     OPCODE_BLTZ = 6'd1,  //FIXME:    Need to differentiate by RT
     OPCODE_BLTZAL = 6'd1,//FIXME:    Need to differentiate by RT
     OPCODE_BNE = 6'd5,
+
+    OPCODE_ADDIU = 6'd9,
+    OPCODE_SLTIU = 6'd11,
     OPCODE_LUI = 6'd15,
+    OPCODE_ANDI = 6'd12,
     OPCODE_ORI = 6'd13,
     OPCODE_SLTI = 6'd10,
-    OPCODE_SLTIU = 6'd11,
     OPCODE_XORI = 6'd14
+
     OPCODE_LB = 6'd32,
     OPCODE_LBU = 6'd36,
     OPCODE_LH = 6'd33,
@@ -99,11 +103,11 @@ typedef enum logic[5:0]
 typedef enum logics[5:0]
 {
     FUNCTION_CODE_ADDU = 6'd33,
+    FUNCTION_CODE_SUBU = 6'd35,
     FUNCTION_CODE_AND = 6'd36,
     FUNCTION_CODE_OR = 6'd37,
     FUNCTION_CODE_SLT = 6'd42,
     FUNCTION_CODE_SLTU = 6'd43,
-    FUNCTION_CODE_SUBU = 6'd35,
     FUNCTION_CODE_XOR = 6'd38,
     FUNCTION_CODE_SLL = 6'd0,
     FUNCTION_CODE_SLLV = 6'd4,
@@ -203,15 +207,15 @@ typedef enum logics[5:0]
 
             //  Bitwise operation
                     (FUNCTION_CODE_AND): begin
-                        register[rd] <= (rd != 0) ? ($unsigned(rs) & $unsigned(rt)) : (0);
+                        register[rd] <= (rd != 0) ? ($unsigned(register[rs]) & $unsigned(register[rt])) : (0);
                     end
 
                     (FUNCTION_CODE_OR): begin
-                        register[rd] <= (rd != 0) ? ($unsigned(rs) | $unsigned(rt)) : (0);
+                        register[rd] <= (rd != 0) ? ($unsigned(register[rs]) | $unsigned(register[rt])) : (0);
                     end
 
                     (FUNCTION_CODE_XOR): begin
-                        register[rd] <= (rd != 0) ? ($unsigned(rs) ^ $unsigned(rt)) : (0);
+                        register[rd] <= (rd != 0) ? ($unsigned(register[rs]) ^ $unsigned(register[rt])) : (0);
                     end
 
             //  Set operations  //  FIXME:  SRA's not finished
@@ -330,37 +334,28 @@ typedef enum logics[5:0]
             end
 
             (OPCODE_BLEZ) : begin               //  TODO:   Implement
-<<<<<<< HEAD
                 pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
                 //if (rs-rt)==0 or MSB(rs-rt)==1 then pc==immediate
             end
             (OPCODE_BLTZ) : begin               //  TODO:   Implement
                 pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
                 // if (rs-rt)!=0 and MSB(rs-rt)==1 then pc==immediate
-=======
 
             end
 
             (OPCODE_BGEZAL) : begin             //  TODO:   Implement
 
->>>>>>> 5bb126a25e97c6fb4967c782f7f084a688855f37
             end
 
             (OPCODE_BLTZAL) : begin             //  TODO:   Implement
-<<<<<<< HEAD
                 pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
                 //store current pc in ra
                 // if (rs-rt)!=0 and MSB(rs-rt)==1 then pc==immediate
             end
             (OPCODE_BNE) : begin
                 pc <= (register[rs] != register[rt]) ? (address_immediate + 5'd4) : (pc);
-    
+
             end
-            
-        
-            
-            
-=======
 
             end
 
@@ -379,11 +374,10 @@ typedef enum logics[5:0]
             (OPCODE_BLTZ) : begin               //  TODO:   Implement
 
             end
->>>>>>> 5bb126a25e97c6fb4967c782f7f084a688855f37
 
-        //  Load / Store https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html       //  TODO:   Not begun yet
+        //  Load / Store https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
             (OPCODE_LB) : begin
-
+                
             end
 
             (OPCODE_LBU) : begin
