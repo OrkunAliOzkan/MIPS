@@ -384,7 +384,7 @@ typedef enum logics[5:0]
             end
 >>>>>>> 5bb126a25e97c6fb4967c782f7f084a688855f37
 
-        //  Load / Store        //  TODO:   Not begun yet
+        //  Load / Store https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html       //  TODO:   Not begun yet
             (OPCODE_LB) : begin
 
             end
