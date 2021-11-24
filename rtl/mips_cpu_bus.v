@@ -161,6 +161,10 @@ module mips_cpu_bus(
     logic[15:0] address_immediate;
     logic[25:0] targetAddress;
 
+
+    //MEMORY STUFF
+    logic[31:0] addr;
+
     /*
     Not sure where to put, but opcode stuff
     //  Hey its orkun, check out that phat case block i wrote, i think you may like it
@@ -188,6 +192,14 @@ module mips_cpu_bus(
     end
 
     */
+    always_comb() begin
+        if (state == FETCH)
+        begin
+            write = 1b'1;
+            address = PC;
+        end
+
+    end
 
     always_ff(posedge clk) begin
     {
@@ -203,7 +215,9 @@ module mips_cpu_bus(
                 state <= EXEC1;
             end
             //get instruction?
-
+            //address and read are combinationally set
+            //so readdata should have the instruction on the next cycle
+            
         end
         else if (state == EXEC1) begin //EXEC1
             
