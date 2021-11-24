@@ -223,7 +223,7 @@ endmodule
         (OPCODE_R): begin
             //  We have to determine what the R type instruction is by virtue of its function code
             case(fcode_t)
-            //  Basic arithematic
+            //  Basic arithmetic
                 (FUNCTION_CODE_ADDU): begin
                         /*
                             We can conduct register addition with anything except for 
