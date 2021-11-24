@@ -198,7 +198,7 @@ module mips_cpu_bus(
             read = 1b'1;
             address = PC;
         end
-
+        //NOT SURE ABOUT TIMING - I DON'T KNOW IF THIS WILL EXECUTE AT THE RIGHT TIME -  IF THIS IS IN PARALLEL WITH THE ALWAYS_FF BLOCK
         else if (state == EXEC1)
         begin
             opcode = readdata[31:26];
