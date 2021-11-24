@@ -1,4 +1,12 @@
-//  TODO:   Make  robust ALU
+/**
+ * @MIPS CPU INSTRUCTIONS TEST BENCH
+ * @brief:      Implementation of all of the instructions.
+ * @version 0.1
+ * @date 2021-11-22
+ *
+ * @copyright Copyright (c) 2021
+ *
+ */
 
 module mips_instruction_test(
     /* Standard signals */
@@ -51,9 +59,9 @@ module mips_instruction_test(
 
     Opcodes:
     R types have an opcode of 0d0, therefore are differentiated through their function codes
-    J types have an opcode of 0d2 and 0d3, therefore don't need to have their opcode specified
-    I type uniques opcodes
-    
+    J types have uniques opcodes
+    I types have uniques opcodes
+
     I type formatting:  For Transfer, branch and immedaiate instructions
 */
 typedef enum logic[5:0]
@@ -92,7 +100,6 @@ typedef enum logic[5:0]
 */
 typedef enum logics[5:0]
 {
-    //  TODO:   Are move functions R type?
     FUNCTION_CODE_ADDU = 6'd33,
     FUNCTION_CODE_AND = 6'd36,
     FUNCTION_CODE_OR = 6'd37,
@@ -112,11 +119,10 @@ typedef enum logics[5:0]
     FUNCTION_CODE_MULTU = 6'd25,
     FUNCTION_CODE_MTHI = 6'd17,
     FUNCTION_CODE_MTLO = 6'd18,
-    //FUNCTION_CODE_LWR = 6'd,    //FIXME:Hmmm
-    //FUNCTION_CODE_LWL = 6'd,    //FIXME:Hmmm
+    //FUNCTION_CODE_LWR = 6'd,    //FIXME:  Can't find any of the function codes for the two
+    //FUNCTION_CODE_LWL = 6'd,    //FIXME:  Can't find any of the function codes for the two
     FUNCTION_CODE_JALR = 6'd,
     FUNCTION_CODE_JR = 6'd,
-
 } fcode_t;
 
     //  State Registers
@@ -159,7 +165,7 @@ typedef enum logics[5:0]
             //  We have to determine what the R type instruction is by virtue of its function code
             case(fcode_t)
             //  Basic arithematic
-                (FUNCTION_CODE_ADDU): begin
+                    (FUNCTION_CODE_ADDU): begin
                         /*
                             We can conduct register addition with anything except for 
                             destination being $zero, so use a multiplexer to make this
@@ -255,16 +261,16 @@ typedef enum logics[5:0]
             endcase
 
         //  J type instructions
-
             (OPCODE_J) : begin
                 pc <= 4*targetAddress
             end
             (OPCODE_JAL) : begin
+                register[31] <= PC + 5'd4;
                 pc <= 4*targetAddress
             
             end
 
-        //  I type instructions //  TODO:   LUI
+        //  I type instructions
             (OPCODE_ADDIU) : begin
                 register[rd] <= (rd != 0) ? ($unsigned(register[rs]) + $unsigned(register[address_immediate])) : (0);
             end
@@ -294,48 +300,42 @@ typedef enum logics[5:0]
     
             end
             (OPCODE_BGEZ) : begin               //  TODO:   Implement
-                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
-    
+
             end
             (OPCODE_BGEZAL) : begin             //  TODO:   Implement
-                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
-    
+
             end
             (OPCODE_BGTZ) : begin               //  TODO:   Implement
-                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
-    
+
             end
             (OPCODE_BLEZ) : begin               //  TODO:   Implement
-                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
-    
+
             end
             (OPCODE_BLTZ) : begin               //  TODO:   Implement
-                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
-    
+
             end
             (OPCODE_BLTZAL) : begin             //  TODO:   Implement
-                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
-    
+
             end
             (OPCODE_BNE) : begin
                 pc <= (register[rs] != register[rt]) ? (address_immediate + 5'd4) : (pc);
             end
-            (OPCODE_BGEZ) : begin
+            (OPCODE_BGEZ) : begin               //  TODO:   Implement
 
             end
-            (OPCODE_BGEZAL) : begin
+            (OPCODE_BGEZAL) : begin             //  TODO:   Implement
 
             end
-            (OPCODE_BGTZ) : begin
+            (OPCODE_BGTZ) : begin               //  TODO:   Implement
 
             end
-            (OPCODE_BLEZ) : begin
+            (OPCODE_BLEZ) : begin               //  TODO:   Implement
 
             end
-            (OPCODE_BLTZ) : begin
+            (OPCODE_BLTZ) : begin               //  TODO:   Implement
 
             end
-            (OPCODE_BLTZAL) : begin
+            (OPCODE_BLTZAL) : begin             //  TODO:   Implement
 
             end
 
