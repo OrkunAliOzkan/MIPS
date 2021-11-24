@@ -141,8 +141,8 @@ typedef enum logics[5:0]
 /*
         Wires used in ALU
         |Field name: 6 bits |5 bits |5 bits |5 bits  |5 bits     |6 bits     |
-        |R format:   op     |rt     |rs     |rd      |shmat      |funct      |
-        |I format:   op     |rt     |rs     |address/immediate               |
+        |R format:   op     |rs     |rt     |rd      |shmat      |funct      |
+        |I format:   op     |rs     |rt     |address/immediate               |
         |J format:   op     |target address                                  |
 */
         opcode_t opcode;
@@ -341,10 +341,11 @@ typedef enum logics[5:0]
 
         //  Load / Store https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
             (OPCODE_LB) : begin
-                
+                register[rt] <= readdata[rs + address_immediate];
             end
 
             (OPCODE_LBU) : begin
+                register[rt] <= readdata[($unsigned(register[rs]) + address_immediate)];
 
             end
 
