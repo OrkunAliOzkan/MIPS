@@ -208,6 +208,12 @@ module mips_cpu_bus(
             rt = readdata[15:11];
             rd = readdata[25:21];
             targetAddress = [25:0];
+            address_immediate = readdata[15:0];
+        end
+
+        if (state == EXEC2)
+        begin
+            
         end
 
     end
@@ -221,7 +227,7 @@ module mips_cpu_bus(
                 register[i] <= 0;
             end
         end
-        if (state == FETCH) begin //FETCH
+        else if (state == FETCH) begin //FETCH
 
             /*
             On waitrequest - we must delay by a cycle and wait for it to go low if it is high when reading/writing to RAM specifically. 
