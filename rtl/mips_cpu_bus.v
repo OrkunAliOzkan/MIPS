@@ -64,7 +64,7 @@ module mips_cpu_bus(
     
     I type formatting:  For Transfer, branch and immedaiate instructions
 */
-typedef enum logics[5:0]
+typedef enum logic[5:0]
 {
     OPCODE_R = 6'd0,
     OPCODE_J1 = 6'd2,
@@ -93,7 +93,7 @@ typedef enum logics[5:0]
     OPCODE_SB = 6'd40,
     OPCODE_SH = 6'd41,
     OPCODE_SW = 6'd43,
-} opcode_t
+} opcode_t;
 
 /*
     R types are differentiated through their function code
@@ -134,7 +134,7 @@ typedef enum logics[1:0]
 
     //  State Registers
     logic[31:0] PC, PC_next, PC_jump;
-    state_t state;
+    logic[1:0] state;
 
     //  Regisgters
         //  General Registers
@@ -192,7 +192,7 @@ typedef enum logics[1:0]
     {
         if (reset) begin
             state <= FETCH;
-            pc_next <= 0x'BFC00000;
+            pc_next <= 32'hBFC00000;
             for (i=0; i<32; i++) begin
                 register[i] <= 0;
             end
@@ -236,23 +236,22 @@ endmodule
                 end
 
                 (FUNCTION_CODE_DIV): begin
-                    register[HI] <= reigsters[rs] % registers[rt];
-                    register[LO] <= reigsters[rs] / registers[rt];
+                    HI <= register[rs] % register[rt];
+                    LO <= register[rs] / register[rt];
                 end
 
                 (FUNCTION_CODE_DIVU): begin
-                    register[HI] <= $unsigined(reigsters[rs]) % $registers[unsigined(rt]);
-                    register[LO] <= $unsigined(reigsters[rs]) / $registers[unsigined(rt]);
+                    HI <= $unsigned(register[rs]) % $unsigned(register[rt];)
+                    LO <= $unsigned(register[rs]) / $unsigned(register[rt];)
                 end
 
+
                 (FUNCTION_CODE_MULT): begin
-                    register[HI] <= reigsters[rs] % registers[rt];
-                    register[LO] <= reigsters[rs] / registers[rt];
+
                 end
 
                 (FUNCTION_CODE_MULTU): begin
-                    register[HI] <= $unsigined(reigsters[rs]) % $registers[unsigined(rt]);
-                    register[LO] <= $unsigined(reigsters[rs]) / $registers[unsigined(rt]);
+
                 end
 
         //  Bitwise operation
@@ -268,12 +267,12 @@ endmodule
                     register[rd] <= (rd != 0) ? ($unsigned(rs) ^ $unsigned(rt)) : (0);
                 end
 
-            (FUNCTION_CODE_SLT): begin
-                register[rd] = (rd != 0) ? (() ? () : ()) : (0);
+            (FUNCTION_CODE_SLT): begin  //  FIXME:  I don't know if this is what SLT does
+                register[rd] = (rd != 0) ? ((register[rs] < register[rt]) ? (1) : (0)) : (0);
 
             end
 
-            (FUNCTION_CODE_SLTU): begin     //  TODO:   Implement
+            (FUNCTION_CODE_SLTU): begin //  TODO:   Will implement once SLT is known
                 
             end
 
@@ -281,36 +280,36 @@ endmodule
                 register[rd] <= (rd != 0) ? ($unsigned(rs) ^ $unsigned(rt)) : (0);
             end
 
-            (FUNCTION_CODE_SLL): begin      //  TODO:   Implement
+            (FUNCTION_CODE_SLL): begin
                 
             end
 
-            (FUNCTION_CODE_SLLV): begin     //  TODO:   Implement
+            (FUNCTION_CODE_SLLV): begin
                 
             end
 
-            (FUNCTION_CODE_SRA): begin      //  TODO:   Implement
+            (FUNCTION_CODE_SRA): begin
                 
             end
 
-            (FUNCTION_CODE_SRAV): begin     //  TODO:   Implement
+            (FUNCTION_CODE_SRAV): begin
                 
             end
 
-            (FUNCTION_CODE_SRL): begin      //  TODO:   Implement
+            (FUNCTION_CODE_SRL): begin
                 
             end
 
-            (FUNCTION_CODE_SRLV): begin     //  TODO:   Implement
+            (FUNCTION_CODE_SRLV): begin
                 
             end
 
-            (FUNCTION_CODE_MTHI): begin     //  TODO:   Implement
-                register[rd] <= (rd != 0) ? (HI) : (0);
+            (FUNCTION_CODE_MTHI): begin
+                register[rd] = 
             end
 
-            (FUNCTION_CODE_MTLO): begin     //  TODO:   Implement
-                register[rd] <= (rd != 0) ? (LI) : (0);
+            (FUNCTION_CODE_MTLO): begin
+                
             end
             endcase
         end
@@ -323,15 +322,15 @@ endmodule
 
         end
 
-        (ITYPE_ADDIU): begin                //  TODO:   Implement
+        (ITYPE_ADDIU): begin
 
         end
 
         //  I type instructions
-        (OPCODE_ADDIU) : begin              //  TODO:   Implement
+        (OPCODE_ADDIU) : begin
 
         end
-        (OPCODE_ANDI) : begin               //  TODO:   Implement
+        (OPCODE_ANDI) : begin
 
         end
 
@@ -362,42 +361,67 @@ endmodule
                 pc <= (register[rs] != register[rt]) ? (address_immediate + 5'd4) : (pc);
             end
         (OPCODE_LUI) : begin                //  TODO:   Implement
+        (OPCODE_BEQ) : begin
 
         end
-        (OPCODE_ORI) : begin                //  TODO:   Implement
+        (OPCODE_BGEZ) : begin
 
         end
-        (OPCODE_SLTI) : begin               //  TODO:   Implement
+        (OPCODE_BGEZAL) : begin
 
         end
-        (OPCODE_SLTIU) : begin              //  TODO:   Implement
+        (OPCODE_BGTZ) : begin
 
         end
-        (OPCODE_XORI) : begin               //  TODO:   Implement
+        (OPCODE_BLEZ) : begin
 
         end
-        (OPCODE_LB) : begin                 //  TODO:   Implement
+        (OPCODE_BLTZ) : begin
 
         end
-        (OPCODE_LBU) : begin                //  TODO:   Implement
+        (OPCODE_BLTZAL) : begin
 
         end
-        (OPCODE_LH) : begin                 //  TODO:   Implement
+        (OPCODE_BNE) : begin
 
         end
-        (OPCODE_LHU) : begin                //  TODO:   Implement
+        (OPCODE_LUI) : begin
 
         end
-        (OPCODE_LW) : begin                 //  TODO:   Implement
+        (OPCODE_ORI) : begin
 
         end
-        (OPCODE_SB) : begin                 //  TODO:   Implement
+        (OPCODE_SLTI) : begin
 
         end
-        (OPCODE_SH) : begin                 //  TODO:   Implement
+        (OPCODE_SLTIU) : begin
 
         end
-        (OPCODE_SW) : begin                 //  TODO:   Implement
+        (OPCODE_XORI) : begin
+
+        end
+        (OPCODE_LB) : begin
+
+        end
+        (OPCODE_LBU) : begin
+
+        end
+        (OPCODE_LH) : begin
+
+        end
+        (OPCODE_LHU) : begin
+
+        end
+        (OPCODE_LW) : begin
+
+        end
+        (OPCODE_SB) : begin
+
+        end
+        (OPCODE_SH) : begin
+
+        end
+        (OPCODE_SW) : begin
 
         end
     endcase
