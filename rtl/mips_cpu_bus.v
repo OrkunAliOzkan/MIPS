@@ -193,7 +193,7 @@ module mips_cpu_bus(
     {
         if (reset) begin
             state <= FETCH;
-            pc_next <= 32'hBFC00000; //instructions begin here
+            PC <= 32'hBFC00000; //instructions begin here
             for (i=0; i<32; i++) begin
                 register[i] <= 0;
             end
@@ -202,14 +202,20 @@ module mips_cpu_bus(
             if (waitrequest) begin
                 state <= EXEC1;
             end
+            address <= PC;
             //get instruction?
-
         end
         else if (state == EXEC1) begin //EXEC1
-            
+            if (waitrequest) begin
+                state <= EXEC2;
+            end
+            // address = PC if not reading from RAM 
         end
         else if (state == EXEC2) begin //EXEC2
-            
+            if (waitrequest) begin
+                state <= FETCH;
+            end
+            if ()
         end
     }
     end
