@@ -1,14 +1,6 @@
-/**
- * @MIPS CPU
- * @brief:  Design a MIPS I CPU with Vonn Neuman architecture
- * @version 0.1
- * @date 2021-11-22
- *
- * @copyright Copyright (c) 2021
- *
- */
+//  TODO:   Make  robust ALU
 
-module mips_cpu_bus(
+module mips_instruction_test(
     /* Standard signals */
     input logic clk,
     input logic reset,
@@ -124,14 +116,6 @@ typedef enum logics[5:0]
     FUNCTION_CODE_LWL = 6'd,    //FIXME:Hmmm
 } fcode_t;
 
-typedef enum logics[1:0]
-{
-    FETCH = 2'd0,
-    EXEC1 = 2'd1,
-    EXEC2 = 2'd2,
-    HALTED = 2'd3
-} state_t;
-
     //  State Registers
     logic[31:0] PC, PC_next, PC_jump;
     logic[1:0] state;
@@ -161,62 +145,7 @@ typedef enum logics[1:0]
         logic[15:0] address_immediate;
         logic[25:0] targetAddress;
 
-    /*
-    Not sure where to put, but opcode stuff
-    //  Hey its orkun, check out that phat case block i wrote, i think you may like it
 
-    logic[31:0] instr;
-    assign logic[31:0] opcode = instr[31:26];
-
-    if (!opcode) begin
-        // R-TYPE
-        // SOURCE 1 = instr[25:21];
-        // SOURCE 2 = instr[20:16];
-        // DEST = instr[15:11];
-        // SHIFT = instr[10:6];
-        // Function code = instr[5:0];
-    end
-    else if (opcode[1] == 1) begin
-        // J-TYPE
-        // ADDR = instr[25:0];
-    end
-    else begin
-        // I-TYPE
-        // SOURCE 1 = instr[25:21];
-        // SOURCE 2/DEST = instr[20:16];
-        // ADDR/DATA = instr[15:0];
-    end
-
-    */
-
-    always_ff(posedge clk) begin
-    {
-        if (reset) begin
-            state <= FETCH;
-            pc_next <= 32'hBFC00000;
-            for (i=0; i<32; i++) begin
-                register[i] <= 0;
-            end
-        end
-        if (state == state_t.FETCH) begin //FETCH
-            if (waitrequest) begin
-                state <= EXEC1;
-            end
-        end
-        else if (state == state_t.EXEC1) begin //EXEC1
-            
-        end
-        else if (state == state_t.EXEC2) begin //EXEC2
-            
-        end
-    }
-    end
-
-
-
-endmodule
-
-/*
 //  Instructions:   (ref: https://uweb.engr.arizona.edu/~ece369/Resources/spim/MIPSReference.pdf)
     case(opcode)
         //  TODO:   Maybe assert if rd = 0
@@ -229,14 +158,14 @@ endmodule
                         /*
                             We can conduct register addition with anything except for 
                             destination being $zero, so use a multiplexer to make this
-                        /*
+                        */
                         register[rd] <= (rd != 0) ? ($unsigned(rs) + $unsigned(rt)) : (0);
                     end
 
                     (FUNCTION_CODE_SUBU): begin
                         /*
                             Like addition, use a multiplexer to confirm rd is not $zero
-                        /*
+                        */
                         register[rd] <= (rd != 0) ? ($unsigned(rs) - $unsigned(rt)) : (0);
                     end
 
@@ -429,4 +358,3 @@ endmodule
 
             end
     endcase
-*/
