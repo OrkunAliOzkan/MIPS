@@ -258,11 +258,11 @@ typedef enum logics[5:0]
 
         //  J type instructions
             (OPCODE_J) : begin
-                pc <= 4*targetAddress
+                PC_next <= 4*targetAddress
             end
             (OPCODE_JAL) : begin
                 register[31] <= PC + 5'd4;
-                pc <= 4*targetAddress
+                PC_next <= 4*targetAddress
             
             end
 
@@ -299,18 +299,10 @@ typedef enum logics[5:0]
             (OPCODE_BEQ) : begin
                 //  add 4 since PC increments by bites
                 pc <= (register[rs] == register[rt]) ? (address_immediate + 5'd4) : (pc);
-    
+
             end
 
             (OPCODE_BGEZ) : begin               //  TODO:   Implement
-
-            end
-
-            (OPCODE_BGEZAL) : begin             //  TODO:   Implement
-
-            end
-
-            (OPCODE_BGTZ) : begin               //  TODO:   Implement
 
             end
 
@@ -318,38 +310,31 @@ typedef enum logics[5:0]
 
             end
 
-            (OPCODE_BLTZ) : begin               //  TODO:   Implement
+            (OPCODE_BGEZAL) : begin             //  TODO:   Implement
 
             end
 
             (OPCODE_BLTZAL) : begin             //  TODO:   Implement
+
+            end
+
+            (OPCODE_BGTZ) : begin               //  TODO:   Implement
+
+            end
+
+            (OPCODE_BLTZ) : begin               //  TODO:   Implement
+
+            end
+
+            (OPCODE_BLEZ) : begin               //  TODO:   Implement
 
             end
 
             (OPCODE_BNE) : begin
                 pc <= (register[rs] != register[rt]) ? (address_immediate + 5'd4) : (pc);
             end
-            (OPCODE_BGEZ) : begin               //  TODO:   Implement
-
-            end
-
-            (OPCODE_BGEZAL) : begin             //  TODO:   Implement
-
-            end
-
-            (OPCODE_BGTZ) : begin               //  TODO:   Implement
-
-            end
-
-            (OPCODE_BLEZ) : begin               //  TODO:   Implement
-
-            end
 
             (OPCODE_BLTZ) : begin               //  TODO:   Implement
-
-            end
-
-            (OPCODE_BLTZAL) : begin             //  TODO:   Implement
 
             end
 
