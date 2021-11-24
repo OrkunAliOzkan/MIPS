@@ -144,6 +144,8 @@ typedef enum logics[5:0]
         fcode_t funct;
         logic[15:0] address_immediate;
         logic[25:0] targetAddress;
+        logic[63:0] multWire;
+        logic[63:0] multWireU;
 
 
 //  Instructions:   (ref: https://uweb.engr.arizona.edu/~ece369/Resources/spim/MIPSReference.pdf)
@@ -181,13 +183,15 @@ typedef enum logics[5:0]
 
 
                     (FUNCTION_CODE_MULT): begin //  TODO:   me
-                        HI <= register[rs] ? register[rt];
-                        LO <= register[rs] ? register[rt];
+                        multWire = register[rs] * register[rt];
+                        HI <= [63:32] multWire;
+                        LO <=  [31:0] multWire;
                     end
 
                     (FUNCTION_CODE_MULTU): begin //  TODO:   me
-                        HI <= $unsigned(register[rs]) ? $unsigned(register[rt];)
-                        LO <= $unsigned(register[rs]) ? $unsigned(register[rt];)
+                        multWire = $unsigned(register[rs]) * $unsigned(register[rt]);
+                        HI <= [63:32] multWire;
+                        LO <=  [31:0] multWire;
                     end
 
             //  Bitwise operation
