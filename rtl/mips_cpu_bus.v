@@ -93,7 +93,7 @@ typedef enum logic[5:0]
     OPCODE_SB = 6'd40,
     OPCODE_SH = 6'd41,
     OPCODE_SW = 6'd43,
-} opcode_t
+} opcode_t;
 
 /*
     R types are differentiated through their function code
