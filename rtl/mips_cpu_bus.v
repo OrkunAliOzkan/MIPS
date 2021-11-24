@@ -268,8 +268,9 @@ endmodule
                     register[rd] <= (rd != 0) ? ($unsigned(rs) ^ $unsigned(rt)) : (0);
                 end
 
-            (FUNCTION_CODE_SLT): begin      //  TODO:   Implement
-                
+            (FUNCTION_CODE_SLT): begin
+                register[rd] = (rd != 0) ? (() ? () : ()) : (0);
+
             end
 
             (FUNCTION_CODE_SLTU): begin     //  TODO:   Implement
@@ -333,30 +334,33 @@ endmodule
         (OPCODE_ANDI) : begin               //  TODO:   Implement
 
         end
-        (OPCODE_BEQ) : begin                //  TODO:   Implement
 
-        end
-        (OPCODE_BGEZ) : begin               //  TODO:   Implement
-
-        end
-        (OPCODE_BGEZAL) : begin             //  TODO:   Implement
-
-        end
-        (OPCODE_BGTZ) : begin               //  TODO:   Implement
-
-        end
-        (OPCODE_BLEZ) : begin               //  TODO:   Implement
-
-        end
-        (OPCODE_BLTZ) : begin               //  TODO:   Implement
-
-        end
-        (OPCODE_BLTZAL) : begin             //  TODO:   Implement
-
-        end
-        (OPCODE_BNE) : begin                //  TODO:   Implement
-
-        end
+        //  Branch
+            (OPCODE_BEQ) : begin                //  TODO:   Implement
+                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
+    
+            end
+            (OPCODE_BGEZ) : begin               //  TODO:   Implement
+    
+            end
+            (OPCODE_BGEZAL) : begin             //  TODO:   Implement
+    
+            end
+            (OPCODE_BGTZ) : begin               //  TODO:   Implement
+    
+            end
+            (OPCODE_BLEZ) : begin               //  TODO:   Implement
+    
+            end
+            (OPCODE_BLTZ) : begin               //  TODO:   Implement
+    
+            end
+            (OPCODE_BLTZAL) : begin             //  TODO:   Implement
+    
+            end
+            (OPCODE_BNE) : begin                //  TODO:   Implement
+                pc <= (register[rs] != register[rt]) ? (address_immediate + 5'd4) : (pc);
+            end
         (OPCODE_LUI) : begin                //  TODO:   Implement
 
         end
