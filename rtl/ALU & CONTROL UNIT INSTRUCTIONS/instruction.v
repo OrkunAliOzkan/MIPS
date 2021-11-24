@@ -11,8 +11,6 @@
 module mips_instruction_test(
     /* Standard signals */
     input logic clk,
-    input logic reset,
-    output logic active,
     output logic[31:0] register_v0,
 
     /* Avalon memory mapped bus controller (master) */
@@ -135,7 +133,6 @@ typedef enum logics[5:0]
         //  Special Registers
         logic[31:0] HI;
         logic[31:0] LO;
-
 
 /*
         Wires used in ALU
