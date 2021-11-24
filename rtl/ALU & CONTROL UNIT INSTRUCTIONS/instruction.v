@@ -59,8 +59,8 @@ module mips_instruction_test(
 typedef enum logic[5:0]
 {
     OPCODE_R = 6'd0,
-    OPCODE_J1 = 6'd2,
-    OPCODE_J2 = 6'd3,
+    OPCODE_J = 6'd2,
+    OPCODE_JAL = 6'd3,
 
     OPCODE_ADDIU = 6'd9,
     OPCODE_ANDI = 6'd12,
@@ -112,8 +112,11 @@ typedef enum logics[5:0]
     FUNCTION_CODE_MULTU = 6'd25,
     FUNCTION_CODE_MTHI = 6'd17,
     FUNCTION_CODE_MTLO = 6'd18,
-    FUNCTION_CODE_LWR = 6'd,    //FIXME:Hmmm
-    FUNCTION_CODE_LWL = 6'd,    //FIXME:Hmmm
+    //FUNCTION_CODE_LWR = 6'd,    //FIXME:Hmmm
+    //FUNCTION_CODE_LWL = 6'd,    //FIXME:Hmmm
+    FUNCTION_CODE_JALR = 6'd,
+    FUNCTION_CODE_JR = 6'd,
+
 } fcode_t;
 
     //  State Registers
@@ -252,11 +255,13 @@ typedef enum logics[5:0]
             endcase
 
         //  J type instructions
-            (OPCODE_J1 || OPCODE_J2): begin
-                case(): begin
 
-                endcase
-
+            (OPCODE_J) : begin
+                pc <= 4*targetAddress
+            end
+            (OPCODE_JAL) : begin
+                pc <= 4*targetAddress
+            
             end
 
         //  I type instructions //  TODO:   LUI
