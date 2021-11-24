@@ -215,6 +215,13 @@ module mips_cpu_bus(
         begin
             
         end
+        else if (state == EXEC2) begin
+            // if a load instruction, we need to write back to registers.
+            // If a store instuction, we need to write to the RAM.
+            // If a complex jump instruction, we need to change the PC.
+            // Immediate functions can edit either RAM or registers depending on type.
+        end
+         
 
     end
 
