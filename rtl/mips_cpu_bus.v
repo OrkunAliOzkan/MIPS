@@ -211,24 +211,23 @@ module mips_cpu_bus(
             end
         end
         if (state == FETCH) begin //FETCH
-            if (waitrequest) begin
-                state <= EXEC1;
-            end
-            //get instruction?
+
+            /*
+            On waitrequest - we must delay by a cycle and wait for it to go low if it is high when reading/writing to RAM specifically. 
+            This must be implemented in the always_ff block.
+            I am 65% confident in this fact.
+            */
+
+            //get instruction
             //address and read are combinationally set
-            //so readdata should have the instruction on the next cycle
+            //so readdata should have the instruction on the next cycle - EXEC1
             
         end
         else if (state == EXEC1) begin //EXEC1
-            if (waitrequest) begin
-                state <= EXEC2;
-            end
             // address = PC if not reading from RAM 
         end
         else if (state == EXEC2) begin //EXEC2
-            if (waitrequest) begin
-                state <= FETCH;
-            end
+
             if ()
         end
     }
