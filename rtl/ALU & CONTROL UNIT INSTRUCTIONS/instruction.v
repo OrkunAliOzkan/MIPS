@@ -127,7 +127,7 @@ typedef enum logics[5:0]
     logic[31:0] PC, PC_next, PC_jump;
     logic[1:0] state;
 
-    //  Regisgters
+    //  Registers
         //  General Registers
         logic[31:0][31:0] registers;
         //  Special Registers
@@ -167,6 +167,7 @@ typedef enum logics[5:0]
                             destination being $zero, so use a multiplexer to make this
                         */
                         register[rd] <= (rd != 0) ? ($unsigned(rs) + $unsigned(rt)) : (0);
+                        assert(rd != 0) else $fatal(2, "Error, trying to write to zero register");
                     end
 
                     (FUNCTION_CODE_SUBU): begin
@@ -174,6 +175,7 @@ typedef enum logics[5:0]
                             Like addition, use a multiplexer to confirm rd is not $zero
                         */
                         register[rd] <= (rd != 0) ? ($unsigned(rs) - $unsigned(rt)) : (0);
+                        assert(rd != 0) else $fatal(2, "Error, trying to write to zero register");
                     end
 
                     (FUNCTION_CODE_DIV): begin
@@ -314,8 +316,13 @@ typedef enum logics[5:0]
                 //if msb of (rs) = 0 or rs = 0 then pc==immediate   
             end
             (OPCODE_BGTZ) : begin               //  TODO:   Implement
+<<<<<<< HEAD
                 PC_next <= ((register[rs][3]==0)) && (register[rs]!=0) ? (address_immediate) : (pc);
                 // if (rs)!=0 and MSB(rs)==0 then pc==immediate
+=======
+                PC_next <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
+                // if (rs-rt)!=0 and MSB(rs-rt)==0 then pc==immediate
+>>>>>>> 2c9aa1e1f6354388d63c2f46a8b94ff3dce601bd
                 //  add 4 since PC increments by bites
             end
 
@@ -323,6 +330,13 @@ typedef enum logics[5:0]
                 pc <= (register[rs] != register[rt]) ? (address_immediate + 5'd4) : (pc);
             end
 
+<<<<<<< HEAD
+=======
+            (OPCODE_BGEZ) : begin               //  TODO:   Implement
+
+            end
+
+>>>>>>> 2c9aa1e1f6354388d63c2f46a8b94ff3dce601bd
             (OPCODE_BLEZ) : begin               //  TODO:   Implement
                 PC_next <= (register[rs]==0) ? (address_immediate) : (pc);
                 PC_next <= (register[rs][3]==1) ? (address_immediate) : (pc);
@@ -349,7 +363,7 @@ typedef enum logics[5:0]
             
 
 
-        //  Load / Store        //  TODO:   Not begun yet
+        //  Load / Store https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html       //  TODO:   Not begun yet
             (OPCODE_LB) : begin
 
             end

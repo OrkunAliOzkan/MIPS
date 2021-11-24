@@ -138,7 +138,7 @@ module mips_cpu_bus(
 
     //  Registers
     //  General Registers
-    logic[31:0][31:0] registers;
+    logic signed [31:0][31:0] registers;
     //  Special Registers
     logic[31:0] HI;
     logic[31:0] LO;
@@ -199,7 +199,7 @@ module mips_cpu_bus(
             address = PC;
         end
 
-        if (state == EXEC1)
+        else if (state == EXEC1)
         begin
             opcode = readdata[31:26];
             funct = readdata[5:0];
@@ -210,9 +210,6 @@ module mips_cpu_bus(
             targetAddress = [25:0];
             address_immediate = readdata[15:0];
         end
-
-        if (state == EXEC2)
-        begin
             
         end
         else if (state == EXEC2) begin
@@ -220,6 +217,10 @@ module mips_cpu_bus(
             // If a store instuction, we need to write to the RAM.
             // If a complex jump instruction, we need to change the PC.
             // Immediate functions can edit either RAM or registers depending on type.
+            if (!jump)
+            begin
+                PC_next = PC + 4;
+            end
         end
          
 
@@ -251,12 +252,13 @@ module mips_cpu_bus(
 
         end
         else if (state == EXEC1) begin //EXEC1
-            // address = PC if not reading from RAM 
-            //decode instruction
+            // all instruction arguments should be set
+
         end
         else if (state == EXEC2) begin //EXEC2
+            //increment PC?
 
-            if ()
+            PC <= PC_next;
         end
     }
     end
