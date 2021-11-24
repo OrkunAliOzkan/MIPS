@@ -195,7 +195,7 @@ module mips_cpu_bus(
     always_comb() begin
         if (state == FETCH)
         begin
-            write = 1b'1;
+            read = 1b'1;
             address = PC;
         end
 
