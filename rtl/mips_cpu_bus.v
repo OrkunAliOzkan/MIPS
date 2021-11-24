@@ -161,6 +161,10 @@ module mips_cpu_bus(
     logic[15:0] address_immediate;
     logic[25:0] targetAddress;
 
+
+    //MEMORY STUFF
+    logic[31:0] addr;
+
     /*
     Not sure where to put, but opcode stuff
     //  Hey its orkun, check out that phat case block i wrote, i think you may like it
@@ -188,28 +192,43 @@ module mips_cpu_bus(
     end
 
     */
+    always_comb() begin
+        if (state == FETCH)
+        begin
+            write = 1b'1;
+            address = PC;
+        end
+
+    end
 
     always_ff(posedge clk) begin
     {
         if (reset) begin
             state <= FETCH;
-            pc_next <= 32'hBFC00000; //instructions begin here
+            PC <= 32'hBFC00000; //instructions begin here
             for (i=0; i<32; i++) begin
                 register[i] <= 0;
             end
         end
         if (state == FETCH) begin //FETCH
-            if (waitrequest) begin
-                state <= EXEC1;
-            end
-            //get instruction?
 
+            /*
+            On waitrequest - we must delay by a cycle and wait for it to go low if it is high when reading/writing to RAM specifically. 
+            This must be implemented in the always_ff block.
+            I am 65% confident in this fact.
+            */
+
+            //get instruction
+            //address and read are combinationally set
+            //so readdata should have the instruction on the next cycle - EXEC1
+            
         end
         else if (state == EXEC1) begin //EXEC1
-            
+            // address = PC if not reading from RAM 
         end
         else if (state == EXEC2) begin //EXEC2
-            
+
+            if ()
         end
     }
     end
