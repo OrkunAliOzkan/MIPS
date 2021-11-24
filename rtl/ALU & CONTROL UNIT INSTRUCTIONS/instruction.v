@@ -308,9 +308,9 @@ typedef enum logics[5:0]
     
             end
             (OPCODE_BGEZ) : begin               //  TODO:   Implement
-                PC_next <= ((register[rs] - register[rt])==0) ? (address_immediate) : (pc);
-                PC_next <= ((register[rs] - register[rt])[3]==0) ? (address_immediate) : (pc);
-                // if (rs-rt)==0 or MSB(rs-rt)==0 then pc==immediate
+                PC_next <= ((register[rs] - register[rt])>=0) ? (address_immediate) : (pc);
+                //PC_next <= ((register[rs] - register[rt])[32]==0) ? (address_immediate) : (pc);
+                // if (rs-rt)>=0 ~~MSB(rs-rt)==0~~ then pc==immediate
             end
             (OPCODE_BGEZAL) : begin             //  TODO:   Implement
                 register[ra] <= pc
@@ -377,7 +377,7 @@ typedef enum logics[5:0]
 
         //  Load / Store https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
             (OPCODE_LB) : begin
-                
+
             end
 
             (OPCODE_LBU) : begin
