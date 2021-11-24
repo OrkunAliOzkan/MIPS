@@ -299,7 +299,10 @@ typedef enum logics[5:0]
             (OPCODE_BEQ) : begin
                 //  add 4 since PC increments by bites
                 pc <= (register[rs] == register[rt]) ? (address_immediate + 5'd4) : (pc);
+            end
 
+            (OPCODE_BNE) : begin
+                pc <= (register[rs] != register[rt]) ? (address_immediate + 5'd4) : (pc);
             end
 
             (OPCODE_BGEZ) : begin               //  TODO:   Implement
@@ -328,10 +331,6 @@ typedef enum logics[5:0]
 
             (OPCODE_BLEZ) : begin               //  TODO:   Implement
 
-            end
-
-            (OPCODE_BNE) : begin
-                pc <= (register[rs] != register[rt]) ? (address_immediate + 5'd4) : (pc);
             end
 
             (OPCODE_BLTZ) : begin               //  TODO:   Implement
