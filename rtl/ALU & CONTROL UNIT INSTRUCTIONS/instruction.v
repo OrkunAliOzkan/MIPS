@@ -285,54 +285,45 @@ typedef enum logics[5:0]
         //  Branch
             (OPCODE_BEQ) : begin
                 //  add 4 since TODO:   Why?
-                pc <= (register[rs] == register[rt]) ? (address_immediate + 5'd4) : (pc);
+                PC_next <= (register[rs] == register[rt]) ? (address_immediate + 5'd4) : (pc);
     
             end
             (OPCODE_BGEZ) : begin               //  TODO:   Implement
-                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
-    
+                PC_next <= ((register[rs] - register[rt])==0) ? (address_immediate) : (pc);
+                PC_next <= ((register[rs] - register[rt])[3]==0) ? (address_immediate) : (pc);
+                // if (rs-rt)==0 or MSB(rs-rt)==0 then pc==immediate
             end
             (OPCODE_BGEZAL) : begin             //  TODO:   Implement
-                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
-    
+                register[ra] <= pc
+                PC_next <= ((register[rs] - register[rt])[3]==0) ? (address_immediate) : (pc);
+                //store current pc in ra
+                //if msb of (rs-rt) = 0 then pc==immediate   
             end
             (OPCODE_BGTZ) : begin               //  TODO:   Implement
-                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
-    
+                PC_next <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
+                // if (rs-rt)!=0 and MSB(rs-rt)==0 then pc==immediate
             end
             (OPCODE_BLEZ) : begin               //  TODO:   Implement
                 pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
-    
+                //if (rs-rt)==0 or MSB(rs-rt)==1 then pc==immediate
             end
             (OPCODE_BLTZ) : begin               //  TODO:   Implement
                 pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
-    
+                // if (rs-rt)!=0 and MSB(rs-rt)==1 then pc==immediate
             end
             (OPCODE_BLTZAL) : begin             //  TODO:   Implement
                 pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
-    
+                //store current pc in ra
+                // if (rs-rt)!=0 and MSB(rs-rt)==1 then pc==immediate
             end
             (OPCODE_BNE) : begin
                 pc <= (register[rs] != register[rt]) ? (address_immediate + 5'd4) : (pc);
+    
             end
-            (OPCODE_BGEZ) : begin
-
-            end
-            (OPCODE_BGEZAL) : begin
-
-            end
-            (OPCODE_BGTZ) : begin
-
-            end
-            (OPCODE_BLEZ) : begin
-
-            end
-            (OPCODE_BLTZ) : begin
-
-            end
-            (OPCODE_BLTZAL) : begin
-
-            end
+            
+        
+            
+            
 
         //  Load / Store        //  TODO:   Not begun yet
             (OPCODE_LB) : begin
