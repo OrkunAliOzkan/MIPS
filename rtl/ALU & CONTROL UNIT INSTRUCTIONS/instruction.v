@@ -167,6 +167,7 @@ typedef enum logics[5:0]
                             destination being $zero, so use a multiplexer to make this
                         */
                         register[rd] <= (rd != 0) ? ($unsigned(rs) + $unsigned(rt)) : (0);
+                        assert(rd != 0) else $fatal(2, "Error, trying to write to zero register");
                     end
 
                     (FUNCTION_CODE_SUBU): begin
@@ -174,6 +175,7 @@ typedef enum logics[5:0]
                             Like addition, use a multiplexer to confirm rd is not $zero
                         */
                         register[rd] <= (rd != 0) ? ($unsigned(rs) - $unsigned(rt)) : (0);
+                        assert(rd != 0) else $fatal(2, "Error, trying to write to zero register");
                     end
 
                     (FUNCTION_CODE_DIV): begin
