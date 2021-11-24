@@ -198,7 +198,9 @@ typedef enum logics[1:0]
             end
         end
         if (state == state_t.FETCH) begin //FETCH
-            PC_next <= PC + 4;
+            if (waitrequest) begin
+                state <= EXEC1;
+            end
         end
         else if (state == state_t.EXEC1) begin //EXEC1
             
