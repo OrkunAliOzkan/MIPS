@@ -214,192 +214,194 @@ typedef enum logics[1:0]
 endmodule
 
 /*
+//  Instructions:   (ref: https://uweb.engr.arizona.edu/~ece369/Resources/spim/MIPSReference.pdf)
     case(opcode)
         //  R type instructions
         (OPCODE_R): begin
             //  We have to determine what the R type instruction is by virtue of its function code
             case(fcode_t)
-        //  Basic arithematic
-            (FUNCTION_CODE_ADDU): begin
-                    /*
-                        We can conduct register addition with anything except for 
-                        destination being $zero, so use a multiplexer to make this
-                    /*
-                    register[rd] <= (rd != 0) ? ($unsigned(rs) + $unsigned(rt)) : (0);
+            //  Basic arithematic
+                (FUNCTION_CODE_ADDU): begin
+                        /*
+                            We can conduct register addition with anything except for 
+                            destination being $zero, so use a multiplexer to make this
+                        /*
+                        register[rd] <= (rd != 0) ? ($unsigned(rs) + $unsigned(rt)) : (0);
+                    end
+
+                    (FUNCTION_CODE_SUBU): begin
+                        /*
+                            Like addition, use a multiplexer to confirm rd is not $zero
+                        /*
+                        register[rd] <= (rd != 0) ? ($unsigned(rs) - $unsigned(rt)) : (0);
+                    end
+
+                    (FUNCTION_CODE_DIV): begin
+                        HI <= register[rs] % register[rt];
+                        LO <= register[rs] / register[rt];
+                    end
+
+                    (FUNCTION_CODE_DIVU): begin
+                        HI <= $unsigned(register[rs]) % $unsigned(register[rt];)
+                        LO <= $unsigned(register[rs]) / $unsigned(register[rt];)
+                    end
+
+
+                    (FUNCTION_CODE_MULT): begin //  TODO:   me
+
+                    end
+
+                    (FUNCTION_CODE_MULTU): begin //  TODO:   me
+
+                    end
+
+            //  Bitwise operation
+                    (FUNCTION_CODE_AND): begin
+                        register[rd] <= (rd != 0) ? ($unsigned(rs) & $unsigned(rt)) : (0);
+                    end
+
+                    (FUNCTION_CODE_OR): begin
+                        register[rd] <= (rd != 0) ? ($unsigned(rs) | $unsigned(rt)) : (0);
+                    end
+
+                    (FUNCTION_CODE_XOR): begin
+                        register[rd] <= (rd != 0) ? ($unsigned(rs) ^ $unsigned(rt)) : (0);
+                    end
+
+            //  Set operations
+                (FUNCTION_CODE_SLT): begin
+                    register[rd] = (rd != 0) ? ((register[rs] < register[rt]) ? (1) : (0)) : (0);
                 end
 
-                (FUNCTION_CODE_SUBU): begin
-                    /*
-                        Like addition, use a multiplexer to confirm rd is not $zero
-                    /*
-                    register[rd] <= (rd != 0) ? ($unsigned(rs) - $unsigned(rt)) : (0);
-                end
-
-                (FUNCTION_CODE_DIV): begin
-                    HI <= register[rs] % register[rt];
-                    LO <= register[rs] / register[rt];
-                end
-
-                (FUNCTION_CODE_DIVU): begin
-                    HI <= $unsigned(register[rs]) % $unsigned(register[rt];)
-                    LO <= $unsigned(register[rs]) / $unsigned(register[rt];)
+                (FUNCTION_CODE_SLTU): begin
+                    register[rd] = (rd != 0) ? (($unsigned(register[rs]) < $unsigned(register[rt])) ? (1) : (0)) : (0);
                 end
 
 
-                (FUNCTION_CODE_MULT): begin
+                (FUNCTION_CODE_SLL): begin
 
                 end
 
-                (FUNCTION_CODE_MULTU): begin
+                (FUNCTION_CODE_SLLV): begin
 
                 end
 
-        //  Bitwise operation
-                (FUNCTION_CODE_AND): begin
-                    register[rd] <= (rd != 0) ? ($unsigned(rs) & $unsigned(rt)) : (0);
+                (FUNCTION_CODE_SRA): begin
+
                 end
 
-                (FUNCTION_CODE_OR): begin
-                    register[rd] <= (rd != 0) ? ($unsigned(rs) | $unsigned(rt)) : (0);
+                (FUNCTION_CODE_SRAV): begin
+
                 end
 
-                (FUNCTION_CODE_XOR): begin
-                    register[rd] <= (rd != 0) ? ($unsigned(rs) ^ $unsigned(rt)) : (0);
+                (FUNCTION_CODE_SRL): begin
+
                 end
 
-            (FUNCTION_CODE_SLT): begin  //  FIXME:  I don't know if this is what SLT does
-                register[rd] = (rd != 0) ? ((register[rs] < register[rt]) ? (1) : (0)) : (0);
+                (FUNCTION_CODE_SRLV): begin
 
-            end
+                end
 
-            (FUNCTION_CODE_SLTU): begin //  TODO:   Will implement once SLT is known
-                
-            end
+            //  Move instructions
+                (FUNCTION_CODE_MTHI): begin
+                    register[rd] = (rd != 0) ? (HI) : (0);
+                end
 
-            (FUNCTION_CODE_XOR): begin
-                register[rd] <= (rd != 0) ? ($unsigned(rs) ^ $unsigned(rt)) : (0);
-            end
+                (FUNCTION_CODE_MTLO): begin
+                    register[rd] = (rd != 0) ? (LO) : (0);
+                end
 
-            (FUNCTION_CODE_SLL): begin
-                
-            end
-
-            (FUNCTION_CODE_SLLV): begin
-                
-            end
-
-            (FUNCTION_CODE_SRA): begin
-                
-            end
-
-            (FUNCTION_CODE_SRAV): begin
-                
-            end
-
-            (FUNCTION_CODE_SRL): begin
-                
-            end
-
-            (FUNCTION_CODE_SRLV): begin
-                
-            end
-
-            (FUNCTION_CODE_MTHI): begin
-                register[rd] = 
-            end
-
-            (FUNCTION_CODE_MTLO): begin
-                
-            end
             endcase
-        end
+end
 
         //  J type instructions
-        (OPCODE_J1 || OPCODE_J2): begin
-            case(): begin
+            (OPCODE_J1 || OPCODE_J2): begin
+                case(): begin
 
-            endcase
+                endcase
 
-        end
-
-        (ITYPE_ADDIU): begin
-
-        end
+            end
 
         //  I type instructions
-        (OPCODE_ADDIU) : begin
+            (OPCODE_ADDIU) : begin
+                
+            end
+            (OPCODE_ANDI) : begin
 
-        end
-        (OPCODE_ANDI) : begin
+            end
+            (OPCODE_LUI) : begin
 
-        end
+            end
+            (OPCODE_ORI) : begin
+
+            end
+            (OPCODE_SLTI) : begin
+
+            end
+            (OPCODE_SLTIU) : begin
+
+            end
+            (OPCODE_XORI) : begin
+
+
+            end
 
         //  Branch
-            (OPCODE_BEQ) : begin                //  TODO:   Implement
-                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
+            (OPCODE_BEQ) : begin
+                //  add 4 since TODO:   Why?
+                pc <= (register[rs] == register[rt]) ? (address_immediate + 5'd4) : (pc);
     
             end
             (OPCODE_BGEZ) : begin               //  TODO:   Implement
+                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
     
             end
             (OPCODE_BGEZAL) : begin             //  TODO:   Implement
+                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
     
             end
             (OPCODE_BGTZ) : begin               //  TODO:   Implement
+                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
     
             end
             (OPCODE_BLEZ) : begin               //  TODO:   Implement
+                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
     
             end
             (OPCODE_BLTZ) : begin               //  TODO:   Implement
+                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
     
             end
             (OPCODE_BLTZAL) : begin             //  TODO:   Implement
+                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
     
             end
-            (OPCODE_BNE) : begin                //  TODO:   Implement
+            (OPCODE_BNE) : begin
                 pc <= (register[rs] != register[rt]) ? (address_immediate + 5'd4) : (pc);
             end
-        (OPCODE_LUI) : begin                //  TODO:   Implement
-        (OPCODE_BEQ) : begin
+            (OPCODE_BEQ) : begin
 
-        end
-        (OPCODE_BGEZ) : begin
+            end
+            (OPCODE_BGEZ) : begin
 
-        end
-        (OPCODE_BGEZAL) : begin
+            end
+            (OPCODE_BGEZAL) : begin
 
-        end
-        (OPCODE_BGTZ) : begin
+            end
+            (OPCODE_BGTZ) : begin
 
-        end
-        (OPCODE_BLEZ) : begin
+            end
+            (OPCODE_BLEZ) : begin
 
-        end
-        (OPCODE_BLTZ) : begin
+            end
+            (OPCODE_BLTZ) : begin
 
-        end
-        (OPCODE_BLTZAL) : begin
+            end
+            (OPCODE_BLTZAL) : begin
 
-        end
-        (OPCODE_BNE) : begin
+            end
 
-        end
-        (OPCODE_LUI) : begin
 
-        end
-        (OPCODE_ORI) : begin
-
-        end
-        (OPCODE_SLTI) : begin
-
-        end
-        (OPCODE_SLTIU) : begin
-
-        end
-        (OPCODE_XORI) : begin
-
-        end
         (OPCODE_LB) : begin
 
         end
