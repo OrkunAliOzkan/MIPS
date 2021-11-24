@@ -190,7 +190,13 @@ typedef enum logics[1:0]
 
     always_ff(posedge clk) begin
     {
-
+        if (reset) begin
+            state <= FETCH;
+            pc_next <= 0x'BFC00000;
+            for (i=0; i<32; i++) begin
+                register[i] <= 0;
+            end
+        end
         if (state == state_t.FETCH) begin //FETCH
             PC_next <= PC + 4;
         end
