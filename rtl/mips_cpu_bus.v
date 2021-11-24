@@ -199,6 +199,17 @@ module mips_cpu_bus(
             address = PC;
         end
 
+        if (state == EXEC1)
+        begin
+            opcode = readdata[31:26];
+            funct = readdata[5:0];
+            shmat = readdata[10:6];
+            rs = readdata[20:16];
+            rt = readdata[15:11];
+            rd = readdata[25:21];
+            targetAddress = [25:0];
+        end
+
     end
 
     always_ff(posedge clk) begin
@@ -221,10 +232,14 @@ module mips_cpu_bus(
             //get instruction
             //address and read are combinationally set
             //so readdata should have the instruction on the next cycle - EXEC1
-            
+            if !(waitrequest) begin
+                state == EXEC1;
+            end
+
         end
         else if (state == EXEC1) begin //EXEC1
             // address = PC if not reading from RAM 
+            //decode instruction
         end
         else if (state == EXEC2) begin //EXEC2
 
