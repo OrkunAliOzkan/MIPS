@@ -182,13 +182,13 @@ typedef enum logics[5:0]
                     end
 
 
-                    (FUNCTION_CODE_MULT): begin //  TODO:   me
+                    (FUNCTION_CODE_MULT): begin
                         multWire = register[rs] * register[rt];
                         HI <= [63:32] multWire;
                         LO <=  [31:0] multWire;
                     end
 
-                    (FUNCTION_CODE_MULTU): begin //  TODO:   me
+                    (FUNCTION_CODE_MULTU): begin
                         multWire = $unsigned(register[rs]) * $unsigned(register[rt]);
                         HI <= [63:32] multWire;
                         LO <=  [31:0] multWire;
