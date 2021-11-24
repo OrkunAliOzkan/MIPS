@@ -146,10 +146,11 @@ typedef enum logics[1:0]
     //  Wires used in ALU
 
 /*
-        Field name: 6 bits |5 bits |5 bits |5 bits  |5 bits     |6 bits     |
-        R format:   op     |rs     |rt     |rd      |shmat      |funct      |
-        I format:   op     |rs     |rt     |address/immediate               |
-        J format:   op     |target address                                  |
+        TODO:   Check this is correct!
+        |Field name: 6 bits |5 bits |5 bits |5 bits  |5 bits     |6 bits     |
+        |R format:   op     |rd     |rs     |rt      |shmat      |funct      |
+        |I format:   op     |rd     |rs     |address/immediate               |
+        |J format:   op     |target address                                  |
 */
         opcode_t opcode;
         logic[4:0] rs;
@@ -270,7 +271,7 @@ endmodule
                         register[rd] <= (rd != 0) ? ($unsigned(rs) ^ $unsigned(rt)) : (0);
                     end
 
-            //  Set operations
+            //  Set operations  //  TODO:   Incomplete, don't know what instructions mean
                 (FUNCTION_CODE_SLT): begin
                     register[rd] = (rd != 0) ? ((register[rs] < register[rt]) ? (1) : (0)) : (0);
                 end
@@ -314,7 +315,6 @@ endmodule
                 end
 
             endcase
-end
 
         //  J type instructions
             (OPCODE_J1 || OPCODE_J2): begin
@@ -324,28 +324,27 @@ end
 
             end
 
-        //  I type instructions
+        //  I type instructions //  TODO:   LUI
             (OPCODE_ADDIU) : begin
-                
+                register[rd] <= (rd != 0) ? ($unsigned(register[rs]) + $unsigned(register[address_immediate])) : (0);
             end
             (OPCODE_ANDI) : begin
-
+                register[rd] <= (rd != 0) ? ($unsigned(register[rs]) & $unsigned(register[address_immediate])) : (0);
+            end
+            (OPCODE_ORI) : begin
+                register[rd] <= (rd != 0) ? ($unsigned(register[rs]) | $unsigned(register[address_immediate])) : (0);
+            end
+            (OPCODE_XORI) : begin
+                register[rd] <= (rd != 0) ? ($unsigned(register[rs]) ^ $unsigned(register[address_immediate])) : (0);
             end
             (OPCODE_LUI) : begin
 
             end
-            (OPCODE_ORI) : begin
-
-            end
             (OPCODE_SLTI) : begin
-
+                    register[rd] = (rd != 0) ? ((register[rs] < register[address_immediate]) ? (1) : (0)) : (0);
             end
             (OPCODE_SLTIU) : begin
-
-            end
-            (OPCODE_XORI) : begin
-
-
+                    register[rd] = (rd != 0) ? (($unsigned(register[rs]) < $unsigned(register[address_immediate])) ? (1) : (0)) : (0);
             end
 
         //  Branch
@@ -403,30 +402,30 @@ end
 
             end
 
+        //  Load / Store        //  TODO:   Not begun yet
+            (OPCODE_LB) : begin
 
-        (OPCODE_LB) : begin
+            end
+            (OPCODE_LBU) : begin
 
-        end
-        (OPCODE_LBU) : begin
+            end
+            (OPCODE_LH) : begin
 
-        end
-        (OPCODE_LH) : begin
+            end
+            (OPCODE_LHU) : begin
 
-        end
-        (OPCODE_LHU) : begin
+            end
+            (OPCODE_LW) : begin
 
-        end
-        (OPCODE_LW) : begin
+            end
+            (OPCODE_SB) : begin
 
-        end
-        (OPCODE_SB) : begin
+            end
+            (OPCODE_SH) : begin
 
-        end
-        (OPCODE_SH) : begin
+            end
+            (OPCODE_SW) : begin
 
-        end
-        (OPCODE_SW) : begin
-
-        end
+            end
     endcase
 */
