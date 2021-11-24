@@ -138,7 +138,7 @@ typedef enum logics[1:0]
 
     //  Regisgters
         //  General Registers
-        logic[31:0] register;
+        logic[31:0] register [31:0];
         //  Special Registers
         logic[31:0] HI;
         logic[31:0] LO;
