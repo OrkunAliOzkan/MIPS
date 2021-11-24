@@ -1,10 +1,16 @@
-//  TODO:   Make  robust ALU
+/**
+ * @MIPS CPU INSTRUCTIONS TEST BENCH
+ * @brief:      Implementation of all of the instructions.
+ * @version 0.1
+ * @date 2021-11-22
+ *
+ * @copyright Copyright (c) 2021
+ *
+ */
 
 module mips_instruction_test(
     /* Standard signals */
     input logic clk,
-    input logic reset,
-    output logic active,
     output logic[31:0] register_v0,
 
     /* Avalon memory mapped bus controller (master) */
@@ -51,16 +57,16 @@ module mips_instruction_test(
 
     Opcodes:
     R types have an opcode of 0d0, therefore are differentiated through their function codes
-    J types have an opcode of 0d2 and 0d3, therefore don't need to have their opcode specified
-    I type uniques opcodes
-    
+    J types have uniques opcodes
+    I types have uniques opcodes
+
     I type formatting:  For Transfer, branch and immedaiate instructions
 */
 typedef enum logic[5:0]
 {
     OPCODE_R = 6'd0,
-    OPCODE_J1 = 6'd2,
-    OPCODE_J2 = 6'd3,
+    OPCODE_J = 6'd2,
+    OPCODE_JAL = 6'd3,
 
     OPCODE_ADDIU = 6'd9,
     OPCODE_ANDI = 6'd12,
@@ -92,7 +98,6 @@ typedef enum logic[5:0]
 */
 typedef enum logics[5:0]
 {
-    //  TODO:   Are move functions R type?
     FUNCTION_CODE_ADDU = 6'd33,
     FUNCTION_CODE_AND = 6'd36,
     FUNCTION_CODE_OR = 6'd37,
@@ -112,8 +117,10 @@ typedef enum logics[5:0]
     FUNCTION_CODE_MULTU = 6'd25,
     FUNCTION_CODE_MTHI = 6'd17,
     FUNCTION_CODE_MTLO = 6'd18,
-    FUNCTION_CODE_LWR = 6'd,    //FIXME:Hmmm
-    FUNCTION_CODE_LWL = 6'd,    //FIXME:Hmmm
+    //FUNCTION_CODE_LWR = 6'd,    //FIXME:  Can't find any of the function codes for the two
+    //FUNCTION_CODE_LWL = 6'd,    //FIXME:  Can't find any of the function codes for the two
+    FUNCTION_CODE_JALR = 6'd,
+    FUNCTION_CODE_JR = 6'd,
 } fcode_t;
 
     //  State Registers
@@ -127,10 +134,8 @@ typedef enum logics[5:0]
         logic[31:0] HI;
         logic[31:0] LO;
 
-    //  Wires used in ALU
-
 /*
-        TODO:   Check this is correct!
+        Wires used in ALU
         |Field name: 6 bits |5 bits |5 bits |5 bits  |5 bits     |6 bits     |
         |R format:   op     |rd     |rs     |rt      |shmat      |funct      |
         |I format:   op     |rd     |rs     |address/immediate               |
@@ -154,9 +159,9 @@ typedef enum logics[5:0]
         //  R type instructions
         (OPCODE_R): begin
             //  We have to determine what the R type instruction is by virtue of its function code
-            case(fcode_t)
+            case(funct)
             //  Basic arithematic
-                (FUNCTION_CODE_ADDU): begin
+                    (FUNCTION_CODE_ADDU): begin
                         /*
                             We can conduct register addition with anything except for 
                             destination being $zero, so use a multiplexer to make this
@@ -252,38 +257,47 @@ typedef enum logics[5:0]
             endcase
 
         //  J type instructions
-            (OPCODE_J1 || OPCODE_J2): begin
-                case(): begin
-
-                endcase
-
+            (OPCODE_J) : begin
+                PC_next <= 4*targetAddress
+            end
+            (OPCODE_JAL) : begin
+                register[31] <= PC + 5'd4;
+                PC_next <= 4*targetAddress
+            
             end
 
-        //  I type instructions //  TODO:   LUI
+        //  I type instructions
             (OPCODE_ADDIU) : begin
                 register[rd] <= (rd != 0) ? ($unsigned(register[rs]) + $unsigned(register[address_immediate])) : (0);
             end
+
             (OPCODE_ANDI) : begin
                 register[rd] <= (rd != 0) ? ($unsigned(register[rs]) & $unsigned(register[address_immediate])) : (0);
             end
+
             (OPCODE_ORI) : begin
                 register[rd] <= (rd != 0) ? ($unsigned(register[rs]) | $unsigned(register[address_immediate])) : (0);
             end
+
             (OPCODE_XORI) : begin
                 register[rd] <= (rd != 0) ? ($unsigned(register[rs]) ^ $unsigned(register[address_immediate])) : (0);
             end
+
             (OPCODE_LUI) : begin
                 register[rd] <= (rd != 0) ? (address_immediate << 16) : (0);
             end
+
             (OPCODE_SLTI) : begin
                     register[rd] = (rd != 0) ? ((register[rs] < register[address_immediate]) ? (1) : (0)) : (0);
             end
+
             (OPCODE_SLTIU) : begin
                     register[rd] = (rd != 0) ? (($unsigned(register[rs]) < $unsigned(register[address_immediate])) ? (1) : (0)) : (0);
             end
 
         //  Branch
             (OPCODE_BEQ) : begin
+<<<<<<< HEAD
                 //  add 4 since TODO:   Why?
                 PC_next <= (register[rs] == register[rt]) ? (address_immediate + 5'd4) : (pc);
     
@@ -302,16 +316,39 @@ typedef enum logics[5:0]
             (OPCODE_BGTZ) : begin               //  TODO:   Implement
                 PC_next <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
                 // if (rs-rt)!=0 and MSB(rs-rt)==0 then pc==immediate
+=======
+                //  add 4 since PC increments by bites
+                pc <= (register[rs] == register[rt]) ? (address_immediate + 5'd4) : (pc);
             end
+
+            (OPCODE_BNE) : begin
+                pc <= (register[rs] != register[rt]) ? (address_immediate + 5'd4) : (pc);
+            end
+
+            (OPCODE_BGEZ) : begin               //  TODO:   Implement
+
+>>>>>>> 5bb126a25e97c6fb4967c782f7f084a688855f37
+            end
+
             (OPCODE_BLEZ) : begin               //  TODO:   Implement
+<<<<<<< HEAD
                 pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
                 //if (rs-rt)==0 or MSB(rs-rt)==1 then pc==immediate
             end
             (OPCODE_BLTZ) : begin               //  TODO:   Implement
                 pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
                 // if (rs-rt)!=0 and MSB(rs-rt)==1 then pc==immediate
+=======
+
             end
+
+            (OPCODE_BGEZAL) : begin             //  TODO:   Implement
+
+>>>>>>> 5bb126a25e97c6fb4967c782f7f084a688855f37
+            end
+
             (OPCODE_BLTZAL) : begin             //  TODO:   Implement
+<<<<<<< HEAD
                 pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
                 //store current pc in ra
                 // if (rs-rt)!=0 and MSB(rs-rt)==1 then pc==immediate
@@ -324,29 +361,56 @@ typedef enum logics[5:0]
         
             
             
+=======
+
+            end
+
+            (OPCODE_BGTZ) : begin               //  TODO:   Implement
+
+            end
+
+            (OPCODE_BLTZ) : begin               //  TODO:   Implement
+
+            end
+
+            (OPCODE_BLEZ) : begin               //  TODO:   Implement
+
+            end
+
+            (OPCODE_BLTZ) : begin               //  TODO:   Implement
+
+            end
+>>>>>>> 5bb126a25e97c6fb4967c782f7f084a688855f37
 
         //  Load / Store        //  TODO:   Not begun yet
             (OPCODE_LB) : begin
 
             end
+
             (OPCODE_LBU) : begin
 
             end
+
             (OPCODE_LH) : begin
 
             end
+
             (OPCODE_LHU) : begin
 
             end
+
             (OPCODE_LW) : begin
 
             end
+
             (OPCODE_SB) : begin
 
             end
+
             (OPCODE_SH) : begin
 
             end
+
             (OPCODE_SW) : begin
 
             end

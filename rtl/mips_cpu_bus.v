@@ -195,9 +195,33 @@ module mips_cpu_bus(
     always_comb() begin
         if (state == FETCH)
         begin
-            write = 1b'1;
+            read = 1b'1;
             address = PC;
         end
+
+        if (state == EXEC1)
+        begin
+            opcode = readdata[31:26];
+            funct = readdata[5:0];
+            shmat = readdata[10:6];
+            rs = readdata[20:16];
+            rt = readdata[15:11];
+            rd = readdata[25:21];
+            targetAddress = [25:0];
+            address_immediate = readdata[15:0];
+        end
+
+        if (state == EXEC2)
+        begin
+            
+        end
+        else if (state == EXEC2) begin
+            // if a load instruction, we need to write back to registers.
+            // If a store instuction, we need to write to the RAM.
+            // If a complex jump instruction, we need to change the PC.
+            // Immediate functions can edit either RAM or registers depending on type.
+        end
+         
 
     end
 
@@ -210,25 +234,28 @@ module mips_cpu_bus(
                 register[i] <= 0;
             end
         end
-        if (state == FETCH) begin //FETCH
-            if (waitrequest) begin
-                state <= EXEC1;
-            end
-            //get instruction?
+        else if (state == FETCH) begin //FETCH
+
+            /*
+            On waitrequest - we must delay by a cycle and wait for it to go low if it is high when reading/writing to RAM specifically. 
+            This must be implemented in the always_ff block.
+            I am 65% confident in this fact.
+            */
+
+            //get instruction
             //address and read are combinationally set
-            //so readdata should have the instruction on the next cycle
-            
+            //so readdata should have the instruction on the next cycle - EXEC1
+            if !(waitrequest) begin
+                state == EXEC1;
+            end
+
         end
         else if (state == EXEC1) begin //EXEC1
-            if (waitrequest) begin
-                state <= EXEC2;
-            end
             // address = PC if not reading from RAM 
+            //decode instruction
         end
         else if (state == EXEC2) begin //EXEC2
-            if (waitrequest) begin
-                state <= FETCH;
-            end
+
             if ()
         end
     }
