@@ -297,7 +297,6 @@ typedef enum logics[5:0]
 
         //  Branch
             (OPCODE_BEQ) : begin
-<<<<<<< HEAD
                 //  add 4 since TODO:   Why?
                 PC_next <= (register[rs] == register[rt]) ? (address_immediate + 5'd4) : (pc);
     
@@ -316,7 +315,6 @@ typedef enum logics[5:0]
             (OPCODE_BGTZ) : begin               //  TODO:   Implement
                 PC_next <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
                 // if (rs-rt)!=0 and MSB(rs-rt)==0 then pc==immediate
-=======
                 //  add 4 since PC increments by bites
                 pc <= (register[rs] == register[rt]) ? (address_immediate + 5'd4) : (pc);
             end
@@ -327,7 +325,6 @@ typedef enum logics[5:0]
 
             (OPCODE_BGEZ) : begin               //  TODO:   Implement
 
->>>>>>> 5bb126a25e97c6fb4967c782f7f084a688855f37
             end
 
             (OPCODE_BLEZ) : begin               //  TODO:   Implement
