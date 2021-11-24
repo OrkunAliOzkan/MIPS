@@ -134,7 +134,7 @@ typedef enum logics[1:0]
 
     //  State Registers
     logic[31:0] PC, PC_next, PC_jump;
-    logic[1:0] state;
+    state_t state;
 
     //  Regisgters
         //  General Registers
@@ -230,19 +230,23 @@ endmodule
                 end
 
                 (FUNCTION_CODE_DIV): begin
-
+                    register[HI] <= reigsters[rs] % registers[rt];
+                    register[LO] <= reigsters[rs] / registers[rt];
                 end
 
                 (FUNCTION_CODE_DIVU): begin
-
+                    register[HI] <= $unsigined(reigsters[rs]) % $registers[unsigined(rt]);
+                    register[LO] <= $unsigined(reigsters[rs]) / $registers[unsigined(rt]);
                 end
 
                 (FUNCTION_CODE_MULT): begin
-
+                    register[HI] <= reigsters[rs] % registers[rt];
+                    register[LO] <= reigsters[rs] / registers[rt];
                 end
 
                 (FUNCTION_CODE_MULTU): begin
-
+                    register[HI] <= $unsigined(reigsters[rs]) % $registers[unsigined(rt]);
+                    register[LO] <= $unsigined(reigsters[rs]) / $registers[unsigined(rt]);
                 end
 
         //  Bitwise operation
@@ -258,11 +262,11 @@ endmodule
                     register[rd] <= (rd != 0) ? ($unsigned(rs) ^ $unsigned(rt)) : (0);
                 end
 
-            (FUNCTION_CODE_SLT): begin
+            (FUNCTION_CODE_SLT): begin      //  TODO:   Implement
                 
             end
 
-            (FUNCTION_CODE_SLTU): begin
+            (FUNCTION_CODE_SLTU): begin     //  TODO:   Implement
                 
             end
 
@@ -270,36 +274,36 @@ endmodule
                 register[rd] <= (rd != 0) ? ($unsigned(rs) ^ $unsigned(rt)) : (0);
             end
 
-            (FUNCTION_CODE_SLL): begin
+            (FUNCTION_CODE_SLL): begin      //  TODO:   Implement
                 
             end
 
-            (FUNCTION_CODE_SLLV): begin
+            (FUNCTION_CODE_SLLV): begin     //  TODO:   Implement
                 
             end
 
-            (FUNCTION_CODE_SRA): begin
+            (FUNCTION_CODE_SRA): begin      //  TODO:   Implement
                 
             end
 
-            (FUNCTION_CODE_SRAV): begin
+            (FUNCTION_CODE_SRAV): begin     //  TODO:   Implement
                 
             end
 
-            (FUNCTION_CODE_SRL): begin
+            (FUNCTION_CODE_SRL): begin      //  TODO:   Implement
                 
             end
 
-            (FUNCTION_CODE_SRLV): begin
+            (FUNCTION_CODE_SRLV): begin     //  TODO:   Implement
                 
             end
 
-            (FUNCTION_CODE_MTHI): begin
-                
+            (FUNCTION_CODE_MTHI): begin     //  TODO:   Implement
+                register[rd] <= (rd != 0) ? (HI) : (0);
             end
 
-            (FUNCTION_CODE_MTLO): begin
-                
+            (FUNCTION_CODE_MTLO): begin     //  TODO:   Implement
+                register[rd] <= (rd != 0) ? (LI) : (0);
             end
             endcase
         end
@@ -312,78 +316,78 @@ endmodule
 
         end
 
-        (ITYPE_ADDIU): begin
+        (ITYPE_ADDIU): begin                //  TODO:   Implement
 
         end
 
         //  I type instructions
-        (OPCODE_ADDIU) : begin
+        (OPCODE_ADDIU) : begin              //  TODO:   Implement
 
         end
-        (OPCODE_ANDI) : begin
+        (OPCODE_ANDI) : begin               //  TODO:   Implement
 
         end
-        (OPCODE_BEQ) : begin
+        (OPCODE_BEQ) : begin                //  TODO:   Implement
 
         end
-        (OPCODE_BGEZ) : begin
+        (OPCODE_BGEZ) : begin               //  TODO:   Implement
 
         end
-        (OPCODE_BGEZAL) : begin
+        (OPCODE_BGEZAL) : begin             //  TODO:   Implement
 
         end
-        (OPCODE_BGTZ) : begin
+        (OPCODE_BGTZ) : begin               //  TODO:   Implement
 
         end
-        (OPCODE_BLEZ) : begin
+        (OPCODE_BLEZ) : begin               //  TODO:   Implement
 
         end
-        (OPCODE_BLTZ) : begin
+        (OPCODE_BLTZ) : begin               //  TODO:   Implement
 
         end
-        (OPCODE_BLTZAL) : begin
+        (OPCODE_BLTZAL) : begin             //  TODO:   Implement
 
         end
-        (OPCODE_BNE) : begin
+        (OPCODE_BNE) : begin                //  TODO:   Implement
 
         end
-        (OPCODE_LUI) : begin
+        (OPCODE_LUI) : begin                //  TODO:   Implement
 
         end
-        (OPCODE_ORI) : begin
+        (OPCODE_ORI) : begin                //  TODO:   Implement
 
         end
-        (OPCODE_SLTI) : begin
+        (OPCODE_SLTI) : begin               //  TODO:   Implement
 
         end
-        (OPCODE_SLTIU) : begin
+        (OPCODE_SLTIU) : begin              //  TODO:   Implement
 
         end
-        (OPCODE_XORI) : begin
+        (OPCODE_XORI) : begin               //  TODO:   Implement
 
         end
-        (OPCODE_LB) : begin
+        (OPCODE_LB) : begin                 //  TODO:   Implement
 
         end
-        (OPCODE_LBU) : begin
+        (OPCODE_LBU) : begin                //  TODO:   Implement
 
         end
-        (OPCODE_LH) : begin
+        (OPCODE_LH) : begin                 //  TODO:   Implement
 
         end
-        (OPCODE_LHU) : begin
+        (OPCODE_LHU) : begin                //  TODO:   Implement
 
         end
-        (OPCODE_LW) : begin
+        (OPCODE_LW) : begin                 //  TODO:   Implement
 
         end
-        (OPCODE_SB) : begin
+        (OPCODE_SB) : begin                 //  TODO:   Implement
 
         end
-        (OPCODE_SH) : begin
+        (OPCODE_SH) : begin                 //  TODO:   Implement
 
         end
-        (OPCODE_SW) : begin
+        (OPCODE_SW) : begin                 //  TODO:   Implement
 
         end
     endcase
