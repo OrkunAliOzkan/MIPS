@@ -198,15 +198,15 @@ typedef enum logics[1:0]
                 register[i] <= 0;
             end
         end
-        if (state == state_t.FETCH) begin //FETCH
+        if (state == FETCH) begin //FETCH
             if (waitrequest) begin
                 state <= EXEC1;
             end
         end
-        else if (state == state_t.EXEC1) begin //EXEC1
+        else if (state == EXEC1) begin //EXEC1
             
         end
-        else if (state == state_t.EXEC2) begin //EXEC2
+        else if (state == EXEC2) begin //EXEC2
             
         end
     }
@@ -224,7 +224,7 @@ endmodule
         (OPCODE_R): begin
             //  We have to determine what the R type instruction is by virtue of its function code
             case(fcode_t)
-            //  Basic arithematic
+            //  Basic arithmetic
                 (FUNCTION_CODE_ADDU): begin
                         /*
                             We can conduct register addition with anything except for 
