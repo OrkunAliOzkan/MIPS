@@ -127,7 +127,7 @@ typedef enum logics[5:0]
     logic[31:0] PC, PC_next, PC_jump;
     logic[1:0] state;
 
-    //  Regisgters
+    //  Registers
         //  General Registers
         logic[31:0][31:0] registers;
         //  Special Registers
