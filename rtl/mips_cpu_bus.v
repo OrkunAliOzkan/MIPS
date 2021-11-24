@@ -236,12 +236,15 @@ endmodule
                 end
 
                 (FUNCTION_CODE_DIV): begin
-
+                    HI <= register[rs] % register[rt];
+                    LO <= register[rs] / register[rt];
                 end
 
                 (FUNCTION_CODE_DIVU): begin
-
+                    HI <= $unsigned(register[rs]) % $unsigned(register[rt];)
+                    LO <= $unsigned(register[rs]) / $unsigned(register[rt];)
                 end
+
 
                 (FUNCTION_CODE_MULT): begin
 
@@ -264,11 +267,12 @@ endmodule
                     register[rd] <= (rd != 0) ? ($unsigned(rs) ^ $unsigned(rt)) : (0);
                 end
 
-            (FUNCTION_CODE_SLT): begin
-                
+            (FUNCTION_CODE_SLT): begin  //  FIXME:  I don't know if this is what SLT does
+                register[rd] = (rd != 0) ? ((register[rs] < register[rt]) ? (1) : (0)) : (0);
+
             end
 
-            (FUNCTION_CODE_SLTU): begin
+            (FUNCTION_CODE_SLTU): begin //  TODO:   Will implement once SLT is known
                 
             end
 
@@ -301,7 +305,7 @@ endmodule
             end
 
             (FUNCTION_CODE_MTHI): begin
-                
+                register[rd] = 
             end
 
             (FUNCTION_CODE_MTLO): begin
@@ -329,6 +333,34 @@ endmodule
         (OPCODE_ANDI) : begin
 
         end
+
+        //  Branch
+            (OPCODE_BEQ) : begin                //  TODO:   Implement
+                pc <= (register[rs] == register[rt]) ? (address_immediate) : (pc);
+    
+            end
+            (OPCODE_BGEZ) : begin               //  TODO:   Implement
+    
+            end
+            (OPCODE_BGEZAL) : begin             //  TODO:   Implement
+    
+            end
+            (OPCODE_BGTZ) : begin               //  TODO:   Implement
+    
+            end
+            (OPCODE_BLEZ) : begin               //  TODO:   Implement
+    
+            end
+            (OPCODE_BLTZ) : begin               //  TODO:   Implement
+    
+            end
+            (OPCODE_BLTZAL) : begin             //  TODO:   Implement
+    
+            end
+            (OPCODE_BNE) : begin                //  TODO:   Implement
+                pc <= (register[rs] != register[rt]) ? (address_immediate + 5'd4) : (pc);
+            end
+        (OPCODE_LUI) : begin                //  TODO:   Implement
         (OPCODE_BEQ) : begin
 
         end
