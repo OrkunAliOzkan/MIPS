@@ -153,9 +153,14 @@ typedef enum logics[5:0]
         fcode_t funct;
         logic[15:0] address_immediate;
         logic[25:0] targetAddress;
-        logic[63:0] multWire;
-        logic[63:0] multWireU;
 
+
+        //  Temporary wiring
+            //  Multiplication
+                logic[63:0] multWire;
+                logic[63:0] multWireU;
+            //  Branching
+                logic[24:0] threeWords;
 
 //  Instructions:   (ref: https://uweb.engr.arizona.edu/~ece369/Resources/spim/MIPSReference.pdf)
     case(opcode)
@@ -341,35 +346,99 @@ typedef enum logics[5:0]
 
         //  Load / Store https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
             (OPCODE_LB) : begin
-                register[rt] <= readdata[rs + address_immediate];
+                //  Load in the nth byte from the RAMs input to the CPU
+                //  Determine if latter 24 bits are 0 or 1
+                case((register[rs] + address_immediate) % 4) begin
+                    (0):
+                        register[rt] = {((readata[7]) ? (24'hFFF): (24'h0)), readdata[7:0]};
+                    (1):
+                        register[rt] = {((readata[15]) ? (24'hFFF): (24'h0)), readdata[15:8]};
+                    (2):
+                        register[rt] = {((readata[23]) ? (24'hFFF): (24'h0)), readdata[23:16]};
+                    (3):
+                        register[rt] = {((readata[31]) ? (24'hFFF): (24'h0)), readdata[31:24]};
+                endcase
             end
 
             (OPCODE_LBU) : begin
-                register[rt] <= readdata[($unsigned(register[rs]) + address_immediate)];
+                //  Load in the nth byte from the RAMs input to the CPU (unsigned)
+                case((register[rs] + address_immediate) % 4) begin
+                    (0):
+                        register[rt] = {24'b0, readdata[7:0]};
+                    (1):
+                        register[rt] = {24'b0, readdata[15:8]};
+                    (2):
+                        register[rt] = {24'b0, readdata[23:16]};
+                    (3):
+                        register[rt] = {24'b0, readdata[31:24]};
+                endcase
 
             end
 
             (OPCODE_LH) : begin
-
+                case((register[rs] + address_immediate) % 2) begin
+                    (0):
+                        register[rt] = {((readata[15]) ? (16'hFFF): (216'h0)), readdata[15:0]};
+                    (1):
+                        register[rt] = {((readata[31]) ? (16'hFFF): (16'h0)), readdata[31:16]};
+                endcase
             end
 
             (OPCODE_LHU) : begin
-
+                case((register[rs] + address_immediate) % 4) begin
+                    (0):
+                        register[rt] = {16'b0, readdata[15:0]};
+                    (1):
+                        register[rt] = {16'b0, readdata[31:16]};
+                endcase
             end
 
             (OPCODE_LW) : begin
-
+                    register[rt] = readdata;
             end
 
             (OPCODE_SB) : begin
-
+                //  Write must be high
+                //  setting values ton writedata
+                //  byte enable will be us choosing byte at address
+                //  Address is determined @ exec1
+                write = 1;  //  Enable write so that memory can be written upon
+                address = (reigser[rs] + address_immediate);
+                case(address % 4) begin
+                    (0) : begin
+                        byteenable = (4'd1);    //  Byte enable the first byte
+                    end
+                    (1) : begin
+                        byteenable = (4'd2);    //  Byte enable the second byte
+                    end
+                    (2) : begin
+                        byteenable = (4'd4);    //  Byte enable the third byte
+                    end
+                    (3) : begin
+                        byteenable = (4'd8);    //  Byte enable the fourth byte
+                    end
+                endcase
+                writedata = register[rt];   //  Write
             end
 
             (OPCODE_SH) : begin
-
+                write = 1;  //  Enable write so that memory can be written upon
+                address = (reigser[rs] + address_immediate);
+                case(address % 2) begin
+                    (0) : begin
+                        byteenable = (4'd3);    //  Byte enable the first two bytes
+                    end
+                    (1) : begin
+                        byteenable = (4'd12);   //  Byte anable the latter two bytes
+                    end
+                endcase
+                writedata = register[rt];   //  Write
             end
 
             (OPCODE_SW) : begin
-
+                write = 1;                  //  Enable write so that memory can be written upon
+                address = (reigser[rs] + address_immediate);
+                byteenable 4'd15;           //  Byte enable all bytes
+                writedata = register[rt];   //  Write
             end
     endcase
