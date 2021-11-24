@@ -132,9 +132,29 @@ typedef enum logics[1:0]
     HALTED = 2'd3
 } state_t;
 
+    //  State Registers
     logic[31:0] PC, PC_next, PC_jump;
     logic[1:0] state;
-    //EDIT
+
+    //  Regisgters
+        //  General Registers
+        logic[31:0] register;
+        //  Special Registers
+        logic[31:0] HI;
+        logic[31:0] LO;
+
+    //  Wires used in ALU
+        //  Universal
+        opcode_t opcode;
+
+        //  register S and T
+        logic[4:0] rs;
+        logic[4:0] st;
+        
+        //  I type
+        //  J type
+    fcode_t functionCode;
+    logic[3:0] DEST;
 
     /*
     Not sure where to put, but opcode stuff
