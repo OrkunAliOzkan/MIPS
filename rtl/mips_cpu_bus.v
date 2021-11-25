@@ -257,14 +257,17 @@ module mips_cpu_bus(
 
         end
         else if (state == EXEC1) begin //EXEC1
-            // all instruction arguments should be set. For single cycle instructions, remember to jump to FETCH and increment PC and set read high to fetch instruction for next cycle.
+            //  all instruction arguments should be set.
+            //  For single cycle instructions
+            //  remember to jump to FETCH and increment PC and set read high to fetch instruction for next cycle.
 
-            //WAIREQUEST TO BE INCLUDED IN MEMORY ACCESS INSTRUCTIONS
+            //  WAIREQUEST TO BE INCLUDED IN MEMORY ACCESS INSTRUCTIONS
+
+                //  Check before setting everything up to get all values ready, 
+                //  and check if weight request is not active low, stall like done in FETCH
         end
         else if (state == EXEC2) begin //EXEC2
             //increment PC?
-
-
 
             //so that when FETCH clocks, we send the request for the instruction, so that it is ready for EXEC1. 
             //PC = address combinationally.
@@ -273,8 +276,9 @@ module mips_cpu_bus(
             PC <= PC_next;
             state <= FETCH; //not dependent on waitrequest I don't think. Stay on FETCH if waitrequest is high.
         end
-            
-        else if (state == STALL) begin
+
+        //  Cleaner to have a seperate state outside of the typical FDE for this extreme condition
+        else if (state == STALL) begin  
             if !(waitrequest) begin
                 state <= EXEC2;
             end
