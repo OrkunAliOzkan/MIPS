@@ -1,6 +1,6 @@
 module tb_cpu();
     logic[31:0] readdata;
-    logic [4294967295:0] RAM [31:0];
+    logic [31:0] RAM [4294967295:0];
 
     initial begin
         //Data We Will Utilize
