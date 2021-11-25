@@ -210,7 +210,7 @@ module mips_cpu_bus(
             targetAddress = [25:0];
             address_immediate = readdata[15:0];
         end
-            
+
         end
         else if (state == EXEC2) begin
             // if a load instruction, we need to write back to registers.
@@ -222,7 +222,7 @@ module mips_cpu_bus(
                 PC_next = PC + 4;
             end
         end
-         
+
 
     end
 
