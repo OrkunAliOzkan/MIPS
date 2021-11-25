@@ -242,6 +242,10 @@ module mips_cpu_bus(
             This must be implemented in the always_ff block.
             I am 85% confident in this fact. We might need a separate state for this to just delay by a cycle in order to 
             prevent the re-execution of instructions.
+            If waitrequest failed and instruction failed to execute which requires memory retrieval, initialise stall state
+            Stall state:
+            -   If wait request is high at posedge, nothing is set correctly, 
+            -   so do nothing until wait request is low at posedge
             */
 
             //get instruction
