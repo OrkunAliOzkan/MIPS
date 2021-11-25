@@ -262,9 +262,6 @@ module mips_cpu_bus(
             //WAIREQUEST TO BE INCLUDED IN MEMORY ACCESS INSTRUCTIONS
         end
         else if (state == EXEC2) begin //EXEC2
-            //increment PC?
-
-
 
             //so that when FETCH clocks, we send the request for the instruction, so that it is ready for EXEC1. 
             //PC = address combinationally.
@@ -273,7 +270,7 @@ module mips_cpu_bus(
             PC <= PC_next;
             state <= FETCH; //not dependent on waitrequest I don't think. Stay on FETCH if waitrequest is high.
         end
-            
+
         else if (state == STALL) begin
             if !(waitrequest) begin
                 state <= EXEC2;
