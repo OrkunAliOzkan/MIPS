@@ -278,7 +278,7 @@ module mips_cpu_bus(
         end
 
         //  Cleaner to have a seperate state outside of the typical FDE for this extreme condition
-        else if (state == STALL) begin  
+        else if (state == STALL) begin
             if !(waitrequest) begin
                 state <= EXEC2;
             end
