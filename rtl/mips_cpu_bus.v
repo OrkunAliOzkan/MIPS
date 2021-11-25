@@ -129,7 +129,7 @@ module mips_cpu_bus(
         FETCH = 2'd0,
         EXEC1 = 2'd1,
         EXEC2 = 2'd2,
-        HALTED = 2'd3
+        STALL = 2'd3
     } state_t;
 
     //  State Registers
@@ -195,10 +195,10 @@ module mips_cpu_bus(
     always_comb() begin
         if (state == FETCH)
         begin
-            read = 1b'1;
-            address = PC;
+            
+            
         end
-
+        //NOT SURE ABOUT TIMING - I DON'T KNOW IF THIS WILL EXECUTE AT THE RIGHT TIME -  IF THIS IS IN PARALLEL WITH THE ALWAYS_FF BLOCK
         else if (state == EXEC1)
         begin
             opcode = readdata[31:26];
@@ -210,7 +210,7 @@ module mips_cpu_bus(
             targetAddress = [25:0];
             address_immediate = readdata[15:0];
         end
-            
+
         end
         else if (state == EXEC2) begin
             // if a load instruction, we need to write back to registers.
@@ -222,7 +222,7 @@ module mips_cpu_bus(
                 PC_next = PC + 4;
             end
         end
-         
+
 
     end
 
@@ -240,25 +240,48 @@ module mips_cpu_bus(
             /*
             On waitrequest - we must delay by a cycle and wait for it to go low if it is high when reading/writing to RAM specifically. 
             This must be implemented in the always_ff block.
-            I am 65% confident in this fact.
+            I am 85% confident in this fact. We might need a separate state for this to just delay by a cycle in order to 
+            prevent the re-execution of instructions.
+            If waitrequest failed and instruction failed to execute which requires memory retrieval, initialise stall state
+            Stall state:
+            -   If wait request is high at posedge, nothing is set correctly, 
+            -   so do nothing until wait request is low at posedge
             */
 
             //get instruction
             //address and read are combinationally set
             //so readdata should have the instruction on the next cycle - EXEC1
             if !(waitrequest) begin
-                state == EXEC1;
+                state <= EXEC1;
             end
 
         end
         else if (state == EXEC1) begin //EXEC1
-            // all instruction arguments should be set
+            //  all instruction arguments should be set.
+            //  For single cycle instructions
+            //  remember to jump to FETCH and increment PC and set read high to fetch instruction for next cycle.
 
+            //  WAIREQUEST TO BE INCLUDED IN MEMORY ACCESS INSTRUCTIONS
+
+                //  Check before setting everything up to get all values ready, 
+                //  and check if weight request is not active low, stall like done in FETCH
         end
         else if (state == EXEC2) begin //EXEC2
             //increment PC?
 
+            //so that when FETCH clocks, we send the request for the instruction, so that it is ready for EXEC1. 
+            //PC = address combinationally.
+            //BYTEENABLE NEEDS TO BE HANDLED STILL
+            read <= 1b'1;
             PC <= PC_next;
+            state <= FETCH; //not dependent on waitrequest I don't think. Stay on FETCH if waitrequest is high.
+        end
+
+        //  Cleaner to have a seperate state outside of the typical FDE for this extreme condition
+        else if (state == STALL) begin
+            if !(waitrequest) begin
+                state <= EXEC2;
+            end
         end
     }
     end
