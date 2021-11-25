@@ -129,7 +129,7 @@ module mips_cpu_bus(
         FETCH = 2'd0,
         EXEC1 = 2'd1,
         EXEC2 = 2'd2,
-        HALTED = 2'd3
+        STALL = 2'd3
     } state_t;
 
     //  State Registers
@@ -268,6 +268,12 @@ module mips_cpu_bus(
             read <= 1b'1;
             PC <= PC_next;
             state <= FETCH; //not dependent on waitrequest I don't think. Stay on FETCH if waitrequest is high.
+        end
+            
+        else if (state == STALL) begin
+            if !(waitrequest) begin
+                state <= EXEC2;
+            end
         end
     }
     end
