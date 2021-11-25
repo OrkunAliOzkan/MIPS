@@ -76,6 +76,7 @@ module tb_cpu();
         waitrequest=0;
         reset=0;
         #500;
+        // We are checking each part of the RAM to see which instruction works and which one does not
         if (RAM[200]==123 && RAM[201]==404) begin
             $display("MTHI Passed");
             $display("MTLO Passed");
