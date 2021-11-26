@@ -52,7 +52,6 @@ module mips_cpu_bus(
 
 /*
     Instructions (ref:https://opencores.org/projects/plasma/opcodes)
-
     Opcodes:
     R types have an opcode of 0d0, therefore are differentiated through their function codes
     J types have an opcode of 0d2 and 0d3, therefore don't need to have their opcode specified
@@ -451,7 +450,7 @@ typedef enum logic[1:0]
                     (OPCODE_LB) : begin
                         //  Load in the nth byte from the RAMs input to the CPU
                         //  Determine if latter 24 bits are 0 or 1
-                        case((fregister[rs] + address_immediate) % 4) begin
+                        case((fregister[rs] + address_immediate) % 4)
                             (0):
                                 register[rt] = {((readata[7]) ? (24'hFFF): (24'h0)), readdata[7:0]};
                             (1):
@@ -465,7 +464,7 @@ typedef enum logic[1:0]
 
                     (OPCODE_LBU) : begin
                         //  Load in the nth byte from the RAMs input to the CPU (unsigned)
-                        case((register[rs] + address_immediate) % 4) begin
+                        case((register[rs] + address_immediate) % 4)
                             (0):
                                 register[rt] = {24'b0, readdata[7:0]};
                             (1):
@@ -479,7 +478,7 @@ typedef enum logic[1:0]
                     end
 
                     (OPCODE_LH) : begin
-                        case((register[rs] + address_immediate) % 2) begin
+                        case((register[rs] + address_immediate) % 2)
                             (0):
                                 register[rt] = {((readata[15]) ? (16'hFFF): (216'h0)), readdata[15:0]};
                             (1):
@@ -488,7 +487,7 @@ typedef enum logic[1:0]
                     end
 
                     (OPCODE_LHU) : begin
-                        case((register[rs] + address_immediate) % 4) begin
+                        case((register[rs] + address_immediate) % 4)
                             (0):
                                 register[rt] = {16'b0, readdata[15:0]};
                             (1):
@@ -507,7 +506,7 @@ typedef enum logic[1:0]
                         //  Address is determined @ exec1
                         write = 1;  //  Enable write so that memory can be written upon
                         address = (reigser[rs] + address_immediate);
-                        case(address % 4) begin
+                        case(address % 4)
                             (0) : begin
                                 byteenable = (4'd1);    //  Byte enable the first byte
                             end
@@ -528,7 +527,7 @@ typedef enum logic[1:0]
                     (OPCODE_SH) : begin
                         write = 1;  //  Enable write so that memory can be written upon
                         address = (reigser[rs] + address_immediate);
-                        case(address % 2) begin
+                        case(address % 2)
                             (0) : begin
                                 byteenable = (4'd3);    //  Byte enable the first two bytes
                             end
