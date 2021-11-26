@@ -1,6 +1,15 @@
 module tb_cpu();
-    logic[31:0] readdata;
+    logic [31:0] readdata;
+    logic [31:0] writedata;
     logic [31:0] RAM [4294967295:0];
+    logic reset;
+    logic active;
+    logic [31:0] register_v0;
+    logic [31:0] address;
+    logic write;
+    logic read;
+    logic waitrequest;
+    logic [3:0] byteenable;
 
     initial begin
         //Data We Will Utilize
