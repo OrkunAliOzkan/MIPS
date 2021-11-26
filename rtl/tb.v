@@ -10,6 +10,7 @@ module tb_cpu();
     logic read;
     logic waitrequest;
     logic [3:0] byteenable;
+    logic clk;
 
     initial begin
         //Data We Will Utilize
