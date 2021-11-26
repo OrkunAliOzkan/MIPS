@@ -421,8 +421,9 @@ typedef enum logics[5:0]
                         (3) : begin
                             byteenable = (4'd8);    //  Byte enable the fourth byte
                         end
+                        writedata = {24'd0, register[rt][8:0]};   //  Write
                     endcase
-                    writedata = register[rt];   //  Write
+
                 end
 
                 (OPCODE_SH) : begin
@@ -436,7 +437,7 @@ typedef enum logics[5:0]
                             byteenable = (4'd12);   //  Byte anable the latter two bytes
                         end
                     endcase
-                    writedata = register[rt];   //  Write
+                    writedata = {16'd0, register[rt][15:0]};   //  Write
                 end
 
                 (OPCODE_SW) : begin
