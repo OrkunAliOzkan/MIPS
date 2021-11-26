@@ -174,6 +174,7 @@ typedef enum logic[1:0]
     initial begin
         
         state = FETCH;
+        reset = 0;
 
     end
 
