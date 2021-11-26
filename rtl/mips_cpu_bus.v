@@ -217,7 +217,7 @@ typedef enum logic[1:0]
             //if (!jump) begin
             //    PC_next = PC + 4;
             //end
-            PC_next = PC + 4 // Just for implementation now.
+            PC_next = PC + 4; // Just for implementation now.
         end
     end
 
