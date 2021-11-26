@@ -385,17 +385,17 @@ typedef enum logic[1:0]
                     end
 
                 //  Bitwise operations
-                (OPCODE_ANDI) : begin
-                    register[rd] <= (rt != 0) ? ($unsigned(register[rs]) & $unsigned(address_immediate)) : (0);
-                end
+                    (OPCODE_ANDI) : begin
+                        register[rd] <= (rt != 0) ? ($unsigned(register[rs]) & $unsigned(address_immediate)) : (0);
+                    end
 
-                (OPCODE_ORI) : begin
-                    register[rd] <= (rt != 0) ? ($unsigned(register[rs]) | $unsigned(address_immediate)) : (0);
-                end
+                    (OPCODE_ORI) : begin
+                        register[rd] <= (rt != 0) ? ($unsigned(register[rs]) | $unsigned(address_immediate)) : (0);
+                    end
 
-                (OPCODE_XORI) : begin
-                    register[rd] <= (rt != 0) ? ($unsigned(register[rs]) ^ $unsigned(address_immediate)) : (0);
-                end
+                    (OPCODE_XORI) : begin
+                        register[rd] <= (rt != 0) ? ($unsigned(register[rs]) ^ $unsigned(address_immediate)) : (0);
+                    end
 
                 //  Load and sets
                     (OPCODE_LUI) : begin
@@ -417,16 +417,16 @@ typedef enum logic[1:0]
 
                     (OPCODE_BGEZ) : begin
                         // if (rs-rt) >= 0 then pc_next==immediate
-                        PC_next <= ((register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                        PC_next <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
                     end
 
                     (OPCODE_BGEZAL) : begin
-                        PC_next <= ((register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                        PC_next <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
                         register[31] = PC;
                     end
 
                     (OPCODE_BGTZ) : begin
-                        PC_next <= ((register[rs] > 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                        PC_next <= (register[rs] > 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
                     end
 
                     (OPCODE_BNE) : begin
@@ -439,19 +439,19 @@ typedef enum logic[1:0]
                     end
 
                     (OPCODE_BLTZAL) : begin
-                        PC_next <= ((register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
-                        register[31] = PC;
+                        PC_next <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                        register[31] <= PC;
                     end
 
                     (OPCODE_BLTZ) : begin
-                        PC_next <= ((register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                        PC_next <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
                     end
 
                     //  Load / Store https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
                     (OPCODE_LB) : begin
                         //  Load in the nth byte from the RAMs input to the CPU
                         //  Determine if latter 24 bits are 0 or 1
-                        case((register[rs] + address_immediate) % 4) begin
+                        case((fregister[rs] + address_immediate) % 4) begin
                             (0):
                                 register[rt] = {((readata[7]) ? (24'hFFF): (24'h0)), readdata[7:0]};
                             (1):
