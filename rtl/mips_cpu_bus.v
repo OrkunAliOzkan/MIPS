@@ -541,7 +541,7 @@ typedef enum logic[1:0]
                     (OPCODE_SW) : begin
                         write = 1;                  //  Enable write so that memory can be written upon
                         address = (reigser[rs] + address_immediate);
-                        byteenable 4'd15;           //  Byte enable all bytes
+                        byteenable = 4'd15;           //  Byte enable all bytes
                         writedata = register[rt];   //  Write
                     end
                     */
@@ -554,7 +554,7 @@ typedef enum logic[1:0]
 
         //  Cleaner to have a seperate state outside of the typical FDE for this extreme condition
         else if (state == STALL) begin
-            if !(waitrequest) begin
+            if (!waitrequest) begin
                 state <= EXEC2;
             end
         end
