@@ -106,7 +106,7 @@ module tb_cpu();
             $display("MULT Failed");
             $display("MULTU Failed");
         end
-        if (RAM[204]==0'b1101 && RAM[205]==0'b1101) begin
+        if (RAM[204]==32'b1101 && RAM[205]==32'b1101) begin
             $display("OR Passed");
             $display("ORI Passed");
         end
@@ -114,7 +114,7 @@ module tb_cpu();
             $display("OR Failed");
             $display("ORI Failed");
         end
-        if (RAM[206]==0'b1001 && RAM[207]==0'b1001) begin
+        if (RAM[206]==32'b1001 && RAM[207]==32'b1001) begin
             $display("SB Passed");
             $display("SH Passed");
         end
@@ -122,7 +122,7 @@ module tb_cpu();
             $display("SB Failed");
             $display("SH Failed");
         end
-        if (RAM[208]==0'b100100 && RAM[209]==0'b100100000) begin
+        if (RAM[208]==32'b100100 && RAM[209]==32'b100100000) begin
             $display("SLL Passed");
             $display("SLLV Passed");
         end
@@ -178,19 +178,19 @@ module tb_cpu();
         else begin
             $display("SRLV Failed");
         end
-        if (RAM[218]==0'b100) begin
+        if (RAM[218]==32'b100) begin
             $display("SUBU Passed");
         end
         else begin
             $display("SUBU Failed");
         end
-        if (RAM[219]==0'b1100) begin
+        if (RAM[219]==32'b1100) begin
             $display("XOR Passed");
         end
         else begin
             $display("XOR Failed");
         end
-        if (RAM[220]==0'b1100) begin
+        if (RAM[220]==32'b1100) begin
             $display("XORI Passed");
         end
         else begin
