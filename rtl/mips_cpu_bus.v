@@ -506,7 +506,7 @@ typedef enum logic[1:0]
                         //  byte enable will be us choosing byte at address
                         //  Address is determined @ exec1
                         write = 1;  //  Enable write so that memory can be written upon
-                        address = (reigser[rs] + address_immediate);
+                        address = (register[rs] + address_immediate);
                         case(address % 4)
                             (0) : begin
                                 byteenable = (4'd1);    //  Byte enable the first byte
@@ -527,7 +527,7 @@ typedef enum logic[1:0]
 
                     (OPCODE_SH) : begin
                         write = 1;  //  Enable write so that memory can be written upon
-                        address = (reigser[rs] + address_immediate);
+                        address = (register[rs] + address_immediate);
                         case(address % 2)
                             (0) : begin
                                 byteenable = (4'd3);    //  Byte enable the first two bytes
@@ -541,7 +541,7 @@ typedef enum logic[1:0]
 
                     (OPCODE_SW) : begin
                         write = 1;                  //  Enable write so that memory can be written upon
-                        address = (reigser[rs] + address_immediate);
+                        address = (register[rs] + address_immediate);
                         byteenable = 4'd15;           //  Byte enable all bytes
                         writedata = register[rt];   //  Write
                     end
