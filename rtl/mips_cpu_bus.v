@@ -331,11 +331,11 @@ typedef enum logic[1:0]
 
                     //  Set operations      FIXME:  SRA's not finished
                         (FUNCTION_CODE_SLT): begin
-                            register[rd] <= ((rd != 0) && (register[rs] < register[rt])) ?  ({31'b0, 1}) : ({32'b0});
+                            register[rd] <= ((rd != 0) && (register[rs] < register[rt])) ? ({32'b1}) : ({32'b0});
                         end
 
                         (FUNCTION_CODE_SLTU): begin
-                            register[rd] <= (rd != 0) ? (($unsigned(register[rs]) < $unsigned(register[rt])) ? ({31'b0, 1}) : ({32'b0})) : (0);
+                            register[rd] <= ((rd != 0) && ($unsigned(register[rs]) < $unsigned(register[rt]))) ? ({32'b1}) : ({32'b0});
                         end
 
                         //  Logical
@@ -378,13 +378,13 @@ typedef enum logic[1:0]
                 end
 
             //  J type instructions
-                (OPCODE_J) : begin
-                    PC_next <= readata;
+                (OPCODE_J): begin
+                    PC_next <= readdata;
                 end
 
                 (OPCODE_JAL) : begin
                     register[31] <= PC + 5'd4;
-                    PC_next <= readata;
+                    PC_next <= readdata;
                 end
 
             //  I type instructions
