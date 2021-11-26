@@ -439,11 +439,11 @@ typedef enum logic[1:0]
                     end
 
                     (OPCODE_BNE) : begin
-                        pc <= (register[rs] != register[rt]) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                        PC <= (register[rs] != register[rt]) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
                     end
 
                     (OPCODE_BLEZ) : begin
-                        pc <= (register[rs] <= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                        PC <= (register[rs] <= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
                         //if (rs-rt)==0 or MSB(rs-rt)==1 then pc==immediate
                     end
 
@@ -460,15 +460,19 @@ typedef enum logic[1:0]
                     (OPCODE_LB) : begin
                         //  Load in the nth byte from the RAMs input to the CPU
                         //  Determine if latter 24 bits are 0 or 1
-                        case((fregister[rs] + address_immediate) % 4)
-                            (0):
-                                register[rt] = {((readata[7]) ? (24'hFFF): (24'h0)), readdata[7:0]};
-                            (1):
-                                register[rt] = {((readata[15]) ? (24'hFFF): (24'h0)), readdata[15:8]};
-                            (2):
-                                register[rt] = {((readata[23]) ? (24'hFFF): (24'h0)), readdata[23:16]};
-                            (3):
-                                register[rt] = {((readata[31]) ? (24'hFFF): (24'h0)), readdata[31:24]};
+                        case((register[rs] + address_immediate) % 4)
+                            (0): begin
+                                register[rt] = {((readdata[7]) ? (24'hFFF): (24'h0)), readdata[7:0]};
+                            end
+                            (1): begin
+                                register[rt] = {((readdata[15]) ? (24'hFFF): (24'h0)), readdata[15:8]};
+                            end
+                            (2): begin
+                                register[rt] = {((readdata[23]) ? (24'hFFF): (24'h0)), readdata[23:16]};
+                            end
+                            (3): begin
+                                register[rt] = {((readdata[31]) ? (24'hFFF): (24'h0)), readdata[31:24]};
+                            end
                         endcase
                     end
 
@@ -490,9 +494,9 @@ typedef enum logic[1:0]
                     (OPCODE_LH) : begin
                         case((register[rs] + address_immediate) % 2)
                             (0):
-                                register[rt] = {((readata[15]) ? (16'hFFF): (216'h0)), readdata[15:0]};
+                                register[rt] = {((readdata[15]) ? (16'hFFF): (216'h0)), readdata[15:0]};
                             (1):
-                                register[rt] = {((readata[31]) ? (16'hFFF): (16'h0)), readdata[31:16]};
+                                register[rt] = {((readdata[31]) ? (16'hFFF): (16'h0)), readdata[31:16]};
                         endcase
                     end
 
