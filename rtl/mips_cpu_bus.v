@@ -195,8 +195,7 @@ module mips_cpu_bus(
     always_comb() begin
         if (state == FETCH)
         begin
-            
-            
+            address = PC;   
         end
         //NOT SURE ABOUT TIMING - I DON'T KNOW IF THIS WILL EXECUTE AT THE RIGHT TIME -  IF THIS IS IN PARALLEL WITH THE ALWAYS_FF BLOCK
         else if (state == EXEC1)
@@ -253,8 +252,7 @@ module mips_cpu_bus(
             //so readdata should have the instruction on the next cycle - EXEC1
             if !(waitrequest) begin
                 state <= EXEC1;
-            end
-
+            end                
         end
         else if (state == EXEC1) begin //EXEC1
             //  all instruction arguments should be set.
