@@ -6,6 +6,8 @@
  *
  * @copyright Copyright (c) 2021
  *
+
+    Suck ur mum
  */
 
 module mips_cpu_bus(
@@ -24,6 +26,8 @@ module mips_cpu_bus(
     output logic[3:0] byteenable,
     input logic[31:0] readdata
 );
+
+    logic signed [31:0][31:0] register;
 
 //  Wire declarations
     logic[31:0] PC, PC_next, PC_jump;
@@ -85,7 +89,7 @@ typedef enum logic[5:0]
     OPCODE_ANDI = 6'd12,
     OPCODE_ORI = 6'd13,
     OPCODE_SLTI = 6'd10,
-    OPCODE_XORI = 6'd14
+    OPCODE_XORI = 6'd14,
 
     OPCODE_LB = 6'd32,
     OPCODE_LBU = 6'd36,
@@ -94,13 +98,13 @@ typedef enum logic[5:0]
     OPCODE_LW = 6'd35,
     OPCODE_SB = 6'd40,
     OPCODE_SH = 6'd41,
-    OPCODE_SW = 6'd43,
+    OPCODE_SW = 6'd43
 } opcode_t;
 
 /*
     R types are differentiated through their function code
 */
-typedef enum logics[5:0]
+typedef enum logic[5:0]
 {
     FUNCTION_CODE_ADDU = 6'd33,
     FUNCTION_CODE_SUBU = 6'd35,
@@ -123,13 +127,9 @@ typedef enum logics[5:0]
     FUNCTION_CODE_MTLO = 6'd18,
     //FUNCTION_CODE_LWR = 6'd,    //FIXME:  Can't find any of the function codes for the two
     //FUNCTION_CODE_LWL = 6'd,    //FIXME:  Can't find any of the function codes for the two
-    FUNCTION_CODE_JALR = 6'd,
-    FUNCTION_CODE_JR = 6'd,
+    FUNCTION_CODE_JALR = 6'd9,
+    FUNCTION_CODE_JR = 6'd8
 } fcode_t;
-
-    //  State Registers
-    logic[31:0] PC, PC_next, PC_jump;
-    logic[1:0] state;
 
     //  Registers
         //  General Registers
