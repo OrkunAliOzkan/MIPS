@@ -217,7 +217,7 @@ typedef enum logic[1:0]
         if (reset) begin
             state <= FETCH;
             PC <= 32'hBFC00000; //instructions begin here
-            for (i=0; i<32; i++) begin
+            for (int i=0; i<32; i++) begin
                 register[i] <= 32'd0;
             end
         end
