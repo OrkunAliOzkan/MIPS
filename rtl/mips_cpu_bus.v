@@ -498,7 +498,7 @@ typedef enum logic[1:0]
                     (OPCODE_LW) : begin
                             register[rt] = readdata;
                     end
-
+                    /*
                     (OPCODE_SB) : begin
                         //  Write must be high
                         //  setting values ton writedata
@@ -544,6 +544,7 @@ typedef enum logic[1:0]
                         byteenable 4'd15;           //  Byte enable all bytes
                         writedata = register[rt];   //  Write
                     end
+                    */
         endcase
 
 
