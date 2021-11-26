@@ -78,7 +78,7 @@ module tb_cpu();
         $finish(0);
     end
 
-    cpu cpu(.clk(clk), .reset(reset), .active(active), .register_v0(register_v0), .address(address), 
+    mips_cpu_bus mips_cpu_bus(.clk(clk), .reset(reset), .active(active), .register_v0(register_v0), .address(address), 
     .write(write), .read(read), .waitrequest(waitrequest), .writedata(writedate), .byteenable(byteenable), .readdata(readdata));
 
     initial begin
