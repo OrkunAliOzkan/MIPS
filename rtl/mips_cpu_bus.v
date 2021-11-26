@@ -214,9 +214,10 @@ typedef enum logic[1:0]
             // If a store instuction, we need to write to the RAM.
             // If a complex jump instruction, we need to change the PC.
             // Immediate functions can edit either RAM or registers depending on type.
-            if (!jump) begin
-                PC_next = PC + 4;
-            end
+            //if (!jump) begin
+            //    PC_next = PC + 4;
+            //end
+            PC_next = PC + 4 // Just for implementation now.
         end
     end
 
