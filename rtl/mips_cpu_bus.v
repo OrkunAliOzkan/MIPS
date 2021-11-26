@@ -138,7 +138,7 @@ module mips_cpu_bus(
 
     //  Registers
     //  General Registers
-    logic signed [31:0][31:0] registers;
+    logic signed [31:0][31:0] register;
     //  Special Registers
     logic[31:0] HI;
     logic[31:0] LO;
