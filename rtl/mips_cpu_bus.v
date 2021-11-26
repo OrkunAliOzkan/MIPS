@@ -177,40 +177,34 @@ typedef enum logic[1:0]
 
     end
 
-    always_comb() begin
-        if (state == FETCH)
-        begin
+    always_comb begin
+        if (state == FETCH) begin
             address = PC;   
         end
         //NOT SURE ABOUT TIMING - I DON'T KNOW IF THIS WILL EXECUTE AT THE RIGHT TIME -  IF THIS IS IN PARALLEL WITH THE ALWAYS_FF BLOCK
-        else if (state == EXEC1)
-        begin
+        else if (state == EXEC1) begin
             opcode = readdata[31:26];
             funct = readdata[5:0];
             shmat = readdata[10:6];
             rs = readdata[20:16];
             rt = readdata[15:11];
             rd = readdata[25:21];
-            targetAddress = [25:0];
+            targetAddress = readdata[25:0];
             address_immediate = readdata[15:0];
         end
 
-        end
         else if (state == EXEC2) begin
             // if a load instruction, we need to write back to registers.
             // If a store instuction, we need to write to the RAM.
             // If a complex jump instruction, we need to change the PC.
             // Immediate functions can edit either RAM or registers depending on type.
-            if (!jump)
-            begin
+            if (!jump) begin
                 PC_next = PC + 4;
             end
         end
-
-
     end
 
-    always_ff(posedge clk) begin
+    always_ff @(posedge clk) begin
     {
         if (reset) begin
             state <= FETCH;
