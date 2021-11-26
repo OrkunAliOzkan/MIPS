@@ -1,7 +1,7 @@
 module tb_cpu();
     logic [31:0] readdata;
     logic [31:0] writedata;
-    logic [31:0] RAM [4294967295:0];
+    logic [31:0] RAM [31:0];
     logic reset;
     logic active;
     logic [31:0] register_v0;
