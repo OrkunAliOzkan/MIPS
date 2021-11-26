@@ -66,12 +66,12 @@ typedef enum logic[5:0]
     OPCODE_JAL = 6'd3,
 
     OPCODE_BEQ = 6'd4,
-    OPCODE_BGEZ = 6'd1,  //FIXME:    Need to differentiate by RT
-    OPCODE_BGEZAL = 6'd1,//FIXME:    Need to differentiate by RT
+    OPCODE_BGEZ = 6'd1,  //FIXME:    Need to differentiate by RT; Changed from 6'd1
+    OPCODE_BGEZAL = 6'd1,//FIXME:    Need to differentiate by RT; Changed from 6'd1
     OPCODE_BGTZ = 6'd7,
     OPCODE_BLEZ = 6'd6,
-    OPCODE_BLTZ = 6'd1,  //FIXME:    Need to differentiate by RT
-    OPCODE_BLTZAL = 6'd1,//FIXME:    Need to differentiate by RT
+    OPCODE_BLTZ = 6'd1,  //FIXME:    Need to differentiate by RT; Changed from 6'd1
+    OPCODE_BLTZAL = 6'd1,//FIXME:    Need to differentiate by RT; Changed from 6'd1
     OPCODE_BNE = 6'd5,
 
     OPCODE_ADDIU = 6'd9,
@@ -498,7 +498,7 @@ typedef enum logic[1:0]
                     (OPCODE_LW) : begin
                             register[rt] = readdata;
                     end
-                    /*
+
                     (OPCODE_SB) : begin
                         //  Write must be high
                         //  setting values ton writedata
@@ -519,7 +519,7 @@ typedef enum logic[1:0]
                             (3) : begin
                                 byteenable = (4'd8);    //  Byte enable the fourth byte
                             end
-                            writedata = {24'd0, register[rt][8:0]};   //  Write
+                            //writedata = {24'd0, register[rt][8:0]};   //  Write
                         endcase
 
                     end
@@ -544,7 +544,6 @@ typedef enum logic[1:0]
                         byteenable = 4'd15;           //  Byte enable all bytes
                         writedata = register[rt];   //  Write
                     end
-                    */
         endcase
 
 
