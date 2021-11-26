@@ -331,11 +331,11 @@ typedef enum logic[1:0]
 
                     //  Set operations      FIXME:  SRA's not finished
                         (FUNCTION_CODE_SLT): begin
-                            register[rd] = (rd != 0) ? ((register[rs] < register[rt]) ? ({31'b0, 1}) : ({32'b0})) : (0);
+                            register[rd] <= ((rd != 0) && (register[rs] < register[rt])) ?  ({31'b0, 1}) : ({32'b0});
                         end
 
                         (FUNCTION_CODE_SLTU): begin
-                            register[rd] = (rd != 0) ? (($unsigned(register[rs]) < $unsigned(register[rt])) ? ({31'b0, 1}) : ({32'b0})) : (0);
+                            register[rd] <= (rd != 0) ? (($unsigned(register[rs]) < $unsigned(register[rt])) ? ({31'b0, 1}) : ({32'b0})) : (0);
                         end
 
                         //  Logical
@@ -549,7 +549,7 @@ typedef enum logic[1:0]
                                 byteenable = (4'd12);   //  Byte anable the latter two bytes
                             end
                         endcase
-                        writedata = {16'd0, register[rt][15:0]};   //  Write
+                        //writedata = {16'd0, register[rt][15:0]};   //  Write
                     end
 
                     (OPCODE_SW) : begin
