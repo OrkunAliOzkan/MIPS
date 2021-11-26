@@ -25,10 +25,6 @@ module mips_cpu_bus(
     input logic[31:0] readdata
 );
 
-//  Wire declarations
-    logic[31:0] PC, PC_next, PC_jump;
-    logic[1:0] state;
-
 
 /*
     I have no idea what the heck im doing here,
@@ -64,79 +60,82 @@ module mips_cpu_bus(
     
     I type formatting:  For Transfer, branch and immedaiate instructions
 */
-    typedef enum logic[5:0]
-    {
-        OPCODE_R = 6'd0,
-        OPCODE_J1 = 6'd2,
-        OPCODE_J2 = 6'd3,
+typedef enum logic[5:0]
+{
+    OPCODE_R = 6'd0,
+    OPCODE_J = 6'd2,
+    OPCODE_JAL = 6'd3,
 
-        OPCODE_ADDIU = 6'd9,
-        OPCODE_ANDI = 6'd12,
-        OPCODE_BEQ = 6'd4,
-        OPCODE_BGEZ = 6'd1,  //FIXME:    Need to differentiate by RT
-        OPCODE_BGEZAL = 6'd1,//FIXME:    Need to differentiate by RT
-        OPCODE_BGTZ = 6'd7,
-        OPCODE_BLEZ = 6'd6,
-        OPCODE_BLTZ = 6'd1,  //FIXME:    Need to differentiate by RT
-        OPCODE_BLTZAL = 6'd1,//FIXME:    Need to differentiate by RT
-        OPCODE_BNE = 6'd5,
-        OPCODE_LUI = 6'd15,
-        OPCODE_ORI = 6'd13,
-        OPCODE_SLTI = 6'd10,
-        OPCODE_SLTIU = 6'd11,
-        OPCODE_XORI = 6'd14
-        OPCODE_LB = 6'd32,
-        OPCODE_LBU = 6'd36,
-        OPCODE_LH = 6'd33,
-        OPCODE_LHU = 6'd37,
-        OPCODE_LW = 6'd35,
-        OPCODE_SB = 6'd40,
-        OPCODE_SH = 6'd41,
-        OPCODE_SW = 6'd43,
-    } opcode_t;
+    OPCODE_BEQ = 6'd4,
+    OPCODE_BGEZ = 6'd1,  //FIXME:    Need to differentiate by RT
+    OPCODE_BGEZAL = 6'd1,//FIXME:    Need to differentiate by RT
+    OPCODE_BGTZ = 6'd7,
+    OPCODE_BLEZ = 6'd6,
+    OPCODE_BLTZ = 6'd1,  //FIXME:    Need to differentiate by RT
+    OPCODE_BLTZAL = 6'd1,//FIXME:    Need to differentiate by RT
+    OPCODE_BNE = 6'd5,
+
+    OPCODE_ADDIU = 6'd9,
+    OPCODE_SLTIU = 6'd11,
+    OPCODE_LUI = 6'd15,
+    OPCODE_ANDI = 6'd12,
+    OPCODE_ORI = 6'd13,
+    OPCODE_SLTI = 6'd10,
+    OPCODE_XORI = 6'd14,
+
+    OPCODE_LB = 6'd32,
+    OPCODE_LBU = 6'd36,
+    OPCODE_LH = 6'd33,
+    OPCODE_LHU = 6'd37,
+    OPCODE_LW = 6'd35,
+    OPCODE_SB = 6'd40,
+    OPCODE_SH = 6'd41,
+    OPCODE_SW = 6'd43
+} opcode_t;
 
 /*
     R types are differentiated through their function code
 */
-    typedef enum logics[5:0]
-    {
-        //  TODO:   Are move functions R type?
-        FUNCTION_CODE_ADDU = 6'd33,
-        FUNCTION_CODE_AND = 6'd36,
-        FUNCTION_CODE_OR = 6'd37,
-        FUNCTION_CODE_SLT = 6'd42,
-        FUNCTION_CODE_SLTU = 6'd43,
-        FUNCTION_CODE_SUBU = 6'd35,
-        FUNCTION_CODE_XOR = 6'd38,
-        FUNCTION_CODE_SLL = 6'd0,
-        FUNCTION_CODE_SLLV = 6'd4,
-        FUNCTION_CODE_SRA = 6'd3,
-        FUNCTION_CODE_SRAV = 6'd7,
-        FUNCTION_CODE_SRL = 6'd2,
-        FUNCTION_CODE_SRLV = 6'd6,
-        FUNCTION_CODE_DIV = 6'd26,
-        FUNCTION_CODE_DIVU = 6'd27,
-        FUNCTION_CODE_MULT = 6'd24,
-        FUNCTION_CODE_MULTU = 6'd25,
-        FUNCTION_CODE_MTHI = 6'd17,
-        FUNCTION_CODE_MTLO = 6'd18,
-        FUNCTION_CODE_LWR = 6'd,    //FIXME:Hmmm
-        FUNCTION_CODE_LWL = 6'd,    //FIXME:Hmmm
-    } fcode_t;
+typedef enum logic[5:0]
+{
+    FUNCTION_CODE_ADDU = 6'd33,
+    FUNCTION_CODE_SUBU = 6'd35,
+    FUNCTION_CODE_AND = 6'd36,
+    FUNCTION_CODE_OR = 6'd37,
+    FUNCTION_CODE_SLT = 6'd42,
+    FUNCTION_CODE_SLTU = 6'd43,
+    FUNCTION_CODE_XOR = 6'd38,
+    FUNCTION_CODE_SLL = 6'd0,
+    FUNCTION_CODE_SLLV = 6'd4,
+    FUNCTION_CODE_SRA = 6'd3,
+    FUNCTION_CODE_SRAV = 6'd7,
+    FUNCTION_CODE_SRL = 6'd2,
+    FUNCTION_CODE_SRLV = 6'd6,
+    FUNCTION_CODE_DIV = 6'd26,
+    FUNCTION_CODE_DIVU = 6'd27,
+    FUNCTION_CODE_MULT = 6'd24,
+    FUNCTION_CODE_MULTU = 6'd25,
+    FUNCTION_CODE_MTHI = 6'd17,
+    FUNCTION_CODE_MTLO = 6'd18,
+    //FUNCTION_CODE_LWR = 6'd,    //FIXME:  Can't find any of the function codes for the two
+    //FUNCTION_CODE_LWL = 6'd,    //FIXME:  Can't find any of the function codes for the two
+    FUNCTION_CODE_JALR = 6'd9,
+    FUNCTION_CODE_JR = 6'd8
+} fcode_t;
 
-    typedef enum logics[1:0]
-    {
-        FETCH = 2'd0,
-        EXEC1 = 2'd1,
-        EXEC2 = 2'd2,
-        STALL = 2'd3
-    } state_t;
+typedef enum logics[1:0]
+{
+    FETCH = 2'd0,
+    EXEC1 = 2'd1,
+    EXEC2 = 2'd2,
+    STALL = 2'd3
+} state_t;
 
+//  Registers
     //  State Registers
     logic[31:0] PC, PC_next, PC_jump;
-    logic[1:0] state;
+    state_t state;
 
-    //  Registers
     //  General Registers
     logic signed [31:0][31:0] register;
     //  Special Registers
@@ -161,9 +160,6 @@ module mips_cpu_bus(
     logic[15:0] address_immediate;
     logic[25:0] targetAddress;
 
-
-    //MEMORY STUFF
-    logic[31:0] addr;
 
     /*
     Not sure where to put, but opcode stuff
