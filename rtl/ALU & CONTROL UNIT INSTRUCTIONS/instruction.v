@@ -6,6 +6,8 @@
  *
  * @copyright Copyright (c) 2021
  *
+
+    Suck ur mum
  */
 
 module mips_cpu_bus(
