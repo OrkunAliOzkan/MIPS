@@ -25,16 +25,6 @@ module mips_cpu_bus(
     input logic[31:0] readdata
 );
 
-
-/*
-    I have no idea what the heck im doing here,
-    I'm just addding the nessesary wires we probably will need. 
-    Maybe we should make a blueprint!
-*/
-    logic[16:0] instruction;
-    logic[3:0] logic_opcode;
-    logic[11:0] instruction_constants;
-
 /*
     Register formats (ref: https://www.dcc.fc.up.pt/~ricroc/aulas/1920/ac/apontamentos/P04_encoding_mips_instructions.pdf)
     Title       :       Reg #       :       Usage
@@ -132,8 +122,10 @@ typedef enum logic[1:0]
 
 //  Registers
     //  State Registers
-    logic[31:0] PC, PC_next, PC_jump;
+    logic[31:0] PC, PC_next;//, PC_jump;
     state_t state;
+    logic[31:0] readDataContent;
+    logic[31:0] InstrReg;
 
     //  General Registers
     logic signed [31:0][31:0] register;
@@ -168,9 +160,17 @@ typedef enum logic[1:0]
         //  Branching
             logic[24:0] threeWords;
 
+        assign InstrReg = readdata;
+        assign readDataContent = (state == FETCH) ? (readdata) : (InstrReg);
 
         assign opcode = readdata[31:26];
         assign funct = readdata[5:0];
+
+        /*
+        $display("$d\n", opcode);
+        $display("$d\n", funct);
+        */
+
         assign shmat = readdata[10:6];
         assign rs = readdata[20:16];
         assign rt = readdata[15:11];
