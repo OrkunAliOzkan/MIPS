@@ -551,4 +551,6 @@ module mips_cpu_bus
             (HALT) : begin
                 active <= 0;
             end
+        endcase
     end
+endmodule
