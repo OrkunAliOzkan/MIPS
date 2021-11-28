@@ -486,11 +486,10 @@ module mips_cpu_bus
                 endcase
                 PC <= PC_next;
                 state <= (!sOp) ? (FETCH) : (EXEC2);
-        end
             end
             (EXEC2) : begin
 
-                case(opcode) begin
+                case(opcode)
                     //  Load https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
                         (OPCODE_LB) : begin
                             //  Load in the nth byte from the RAMs input to the CPU
