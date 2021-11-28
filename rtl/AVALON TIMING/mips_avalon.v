@@ -207,7 +207,7 @@ module mips_cpu_bus
 
 //  Combinatorial block TODO:   Not implemented!
     always_comb begin
-        case (state) : begin
+        case (state)
             (FETCH) : begin
                 /*
                     Address is set to program counter, which requires read to be set to 1
