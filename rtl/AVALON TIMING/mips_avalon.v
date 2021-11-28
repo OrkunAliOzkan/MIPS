@@ -263,8 +263,7 @@ module mips_cpu_bus
                                             We can conduct register addition with anything except for 
                                             destination being $zero, so use a multiplexer to make this
                                         */
-                                        register[rd] <= (rd != 0) ? ($unsigned(register[rs]) + $unsigned(register[rt])) : (0);
-                                        assert(rd != 0) else $fatal(2, "Error, trying to write to zero register");
+                                        register[rd] <= (rd != 0) ? ($unsigned(register[rs]) + $unsigned(register[rt])) : (32'h00);
                                     end
 
                                     (FUNCTION_CODE_SUBU): begin
@@ -272,7 +271,6 @@ module mips_cpu_bus
                                             Like addition, use a multiplexer to confirm rd is not $zero
                                         */
                                         register[rd] <= (rd != 0) ? ($unsigned(register[rs]) - $unsigned(register[rt])) : (0);
-                                        assert(rd != 0) else $fatal(2, "Error, trying to write to zero register");
                                     end
 
                                     (FUNCTION_CODE_DIV): begin
