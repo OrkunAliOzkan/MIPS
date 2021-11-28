@@ -155,10 +155,9 @@ module mips_cpu_bus
             */
             logic[63:0] multWire;
         //  Memory access
-            logic memoryAccess; //  Are we accessing memory? Useful to differentiate
+            logic memOp; //  Are we accessing memory? Useful to differentiate
         //  Interupts
             logic stall;        //  Are we going to stall? Useful to differentiate
-
 
 //  Initialising CPU
     initial begin
@@ -170,10 +169,11 @@ module mips_cpu_bus
         //  Initialise interupt handles
             stall = 0;
         //  initialise state
-            opcode = HALT;
+            state = HALT;
+            reset = 0;
     end
 
-//  Wire assignment     <-  All combinatorial aspects of MIPS I are updated through either the assign property or the always_comb block
+//  Automatic wire assignment
     //  Instruction register
         assign InstructionReg = (state == FETCH) ? (readdata) : (instructionReg);   //  Utilise instructionReg to keep contents up to date
     //  ALU wires
@@ -185,8 +185,67 @@ module mips_cpu_bus
         assign address_immediate = InstructionReg[15:0];
     //  Temporary wires
         //  Multiplication
-            assign multWire = ((state == EXEC) && (opcode == OPCODE_R)) ?
-                            ((funct == FUNCTION_CODE_MULT) ? (register[rs] * register[rt]) : (32'b0)) :
-                            ((funct == FUNCTION_CODE_MULTU) ? ($unsigned(register[rs]) * $unsigned(register[rt])) : (32'b0));
+            //  FIXME:  Could be optimised
+            assign multWire 
+                =   ((state == EXEC) && (opcode == OPCODE_R)) ?
+                        ((funct == FUNCTION_CODE_MULT) ? 
+                            (register[rs] * register[rt]) : (0)) :
+                        ((funct == FUNCTION_CODE_MULTU) ? 
+                            ($unsigned(register[rs]) * $unsigned(register[rt])) : (0));
         //  Memory access
-            assign 
+            assign memOp 
+                = (((opcode == OPCODE_LB)   ||
+                    (opcode == OPCODE_LBU)  ||
+                    (opcode == OPCODE_LH)   ||
+                    (opcode == OPCODE_LHU)  ||
+                    (opcode == OPCODE_LW)   ||
+                    (opcode == OPCODE_SB)   ||
+                    (opcode == OPCODE_SW)   ||
+                    (opcode == OPCODE_SH)));
+
+//  Combinatorial block
+    always_comb begin
+        case (state) : begin
+            (FETCH) : begin
+                /*
+                    Address is set to program counter, which requires read to be set to 1
+                */
+                read = 1;
+                address = PC;
+            end
+            (EXEC1) : begin //  Specific operations, depending on if load or store
+            end
+            (EXEC2) : begin //  Specific operations, depending on if load or store
+            end
+            (HALT) : begin
+                read = 0;
+                write = 0;
+            end
+        endcase
+    end
+
+//  Clocked block   <-  Where instructions are orchestrated
+    always_ff @(posedge clk) begin
+        if(reset) begin
+            state <= HALT;
+            
+        end
+
+        case (state) : begin
+
+            (FETCH) : begin
+                if (address == 32'd0) begin
+
+                end
+                else begin
+
+                end
+            end
+
+            (EXEC1) : begin
+            end
+            (EXEC2) : begin
+            end
+            (HALT) : begin
+            end
+    end
