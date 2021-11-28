@@ -231,13 +231,13 @@ module mips_cpu_bus
         if(reset) begin
             state <= FETCH;
             active <= 1;
-            address = 0'hBFC00000;
+            address = 32'hBFC00000;
             for(integer i = 0; i < 32; i++) begin
-                register[i] <= 32'b0;
+                register[i] <= 32'h00;
             end
         end
 
-        case (state) : begin
+        case (state)
 
             (FETCH) : begin
                 //  If we enter halt state
@@ -253,7 +253,7 @@ module mips_cpu_bus
             (EXEC1) : begin
                 //  Instructions:   (ref: https://uweb.engr.arizona.edu/~ece369/Resources/spim/MIPSReference.pdf)
                 //  TODO:   I have not put load 
-                case(opcode) begin
+                case(opcode)
                     //  R type instructions
                         (OPCODE_R): begin
                             //  We have to determine what the R type instruction is by virtue of its function code
