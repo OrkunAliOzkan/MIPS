@@ -193,7 +193,7 @@ module mips_cpu_bus
                         ((funct == FUNCTION_CODE_MULTU) ? 
                             ($unsigned(register[rs]) * $unsigned(register[rt])) : (0));
         //  Memory access
-            assign memOp 
+            assign memOp
                 = (((opcode == OPCODE_LB)   ||
                     (opcode == OPCODE_LBU)  ||
                     (opcode == OPCODE_LH)   ||
@@ -227,25 +227,325 @@ module mips_cpu_bus
 //  Clocked block   <-  Where instructions are orchestrated
     always_ff @(posedge clk) begin
         if(reset) begin
-            state <= HALT;
-            
+            state <= FETCH;
+            active <= 1;
+            address = 0'hBFC00000;
+            for(integer i = 0; i < 32; i++) begin
+                register[i] <= 32'b0;
+            end
         end
 
         case (state) : begin
 
             (FETCH) : begin
+                //  If we enter halt state
                 if (address == 32'd0) begin
-
+                    state <= HALT;
                 end
+                //  General case
                 else begin
-
+                    state <= (waitrequest) ? (FETCH) : (EXEC1);
                 end
             end
-
             (EXEC1) : begin
+            //  Instructions:   (ref: https://uweb.engr.arizona.edu/~ece369/Resources/spim/MIPSReference.pdf)
+                case(opcode)
+                        //  TODO:   Maybe assert if rd = 0
+                        //  R type instructions
+                        (OPCODE_R): begin
+                            //  We have to determine what the R type instruction is by virtue of its function code
+                            case(funct)
+                            //  Basic arithematic
+                                    (FUNCTION_CODE_ADDU): begin
+                                        /*
+                                            We can conduct register addition with anything except for 
+                                            destination being $zero, so use a multiplexer to make this
+                                        */
+                                        register[rd] <= (rd != 0) ? ($unsigned(register[rs]) + $unsigned(register[rt])) : (0);
+                                        assert(rd != 0) else $fatal(2, "Error, trying to write to zero register");
+                                    end
+
+                                    (FUNCTION_CODE_SUBU): begin
+                                        /*
+                                            Like addition, use a multiplexer to confirm rd is not $zero
+                                        */
+                                        register[rd] <= (rd != 0) ? ($unsigned(register[rs]) - $unsigned(register[rt])) : (0);
+                                        assert(rd != 0) else $fatal(2, "Error, trying to write to zero register");
+                                    end
+
+                                    (FUNCTION_CODE_DIV): begin
+                                        HI <= register[rs] % register[rt];
+                                        LO <= register[rs] / register[rt];
+                                    end
+
+                                    (FUNCTION_CODE_DIVU): begin
+                                        HI <= $unsigned(register[rs]) % $unsigned(register[rt]);
+                                        LO <= $unsigned(register[rs]) / $unsigned(register[rt]);
+                                    end
+
+
+                                    (FUNCTION_CODE_MULT): begin
+                                        multWire = register[rs] * register[rt];
+                                        HI <= multWire[63:32];
+                                        LO <=  multWire[31:0];
+                                    end
+
+                                    (FUNCTION_CODE_MULTU): begin
+                                        multWire = $unsigned(register[rs]) * $unsigned(register[rt]);
+                                        HI <= multWire[63:32];
+                                        LO <=  multWire[31:0];
+                                    end
+
+                            //  Bitwise operation
+                                    (FUNCTION_CODE_AND): begin
+                                        register[rd] <= (rd != 0) ? (register[rs] & register[rt]) : (0);
+                                    end
+
+                                    (FUNCTION_CODE_OR): begin
+                                        register[rd] <= (rd != 0) ? (register[rs] | register[rt]) : (0);
+                                    end
+
+                                    (FUNCTION_CODE_XOR): begin
+                                        register[rd] <= (rd != 0) ? (register[rs] ^ register[rt]) : (0);
+                                    end
+
+                            //  Set operations      FIXME:  SRA's not finished
+                                (FUNCTION_CODE_SLT): begin
+                                    register[rd] <= ((rd != 0) && (register[rs] < register[rt])) ? ({32'b1}) : ({32'b0});
+                                end
+
+                                (FUNCTION_CODE_SLTU): begin
+                                    register[rd] <= ((rd != 0) && ($unsigned(register[rs]) < $unsigned(register[rt]))) ? ({32'b1}) : ({32'b0});
+                                end
+
+                                //  Logical
+                                    (FUNCTION_CODE_SLL): begin
+                                            register[rd] <= (rd != 0) ? (register[rs] << shmat) : (0);
+                                    end
+
+                                    (FUNCTION_CODE_SRL): begin
+                                            register[rd] <= (rd != 0) ? (register[rs] >>> shmat) : (0);
+                                    end
+
+                                    (FUNCTION_CODE_SLLV): begin
+                                            register[rd] <= (rd != 0) ? (register[rt] << register[rs]) : (0);
+                                    end
+
+                                    (FUNCTION_CODE_SRLV): begin
+                                            register[rd] <= (rd != 0) ? (register[rs] >>> register[shmat]) : (0);
+                                    end
+                                //  Arithmetic
+                                    (FUNCTION_CODE_SRA): begin  //  FIXME:  What deos this to
+                                            register[rd] <= (rd != 0) ? (register[rs] >>> shmat) : (0);
+                                    end
+
+                                    (FUNCTION_CODE_SRAV): begin  //  FIXME:  What deos this to
+                                            register[rd] <= (rd != 0) ? (register[rt] >>> register[rs]) : (0);
+                                    end
+
+
+
+                            //  Move instructions
+                                (FUNCTION_CODE_MTHI): begin
+                                    register[rd] = (rd != 0) ? (HI) : (0);
+                                end
+
+                                (FUNCTION_CODE_MTLO): begin
+                                    register[rd] = (rd != 0) ? (LO) : (0);
+                                end
+
+                            endcase
+                        end
+
+                    //  J type instructions
+                        (OPCODE_J): begin
+                            PC_next <= readdata;
+                        end
+
+                        (OPCODE_JAL) : begin
+                            register[31] <= PC + 5'd4;
+                            PC_next <= readdata;
+                        end
+
+                    //  I type instructions
+                        //  Basic Arithmetic
+                            (OPCODE_ADDIU) : begin
+                                register[rt] <= (rt != 0) ? ($unsigned(register[rs]) + $unsigned(address_immediate)) : (0);
+                            end
+
+                        //  Bitwise operations
+                            (OPCODE_ANDI) : begin
+                                register[rd] <= (rt != 0) ? ($unsigned(register[rs]) & $unsigned(address_immediate)) : (0);
+                            end
+
+                            (OPCODE_ORI) : begin
+                                register[rd] <= (rt != 0) ? ($unsigned(register[rs]) | $unsigned(address_immediate)) : (0);
+                            end
+
+                            (OPCODE_XORI) : begin
+                                register[rd] <= (rt != 0) ? ($unsigned(register[rs]) ^ $unsigned(address_immediate)) : (0);
+                            end
+
+                        //  Load and sets
+                            (OPCODE_LUI) : begin
+                                register[rt] <= (rt != 0) ? (address_immediate << 16) : (0);
+                            end
+
+                            (OPCODE_SLTI) : begin
+                                    register[rt] = (rt != 0) ? ((register[rs] < register[address_immediate]) ? (1) : (0)) : (0);
+                            end
+
+                            (OPCODE_SLTIU) : begin
+                                    register[rt] = (rt != 0) ? (($unsigned(register[rs]) < $unsigned(register[address_immediate])) ? (1) : (0)) : (0);
+                            end
+
+                        //  Branch
+                            (OPCODE_BEQ) : begin
+                                PC_next <= (register[rs] == register[rt]) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                            end
+
+                            (OPCODE_BGEZ) : begin
+                                // if (rs-rt) >= 0 then pc_next==immediate
+                                PC_next <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                            end
+
+                            (OPCODE_BGEZAL) : begin
+                                PC_next <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                register[31] = PC;
+                            end
+
+                            (OPCODE_BGTZ) : begin
+                                PC_next <= (register[rs] > 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                            end
+
+                            (OPCODE_BNE) : begin
+                                PC <= (register[rs] != register[rt]) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                            end
+
+                            (OPCODE_BLEZ) : begin
+                                PC <= (register[rs] <= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                //if (rs-rt)==0 or MSB(rs-rt)==1 then pc==immediate
+                            end
+
+                            (OPCODE_BLTZAL) : begin
+                                PC_next <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                register[31] <= PC;
+                            end
+
+                            (OPCODE_BLTZ) : begin
+                                PC_next <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                            end
+
+                            //  Load / Store https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
+                            (OPCODE_LB) : begin
+                                //  Load in the nth byte from the RAMs input to the CPU
+                                //  Determine if latter 24 bits are 0 or 1
+                                case((register[rs] + address_immediate) % 4)
+                                    (0): begin
+                                        register[rt] = {((readdata[7]) ? (24'hFFF): (24'h0)), readdata[7:0]};
+                                    end
+                                    (1): begin
+                                        register[rt] = {((readdata[15]) ? (24'hFFF): (24'h0)), readdata[15:8]};
+                                    end
+                                    (2): begin
+                                        register[rt] = {((readdata[23]) ? (24'hFFF): (24'h0)), readdata[23:16]};
+                                    end
+                                    (3): begin
+                                        register[rt] = {((readdata[31]) ? (24'hFFF): (24'h0)), readdata[31:24]};
+                                    end
+                                endcase
+                            end
+
+                            (OPCODE_LBU) : begin
+                                //  Load in the nth byte from the RAMs input to the CPU (unsigned)
+                                case((register[rs] + address_immediate) % 4)
+                                    (0):
+                                        register[rt] = {24'b0, readdata[7:0]};
+                                    (1):
+                                        register[rt] = {24'b0, readdata[15:8]};
+                                    (2):
+                                        register[rt] = {24'b0, readdata[23:16]};
+                                    (3):
+                                        register[rt] = {24'b0, readdata[31:24]};
+                                endcase
+
+                            end
+
+                            (OPCODE_LH) : begin
+                                case((register[rs] + address_immediate) % 2)
+                                    (0):
+                                        register[rt] = {((readdata[15]) ? (16'hFFF): (216'h0)), readdata[15:0]};
+                                    (1):
+                                        register[rt] = {((readdata[31]) ? (16'hFFF): (16'h0)), readdata[31:16]};
+                                endcase
+                            end
+
+                            (OPCODE_LHU) : begin
+                                case((register[rs] + address_immediate) % 4)
+                                    (0):
+                                        register[rt] = {16'b0, readdata[15:0]};
+                                    (1):
+                                        register[rt] = {16'b0, readdata[31:16]};
+                                endcase
+                            end
+
+                            (OPCODE_LW) : begin
+                                    register[rt] = readdata;
+                            end
+
+                            (OPCODE_SB) : begin
+                                //  Write must be high
+                                //  setting values ton writedata
+                                //  byte enable will be us choosing byte at address
+                                //  Address is determined @ exec1
+                                write = 1;  //  Enable write so that memory can be written upon
+                                address = (register[rs] + address_immediate);
+                                case(address % 4)
+                                    (0) : begin
+                                        byteenable = (4'd1);    //  Byte enable the first byte
+                                    end
+                                    (1) : begin
+                                        byteenable = (4'd2);    //  Byte enable the second byte
+                                    end
+                                    (2) : begin
+                                        byteenable = (4'd4);    //  Byte enable the third byte
+                                    end
+                                    (3) : begin
+                                        byteenable = (4'd8);    //  Byte enable the fourth byte
+                                    end
+                                    //writedata = {24'd0, register[rt][8:0]};   //  Write
+                                endcase
+
+                            end
+
+                            (OPCODE_SH) : begin
+                                write = 1;  //  Enable write so that memory can be written upon
+                                address = (register[rs] + address_immediate);
+                                case(address % 2)
+                                    (0) : begin
+                                        byteenable = (4'd3);    //  Byte enable the first two bytes
+                                    end
+                                    (1) : begin
+                                        byteenable = (4'd12);   //  Byte anable the latter two bytes
+                                    end
+                                endcase
+                                //writedata = {16'd0, register[rt][15:0]};   //  Write
+                            end
+
+                            (OPCODE_SW) : begin
+                                write = 1;                  //  Enable write so that memory can be written upon
+                                address = (register[rs] + address_immediate);
+                                byteenable = 4'd15;           //  Byte enable all bytes
+                                writedata = register[rt];   //  Write
+                            end
+                endcase
+            PC <= PC_next;
+            state <= FETCH; //not dependent on waitrequest I don't think. Stay on FETCH if waitrequest is high.
+        end
             end
             (EXEC2) : begin
             end
             (HALT) : begin
+                active <= 0;
             end
     end
