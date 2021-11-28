@@ -171,12 +171,12 @@ module mips_cpu_bus
             stall = 0;
         //  initialise state
             state = HALT;
-            reset = 0;
+            //reset = 0;
     end
 
 //  Automatic wire assignment
     //  Instruction register
-        assign InstructionReg = (state == FETCH) ? (readdata) : (instructionReg);   //  Utilise instructionReg to keep contents up to date
+        assign InstructionReg = (state == FETCH) ? (readdata) : (InstructionReg);   //  Utilise instructionReg to keep contents up to date
     //  ALU wires
         assign shmat = InstructionReg[10:6];
         assign rs = InstructionReg[20:16];
@@ -187,12 +187,11 @@ module mips_cpu_bus
     //  Temporary wires
         //  Multiplication
             //  FIXME:  Could be optimised
-            assign multWire 
-                =   ((state == EXEC) && (opcode == OPCODE_R)) ?
+            assign multWire = ((state == EXEC1) && (opcode == OPCODE_R)) ?
                         ((funct == FUNCTION_CODE_MULT) ? 
-                            (register[rs] * register[rt]) : (0)) :
+                            (register[rs] * register[rt]) : (64'h0000)) :
                         ((funct == FUNCTION_CODE_MULTU) ? 
-                            ($unsigned(register[rs]) * $unsigned(register[rt])) : (0));
+                            ($unsigned(register[rs]) * $unsigned(register[rt])) : (64'h0000));
         //  Memory access
             assign lOp = ((
                     (opcode == OPCODE_LB)   ||
@@ -288,13 +287,11 @@ module mips_cpu_bus
 
 
                                     (FUNCTION_CODE_MULT): begin
-                                        multWire = register[rs] * register[rt];
                                         HI <= multWire[63:32];
                                         LO <=  multWire[31:0];
                                     end
 
                                     (FUNCTION_CODE_MULTU): begin
-                                        multWire = $unsigned(register[rs]) * $unsigned(register[rt]);
                                         HI <= multWire[63:32];
                                         LO <=  multWire[31:0];
                                     end
