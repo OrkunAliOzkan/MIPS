@@ -120,7 +120,7 @@ module mips_cpu_bus
 
 //  Registers
     //  Program counter registers
-        logic[31:0] PC;
+        logic[31:0] PC, PC_next;
     //  State registers
         state_t state;
     //  Instruction register
@@ -155,7 +155,8 @@ module mips_cpu_bus
             */
             logic[63:0] multWire;
         //  Memory access
-            logic memOp; //  Are we accessing memory? Useful to differentiate
+            logic sOp; //  Are we loading memory? Useful to differentiate
+            logic lOp; //  Are we storing memory? Useful to differentiate
         //  Interupts
             logic stall;        //  Are we going to stall? Useful to differentiate
 
@@ -193,17 +194,18 @@ module mips_cpu_bus
                         ((funct == FUNCTION_CODE_MULTU) ? 
                             ($unsigned(register[rs]) * $unsigned(register[rt])) : (0));
         //  Memory access
-            assign memOp
-                = (((opcode == OPCODE_LB)   ||
+            assign lOp = ((
+                    (opcode == OPCODE_LB)   ||
                     (opcode == OPCODE_LBU)  ||
                     (opcode == OPCODE_LH)   ||
                     (opcode == OPCODE_LHU)  ||
-                    (opcode == OPCODE_LW)   ||
+                    (opcode == OPCODE_LW)));
+            assign sOp = ((  
                     (opcode == OPCODE_SB)   ||
                     (opcode == OPCODE_SW)   ||
                     (opcode == OPCODE_SH)));
 
-//  Combinatorial block
+//  Combinatorial block TODO:   Not implemented!
     always_comb begin
         case (state) : begin
             (FETCH) : begin
@@ -245,13 +247,14 @@ module mips_cpu_bus
                 //  General case
                 else begin
                     state <= (waitrequest) ? (FETCH) : (EXEC1);
+                    PC_next <= PC + 32'd4;
                 end
             end
             (EXEC1) : begin
-            //  Instructions:   (ref: https://uweb.engr.arizona.edu/~ece369/Resources/spim/MIPSReference.pdf)
+                //  Instructions:   (ref: https://uweb.engr.arizona.edu/~ece369/Resources/spim/MIPSReference.pdf)
+                //  TODO:   I have not put load 
                 case(opcode)
-                        //  TODO:   Maybe assert if rd = 0
-                        //  R type instructions
+                    //  R type instructions
                         (OPCODE_R): begin
                             //  We have to determine what the R type instruction is by virtue of its function code
                             case(funct)
@@ -335,15 +338,13 @@ module mips_cpu_bus
                                             register[rd] <= (rd != 0) ? (register[rs] >>> register[shmat]) : (0);
                                     end
                                 //  Arithmetic
-                                    (FUNCTION_CODE_SRA): begin  //  FIXME:  What deos this to
+                                    (FUNCTION_CODE_SRA): begin
                                             register[rd] <= (rd != 0) ? (register[rs] >>> shmat) : (0);
                                     end
 
-                                    (FUNCTION_CODE_SRAV): begin  //  FIXME:  What deos this to
+                                    (FUNCTION_CODE_SRAV): begin
                                             register[rd] <= (rd != 0) ? (register[rt] >>> register[rs]) : (0);
                                     end
-
-
 
                             //  Move instructions
                                 (FUNCTION_CODE_MTHI): begin
@@ -436,7 +437,7 @@ module mips_cpu_bus
                                 PC_next <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
                             end
 
-                            //  Load / Store https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
+                        //  Load / Store https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
                             (OPCODE_LB) : begin
                                 //  Load in the nth byte from the RAMs input to the CPU
                                 //  Determine if latter 24 bits are 0 or 1
@@ -538,12 +539,17 @@ module mips_cpu_bus
                                 byteenable = 4'd15;           //  Byte enable all bytes
                                 writedata = register[rt];   //  Write
                             end
+
                 endcase
-            PC <= PC_next;
-            state <= FETCH; //not dependent on waitrequest I don't think. Stay on FETCH if waitrequest is high.
+                PC <= PC_next;
+                state <= (!sOp) ? (FETCH) : (EXEC2);
         end
             end
             (EXEC2) : begin
+
+                write <= 1;
+                writedata = 
+                state <= (FETCH);
             end
             (HALT) : begin
                 active <= 0;
