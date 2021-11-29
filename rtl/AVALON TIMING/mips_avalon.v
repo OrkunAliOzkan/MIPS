@@ -182,6 +182,8 @@ module mips_cpu_bus
     //  Instruction register
         assign InstructionReg = (state == FETCH) ? (readdata) : (InstructionReg);   //  Utilise instructionReg to keep contents up to date
     //  ALU wires
+        assign opcode = InstructionReg[31:26];
+        assign funct = InstructionReg[5:0];
         assign shmat = InstructionReg[10:6];
         assign rs = InstructionReg[20:16];
         assign rt = InstructionReg[15:11];
