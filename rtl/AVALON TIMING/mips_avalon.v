@@ -265,7 +265,6 @@ module mips_cpu_bus
             end
             (EXEC1) : begin
                 //  Instructions:   (ref: https://uweb.engr.arizona.edu/~ece369/Resources/spim/MIPSReference.pdf)
-                //  TODO:   I have not put load 
                 case(opcode)
                     //  R type instructions
                         (OPCODE_R): begin
@@ -287,18 +286,19 @@ module mips_cpu_bus
                                         register[rd] <= (rd != 0) ? ($unsigned(register[rs]) - $unsigned(register[rt])) : (0);
                                     end
 
-                                    (FUNCTION_CODE_DIV): begin
+                                    (FUNCTION_CODE_DIV): begin  //  TODO:   Possibly not implemented fully
                                         HI <= register[rs] % register[rt];
                                         LO <= register[rs] / register[rt];
                                     end
 
-                                    (FUNCTION_CODE_DIVU): begin
+                                    (FUNCTION_CODE_DIVU): begin //  TODO:   Possibly not implemented fully
                                         HI <= $unsigned(register[rs]) % $unsigned(register[rt]);
                                         LO <= $unsigned(register[rs]) / $unsigned(register[rt]);
                                     end
 
 
-                                    (FUNCTION_CODE_MULT): begin
+                                    (FUNCTION_CODE_MULT): begin //  FIXME:  not functional!
+                                        /*
                                         if(multing) begin
                                             multWire <= ((temp == 1'b1) ? (multWire + (register[rt] << count)) : (multWire)); //  FIXME:  Error
                                             temp >> 1;
@@ -309,10 +309,12 @@ module mips_cpu_bus
                                             LO <=  multWire[31:0];
                                             count = 0;
                                         end
+                                        */
                                     end
 
 
-                                    (FUNCTION_CODE_MULTU): begin
+                                    (FUNCTION_CODE_MULTU): begin //  FIXME:  not functional!
+                                        /*
                                         if(multing) begin
                                             multWire += (register[rs] && 1) ? ($unsigned(register[rt]) << count) : (64'd0);  //  FIXME:  Error
                                             count++;
@@ -323,6 +325,7 @@ module mips_cpu_bus
                                             LO <=  multWire[31:0];
                                             count = 0;
                                         end
+                                        */
                                     end
 
                             //  Bitwise operation
@@ -338,7 +341,7 @@ module mips_cpu_bus
                                         register[rd] <= (rd != 0) ? (register[rs] ^ register[rt]) : (0);
                                     end
 
-                            //  Set operations      FIXME:  SRA's not finished
+                            //  Set operations
                                 (FUNCTION_CODE_SLT): begin
                                     register[rd] <= ((rd != 0) && (register[rs] < register[rt])) ? ({32'b1}) : ({32'b0});
                                 end
@@ -511,73 +514,84 @@ module mips_cpu_bus
                                 end
 
                 endcase
-                PC <= PC_next;
-                state <= (!sOp) ? (FETCH) : (EXEC2);        //  Is it not a store operation?
-                state <= (!multing) ? (state) : (EXEC1);    //  Has multiplication finished?
+                //  Load
+                    if(lOp) begin
+                        read = 1;
+                        address = (register[rs] + address_immediate);
+                    end
+                //  Setting up for next state/stalls
+                    PC <= PC_next;
+                    state <= (!sOp) ? (FETCH) : (EXEC2);        //  Is it not a store operation?
+                    state <= (!multing) ? (state) : (EXEC1);    //  Has multiplication finished?
             end
             (EXEC2) : begin
+                //  Resetting read
+                    read = 0;
+                //  Load https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
+                    case(opcode)
+                            (OPCODE_LB) : begin
+                                //  Load in the nth byte from the RAMs input to the CPU
+                                //  Determine if latter 24 bits are 0 or 1
+                                case(address % 4)
+                                    (0): begin
+                                        register[rt] = {((readdata[7]) ? (24'hFFF): (24'h0)), readdata[7:0]};
+                                    end
+                                    (1): begin
+                                        register[rt] = {((readdata[15]) ? (24'hFFF): (24'h0)), readdata[15:8]};
+                                    end
+                                    (2): begin
+                                        register[rt] = {((readdata[23]) ? (24'hFFF): (24'h0)), readdata[23:16]};
+                                    end
+                                    (3): begin
+                                        register[rt] = {((readdata[31]) ? (24'hFFF): (24'h0)), readdata[31:24]};
+                                    end
+                                endcase
+                            end
 
-                case(opcode)
-                    //  Load https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
-                        (OPCODE_LB) : begin
-                            //  Load in the nth byte from the RAMs input to the CPU
-                            //  Determine if latter 24 bits are 0 or 1
-                            case((register[rs] + address_immediate) % 4)
-                                (0): begin
-                                    register[rt] = {((readdata[7]) ? (24'hFFF): (24'h0)), readdata[7:0]};
-                                end
-                                (1): begin
-                                    register[rt] = {((readdata[15]) ? (24'hFFF): (24'h0)), readdata[15:8]};
-                                end
-                                (2): begin
-                                    register[rt] = {((readdata[23]) ? (24'hFFF): (24'h0)), readdata[23:16]};
-                                end
-                                (3): begin
-                                    register[rt] = {((readdata[31]) ? (24'hFFF): (24'h0)), readdata[31:24]};
-                                end
-                            endcase
-                        end
+                            (OPCODE_LBU) : begin
+                                //  Load in the nth byte from the RAMs input to the CPU (unsigned)
+                                case(address % 4)
+                                    (0):
+                                        register[rt] = {24'b0, readdata[7:0]};
+                                    (1):
+                                        register[rt] = {24'b0, readdata[15:8]};
+                                    (2):
+                                        register[rt] = {24'b0, readdata[23:16]};
+                                    (3):
+                                        register[rt] = {24'b0, readdata[31:24]};
+                                endcase
+                            end
 
-                        (OPCODE_LBU) : begin
-                            //  Load in the nth byte from the RAMs input to the CPU (unsigned)
-                            case((register[rs] + address_immediate) % 4)
-                                (0):
-                                    register[rt] = {24'b0, readdata[7:0]};
-                                (1):
-                                    register[rt] = {24'b0, readdata[15:8]};
-                                (2):
-                                    register[rt] = {24'b0, readdata[23:16]};
-                                (3):
-                                    register[rt] = {24'b0, readdata[31:24]};
-                            endcase
-                        end
+                            (OPCODE_LH) : begin
+                                case(address % 2)
+                                    (0):
+                                        register[rt] = {((readdata[15]) ? (16'hFFF): (216'h0)), readdata[15:0]};
+                                    (1):
+                                        register[rt] = {((readdata[31]) ? (16'hFFF): (16'h0)), readdata[31:16]};
+                                endcase
+                            end
 
-                        (OPCODE_LH) : begin
-                            case((register[rs] + address_immediate) % 2)
-                                (0):
-                                    register[rt] = {((readdata[15]) ? (16'hFFF): (216'h0)), readdata[15:0]};
-                                (1):
-                                    register[rt] = {((readdata[31]) ? (16'hFFF): (16'h0)), readdata[31:16]};
-                            endcase
-                        end
+                            (OPCODE_LHU) : begin
+                                case(address % 4)
+                                    (0):
+                                        register[rt] = {16'b0, readdata[15:0]};
+                                    (1):
+                                        register[rt] = {16'b0, readdata[31:16]};
+                                endcase
+                            end
 
-                        (OPCODE_LHU) : begin
-                            case((register[rs] + address_immediate) % 4)
-                                (0):
-                                    register[rt] = {16'b0, readdata[15:0]};
-                                (1):
-                                    register[rt] = {16'b0, readdata[31:16]};
-                            endcase
-                        end
-
-                        (OPCODE_LW) : begin
-                                register[rt] = readdata;
-                        end
-                endcase
-                state <= (FETCH);
+                            (OPCODE_LW) : begin
+                                    register[rt] = readdata;
+                            end
+                    endcase
+                //  Next state
+                    state <= (FETCH);
             end
             (HALT) : begin
                 active <= 0;
+                if (!waitrequest) begin
+                    state <= FETCH; //  Might accidentally execute something if EXEC2 so set to FETCH?
+                end
             end
         endcase
     end
