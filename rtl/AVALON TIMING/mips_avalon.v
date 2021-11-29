@@ -226,6 +226,7 @@ module mips_cpu_bus
                     Address is set to program counter, which requires read to be set to 1
                 */
                 read = 1;
+                read = 0;
                 address = PC;
                 //  When do we multiply?
                     /*
@@ -268,6 +269,7 @@ module mips_cpu_bus
                 //  General case
                 else begin
                     read = 1;
+                    write = 0;
                     PC_next <= PC + 32'd4;
                     address = PC;
                     state <= (waitrequest) ? (FETCH) : (EXEC1);

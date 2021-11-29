@@ -86,8 +86,8 @@ module tb_cpu();
         waitrequest=0;
         reset=0;
 
-        repeat (100) begin
-            #1;
+        repeat (200) begin
+            #0.5;
             $display("%d",address);
         end
 
