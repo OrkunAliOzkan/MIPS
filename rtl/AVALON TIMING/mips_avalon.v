@@ -55,10 +55,10 @@ module mips_cpu_bus
         OPCODE_JAL = 6'd3,
 
         //  TODO:   move those 4 into a new case where differentiated by their rt
-        OPCODE_BGEZ = 6'd1,  //FIXME:    Need to differentiate by RT; Changed from 6'd1 <-  rt of 1
-        OPCODE_BGEZAL = 6'd1,//FIXME:    Need to differentiate by RT; Changed from 6'd1 <-  rt of 17
-        OPCODE_BLTZ = 6'd1,  //FIXME:    Need to differentiate by RT; Changed from 6'd1 <-  rt of 0
-        OPCODE_BLTZAL = 6'd1,//FIXME:    Need to differentiate by RT; Changed from 6'd1 <-  rt of 16
+        OPCODE_BGEZ = 6'd51,  //FIXME:    Need to differentiate by RT; Changed from 6'd1 <-  rt of 1
+        OPCODE_BGEZAL = 6'd52,//FIXME:    Need to differentiate by RT; Changed from 6'd1 <-  rt of 17
+        OPCODE_BLTZ = 6'd53,  //FIXME:    Need to differentiate by RT; Changed from 6'd1 <-  rt of 0
+        OPCODE_BLTZAL = 6'd54,//FIXME:    Need to differentiate by RT; Changed from 6'd1 <-  rt of 16
 
         OPCODE_BEQ = 6'd4,
         OPCODE_BGTZ = 6'd7,
