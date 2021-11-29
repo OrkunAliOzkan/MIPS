@@ -154,7 +154,7 @@ module mips_cpu_bus
                 Depending on which multiply instruction it is, we shall set to different values.
             */
             logic[63:0] multWire;
-            logic[31:0] i;  //  Used for iterative multiplication and division
+            logic[31:0] count;  //  Used for iterative multiplication and division
         //  Memory access
             logic sOp; //  Are we loading memory? Useful to differentiate
             logic lOp; //  Are we storing memory? Useful to differentiate
@@ -292,13 +292,13 @@ module mips_cpu_bus
 
                                         if(multing) begin
                                             multWire += (register[rs][i] == 1) ? (register[rt] << i) : (64'd0);
-                                            i++;
+                                            count++;
                                         end
 
                                         if(!multing) begin
                                             HI <= multWire[63:32];
                                             LO <=  multWire[31:0];
-                                            i = 0;
+                                            count = 0;
                                         end
                                     end
 
@@ -307,13 +307,13 @@ module mips_cpu_bus
 
                                         if(multing) begin
                                             multWire += (register[rs][i] == 1) ? ($unsigned(register[rt]) << i) : (64'd0);
-                                            i++;
+                                            count++;
                                         end
 
                                         if(!multing) begin
                                             HI <= multWire[63:32];
                                             LO <=  multWire[31:0];
-                                            i = 0;
+                                            count = 0;
                                         end
                                     end
 
