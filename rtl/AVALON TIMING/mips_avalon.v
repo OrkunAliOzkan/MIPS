@@ -158,6 +158,8 @@ module mips_cpu_bus
         //  Memory access
             logic sOp; //  Are we loading memory? Useful to differentiate
             logic lOp; //  Are we storing memory? Useful to differentiate
+            //  Temporary variable
+                logic[31:0] tempStoreReg;
         //  Interupts
             logic stall;        //  Are we going to stall? Useful to differentiate
             logic multing;      //  Are we still multiplying?
@@ -176,6 +178,8 @@ module mips_cpu_bus
             multing = 0;
         //  Program counter
             PC = 32'hBFC00000;   //  Initialise the PC
+        //  Memory Address
+            tempStoreReg = 32'd0;
     end
 
 //  Automatic wire assignment
@@ -475,6 +479,7 @@ module mips_cpu_bus
                                     */
                                     write = 1;  //  Enable write so that memory can be written upon
                                     address = (register[rs] + address_immediate);
+                                    tempStoreReg = register[rt];
                                     case(address % 4)
                                         (0) : begin
                                             byteenable = (4'd1);    //  Byte enable the first byte
@@ -489,7 +494,7 @@ module mips_cpu_bus
                                             byteenable = (4'd8);    //  Byte enable the fourth byte
                                         end
                                     endcase
-                                    writedata <= {24'd0, register[rt][7:0]};   //  FIXME:   Error
+                                    writedata <= {24'd0, tempStoreReg[7:0]};   //  FIXME:   Error
                                 end
 
                                 (OPCODE_SH) : begin
@@ -503,7 +508,7 @@ module mips_cpu_bus
                                             byteenable = (4'd12);   //  Byte anable the latter two bytes
                                         end
                                     endcase
-                                    writedata = {16'd0, register[rt][15:0]};   //  FIXME:   Error
+                                    writedata = {16'd0, tempStoreReg[15:0]};   //  FIXME:   Error
                                 end
 
                                 (OPCODE_SW) : begin
