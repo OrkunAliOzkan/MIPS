@@ -386,12 +386,12 @@ module mips_cpu_bus
 
                     //  J type instructions
                         (OPCODE_J): begin
-                            PC_next <= readdata;
+                            PC_next <= {8'b0, targetAddress};
                         end
 
                         (OPCODE_JAL) : begin
                             register[31] <= PC + 5'd4;
-                            PC_next <= readdata;
+                            PC_next <= {8'b0, targetAddress};
                         end
 
                     //  I type instructions
