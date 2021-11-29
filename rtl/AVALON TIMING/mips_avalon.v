@@ -269,6 +269,7 @@ module mips_cpu_bus
                 else begin
                     read = 1;
                     PC_next <= PC + 32'd4;
+                    address = PC;
                     state <= (waitrequest) ? (FETCH) : (EXEC1);
                 end
             end
@@ -537,8 +538,7 @@ module mips_cpu_bus
                         address = (register[rs] + address_immediate);
                     end
                 //  Setting up for next state/stalls
-                    state <= (!sOp) ? (FETCH) : (EXEC2);        //  Is it not a store operation?
-                    state <= (!lOp) ? (state) : (EXEC2);
+                    state <= (!lOp) ? (FETCH) : (EXEC2);        //  Is it not a store operation?
                     //state <= (!multing) ? (EXEC1) : (state);    //  Has multiplication finished?  FIXME:  Problematic
                     PC <= (!lOp) ? (PC_next) : (PC);
             end
