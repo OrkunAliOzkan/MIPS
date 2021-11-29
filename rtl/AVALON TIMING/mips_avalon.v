@@ -154,11 +154,13 @@ module mips_cpu_bus
                 Depending on which multiply instruction it is, we shall set to different values.
             */
             logic[63:0] multWire;
+            logic[31:0] i;  //  Used for iterative multiplication and division
         //  Memory access
             logic sOp; //  Are we loading memory? Useful to differentiate
             logic lOp; //  Are we storing memory? Useful to differentiate
         //  Interupts
             logic stall;        //  Are we going to stall? Useful to differentiate
+            logic multing;      //  Are we still multiplying?
 
 //  Initialising CPU
     initial begin
@@ -171,7 +173,7 @@ module mips_cpu_bus
             stall = 0;
         //  initialise state
             state = HALT;
-            //reset = 0;
+            multing = 0;
     end
 
 //  Automatic wire assignment
@@ -186,12 +188,14 @@ module mips_cpu_bus
         assign address_immediate = InstructionReg[15:0];
     //  Temporary wires
         //  Multiplication
-            //  FIXME:  Could be optimised
+            //  TODO:   Test me
+        /*
             assign multWire = ((state == EXEC1) && (opcode == OPCODE_R)) ?
                         ((funct == FUNCTION_CODE_MULT) ? 
                             (register[rs] * register[rt]) : (64'h0000)) :
                         ((funct == FUNCTION_CODE_MULTU) ? 
                             ($unsigned(register[rs]) * $unsigned(register[rt])) : (64'h0000));
+        */
         //  Memory access
             assign lOp = ((
                     (opcode == OPCODE_LB)   ||
@@ -257,7 +261,7 @@ module mips_cpu_bus
                         (OPCODE_R): begin
                             //  We have to determine what the R type instruction is by virtue of its function code
                             case(funct)
-                            //  Basic arithematic
+                            //  Basic arithematic   <-  FIXME:  MULT AND DIV need to be implemented properly
                                     (FUNCTION_CODE_ADDU): begin
                                         /*
                                             We can conduct register addition with anything except for 
@@ -285,13 +289,32 @@ module mips_cpu_bus
 
 
                                     (FUNCTION_CODE_MULT): begin
-                                        HI <= multWire[63:32];
-                                        LO <=  multWire[31:0];
+
+                                        if(multing) begin
+                                            multWire += (register[rs][i] == 1) ? (register[rt] << i) : (64'd0);
+                                            i++;
+                                        end
+
+                                        if(!multing) begin
+                                            HI <= multWire[63:32];
+                                            LO <=  multWire[31:0];
+                                            i = 0;
+                                        end
                                     end
 
+
                                     (FUNCTION_CODE_MULTU): begin
-                                        HI <= multWire[63:32];
-                                        LO <=  multWire[31:0];
+
+                                        if(multing) begin
+                                            multWire += (register[rs][i] == 1) ? ($unsigned(register[rt]) << i) : (64'd0);
+                                            i++;
+                                        end
+
+                                        if(!multing) begin
+                                            HI <= multWire[63:32];
+                                            LO <=  multWire[31:0];
+                                            i = 0;
+                                        end
                                     end
 
                             //  Bitwise operation
@@ -481,6 +504,7 @@ module mips_cpu_bus
                 endcase
                 PC <= PC_next;
                 state <= (!sOp) ? (FETCH) : (EXEC2);
+                state <= (!multing) ? (state) : (EXEC1);    //  Has multiplication finished?
             end
             (EXEC2) : begin
 
