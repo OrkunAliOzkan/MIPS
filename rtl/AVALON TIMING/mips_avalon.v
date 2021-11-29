@@ -103,8 +103,11 @@ module mips_cpu_bus
         FUNCTION_CODE_DIVU = 6'd27,
         FUNCTION_CODE_MULT = 6'd24,
         FUNCTION_CODE_MULTU = 6'd25,
+        
         FUNCTION_CODE_MTHI = 6'd17,
-        FUNCTION_CODE_MTLO = 6'd18,
+        FUNCTION_CODE_MTLO = 6'd19,
+        FUNCTION_CODE_MFHI = 6'd16,
+        FUNCTION_CODE_MFLO = 6'd18,
         //FUNCTION_CODE_LWR = 6'd,    //FIXME:  Can't find any of the function codes for the two
         //FUNCTION_CODE_LWL = 6'd,    //FIXME:  Can't find any of the function codes for the two
         FUNCTION_CODE_JALR = 6'd9,
@@ -388,14 +391,20 @@ module mips_cpu_bus
                                     end
 
                             //  Move instructions
-                                (FUNCTION_CODE_MTHI): begin
+                                (FUNCTION_CODE_MFHI): begin
                                     register[rd] <= (rd != 0) ? (HI) : (0);
                                 end
 
-                                (FUNCTION_CODE_MTLO): begin
+                                (FUNCTION_CODE_MFLO): begin
                                     register[rd] <= (rd != 0) ? (LO) : (0);
                                 end
+                                (FUNCTION_CODE_MTHI): begin
+                                    HI <= (register[rd]);
+                                end
 
+                                (FUNCTION_CODE_MTLO): begin
+                                    LO <= (register[rd]);
+                                end
                             endcase
                         end
 
