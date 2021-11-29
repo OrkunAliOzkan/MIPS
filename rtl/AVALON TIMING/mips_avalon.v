@@ -175,7 +175,7 @@ module mips_cpu_bus
             state = HALT;
             multing = 0;
         //  Program counter
-            PC = 0'hBFC00000;   //  Initialise the PC
+            PC = 32'hBFC00000;   //  Initialise the PC
     end
 
 //  Automatic wire assignment
@@ -293,7 +293,7 @@ module mips_cpu_bus
                                     (FUNCTION_CODE_MULT): begin
 
                                         if(multing) begin
-                                            multWire += (register[rs][i] == 1) ? (register[rt] << i) : (64'd0); //  FIXME:  Error
+                                            multWire <= (register[rs][count] == 1) ? (multWire + (register[rt] << i)) : (multWire); //  FIXME:  Error
                                             count++;
                                         end
 
@@ -308,7 +308,7 @@ module mips_cpu_bus
                                     (FUNCTION_CODE_MULTU): begin
 
                                         if(multing) begin
-                                            multWire += (register[rs][i] == 1) ? ($unsigned(register[rt]) << i) : (64'd0);  //  FIXME:  Error
+                                            multWire += (register[rs][count] == 1) ? ($unsigned(register[rt]) << i) : (64'd0);  //  FIXME:  Error
                                             count++;
                                         end
 
@@ -479,8 +479,8 @@ module mips_cpu_bus
                                         (3) : begin
                                             byteenable = (4'd8);    //  Byte enable the fourth byte
                                         end
-                                        writedata = {24'd0, register[rt][8:0]};   //  Write
                                     endcase
+                                    writedata <= {24'd0, register[rt][7:0]};   //  Write
                                 end
 
                                 (OPCODE_SH) : begin
