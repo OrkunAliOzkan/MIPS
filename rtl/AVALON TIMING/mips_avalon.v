@@ -267,6 +267,7 @@ module mips_cpu_bus
                 end
                 //  General case
                 else begin
+                    read = 1;
                     PC_next <= PC + 32'd4;
                     state <= (waitrequest) ? (FETCH) : (EXEC1);
                 end
@@ -385,11 +386,11 @@ module mips_cpu_bus
 
                             //  Move instructions
                                 (FUNCTION_CODE_MTHI): begin
-                                    register[rd] = (rd != 0) ? (HI) : (0);
+                                    register[rd] <= (rd != 0) ? (HI) : (0);
                                 end
 
                                 (FUNCTION_CODE_MTLO): begin
-                                    register[rd] = (rd != 0) ? (LO) : (0);
+                                    register[rd] <= (rd != 0) ? (LO) : (0);
                                 end
 
                             endcase
@@ -536,10 +537,10 @@ module mips_cpu_bus
                         address = (register[rs] + address_immediate);
                     end
                 //  Setting up for next state/stalls
-                    PC <= PC_next;
                     state <= (!sOp) ? (FETCH) : (EXEC2);        //  Is it not a store operation?
                     state <= (!lOp) ? (state) : (EXEC2);
                     //state <= (!multing) ? (EXEC1) : (state);    //  Has multiplication finished?  FIXME:  Problematic
+                    PC <= (!lOp) ? (PC_next) : (PC);
             end
             (EXEC2) : begin
                 //  Resetting read
@@ -602,6 +603,7 @@ module mips_cpu_bus
                             end
                     endcase
                 //  Next state
+                    PC <= PC_next;
                     state <= (FETCH);
             end
             (HALT) : begin
