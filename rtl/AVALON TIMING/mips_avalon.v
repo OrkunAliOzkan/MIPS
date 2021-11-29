@@ -173,6 +173,8 @@ module mips_cpu_bus
             for(i = 0; i < 32; i++) begin
                 register[i] = 32'b0;
             end
+            HI = 32'd0;
+            LO = 32'd0;
         //  Initialise interupt handles
             stall = 0;
         //  initialise state
@@ -211,7 +213,7 @@ module mips_cpu_bus
                     (opcode == OPCODE_LH)   ||
                     (opcode == OPCODE_LHU)  ||
                     (opcode == OPCODE_LW)));
-            assign sOp = ((  
+            assign sOp = ((
                     (opcode == OPCODE_SB)   ||
                     (opcode == OPCODE_SW)   ||
                     (opcode == OPCODE_SH)));
@@ -225,13 +227,13 @@ module mips_cpu_bus
                 */
                 read = 1;
                 address = PC;
-                /*
                 //  When do we multiply?
-                if((opcode == FUNCTION_CODE_MULT) || (opcode == FUNCTION_CODE_MULT)) begin
-                    multing = 1;
-                    temp = register[rs];
-                end
-                */
+                    /*
+                    if((opcode == FUNCTION_CODE_MULT) || (opcode == FUNCTION_CODE_MULT)) begin
+                        multing = 1;
+                        temp = register[rs];
+                    end
+                    */
 
             end
             (EXEC1) : begin //  Specific operations, depending on if load or store
@@ -265,8 +267,8 @@ module mips_cpu_bus
                 end
                 //  General case
                 else begin
-                    state <= (waitrequest) ? (FETCH) : (EXEC1);
                     PC_next <= PC + 32'd4;
+                    state <= (waitrequest) ? (FETCH) : (EXEC1);
                 end
             end
             (EXEC1) : begin
@@ -436,41 +438,48 @@ module mips_cpu_bus
                             end
 
                         //  Branch
-                            (OPCODE_BEQ) : begin
-                                PC_next <= (register[rs] == register[rt]) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
-                            end
+                            //  Share opcode
+                                (5'd1): begin   //  Is instruction BGEZ; BGEZAL; BLTZ; BLTZAL
+                                    case (rt)
+                                        (6'd1) : begin  //  BGTL
+                                            // if (rs-rt) >= 0 then pc_next==immediate
+                                            PC_next <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                        end
 
-                            (OPCODE_BGEZ) : begin
-                                // if (rs-rt) >= 0 then pc_next==immediate
-                                PC_next <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
-                            end
+                                        (6'd17) : begin //  BGTLAL
+                                            PC_next <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                            register[31] = PC;
+                                        end
 
-                            (OPCODE_BGEZAL) : begin
-                                PC_next <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
-                                register[31] = PC;
-                            end
+                                        (6'd0) : begin  //  BLTZ
+                                            PC_next <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                        end
 
-                            (OPCODE_BGTZ) : begin
-                                PC_next <= (register[rs] > 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
-                            end
+                                        (6'd16) : begin //  BLTZAL
+                                            PC_next <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                            register[31] <= PC;
+                                        end
+                                    endcase
+                                end
 
-                            (OPCODE_BNE) : begin
-                                PC <= (register[rs] != register[rt]) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
-                            end
+                            //  Rest
+                                (OPCODE_BEQ) : begin
+                                    PC_next <= (register[rs] == register[rt]) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                end
 
-                            (OPCODE_BLEZ) : begin
-                                PC <= (register[rs] <= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
-                                //if (rs-rt)==0 or MSB(rs-rt)==1 then pc==immediate
-                            end
+                                (OPCODE_BGTZ) : begin
+                                    PC_next <= (register[rs] > 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                end
 
-                            (OPCODE_BLTZAL) : begin
-                                PC_next <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
-                                register[31] <= PC;
-                            end
+                                (OPCODE_BNE) : begin
+                                    PC <= (register[rs] != register[rt]) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                end
 
-                            (OPCODE_BLTZ) : begin
-                                PC_next <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
-                            end
+                                (OPCODE_BLEZ) : begin
+                                    PC <= (register[rs] <= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                    //if (rs-rt)==0 or MSB(rs-rt)==1 then pc==immediate
+                                end
+
 
                         //  Store   FIXME:  Not operational.
                                 (OPCODE_SB) : begin
@@ -529,7 +538,8 @@ module mips_cpu_bus
                 //  Setting up for next state/stalls
                     PC <= PC_next;
                     state <= (!sOp) ? (FETCH) : (EXEC2);        //  Is it not a store operation?
-                    state <= (!multing) ? (state) : (EXEC1);    //  Has multiplication finished?
+                    state <= (!lOp) ? (state) : (EXEC2);
+                    //state <= (!multing) ? (EXEC1) : (state);    //  Has multiplication finished?  FIXME:  Problematic
             end
             (EXEC2) : begin
                 //  Resetting read
