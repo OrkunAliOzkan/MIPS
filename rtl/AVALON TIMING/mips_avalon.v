@@ -189,8 +189,6 @@ module mips_cpu_bus
         assign targetAddress = InstructionReg[25:0];
         assign address_immediate = InstructionReg[15:0];
     //  Temporary wires
-        //  Multiplication
-            //  TODO:   Test me
         /*
             assign multWire = ((state == EXEC1) && (opcode == OPCODE_R)) ?
                         ((funct == FUNCTION_CODE_MULT) ? 
@@ -291,9 +289,8 @@ module mips_cpu_bus
 
 
                                     (FUNCTION_CODE_MULT): begin
-
                                         if(multing) begin
-                                            multWire <= (register[rs][count] == 1) ? (multWire + (register[rt] << i)) : (multWire); //  FIXME:  Error
+                                            multWire <= ((register[rs][count] == 1) ? (multWire + (register[rt] << count)) : (multWire)); //  FIXME:  Error
                                             count++;
                                         end
 
@@ -306,9 +303,8 @@ module mips_cpu_bus
 
 
                                     (FUNCTION_CODE_MULTU): begin
-
                                         if(multing) begin
-                                            multWire += (register[rs][count] == 1) ? ($unsigned(register[rt]) << i) : (64'd0);  //  FIXME:  Error
+                                            multWire += (register[rs][count] == 1) ? ($unsigned(register[rt]) << count) : (64'd0);  //  FIXME:  Error
                                             count++;
                                         end
 
@@ -480,7 +476,7 @@ module mips_cpu_bus
                                             byteenable = (4'd8);    //  Byte enable the fourth byte
                                         end
                                     endcase
-                                    writedata <= {24'd0, register[rt][7:0]};   //  Write
+                                    writedata <= {24'd0, register[rt][7:0]};   //  FIXME:   Error
                                 end
 
                                 (OPCODE_SH) : begin
@@ -494,7 +490,7 @@ module mips_cpu_bus
                                             byteenable = (4'd12);   //  Byte anable the latter two bytes
                                         end
                                     endcase
-                                    writedata = {16'd0, register[rt][15:0]};   //  Write
+                                    writedata = {16'd0, register[rt][15:0]};   //  FIXME:   Error
                                 end
 
                                 (OPCODE_SW) : begin
