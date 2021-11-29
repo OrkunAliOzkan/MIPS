@@ -455,12 +455,13 @@ module mips_cpu_bus
                                 PC_next <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
                             end
 
-                        //  Store
+                        //  Store   FIXME:  Not operational.
                                 (OPCODE_SB) : begin
-                                    //  Write must be high
-                                    //  setting values ton writedata
-                                    //  byte enable will be us choosing byte at address
-                                    //  Address is determined @ exec1
+                                    /*  Write must be high
+                                        setting values ton writedata
+                                        byte enable will be us choosing byte at address
+                                        Address is determined @ exec1
+                                    */
                                     write = 1;  //  Enable write so that memory can be written upon
                                     address = (register[rs] + address_immediate);
                                     case(address % 4)
@@ -476,7 +477,7 @@ module mips_cpu_bus
                                         (3) : begin
                                             byteenable = (4'd8);    //  Byte enable the fourth byte
                                         end
-                                        //writedata = {24'd0, register[rt][8:0]};   //  Write
+                                        writedata = {24'd0, register[rt][8:0]};   //  Write
                                     endcase
                                 end
 
@@ -491,7 +492,7 @@ module mips_cpu_bus
                                             byteenable = (4'd12);   //  Byte anable the latter two bytes
                                         end
                                     endcase
-                                    //writedata = {16'd0, register[rt][15:0]};   //  Write
+                                    writedata = {16'd0, register[rt][15:0]};   //  Write
                                 end
 
                                 (OPCODE_SW) : begin
