@@ -48,6 +48,7 @@ module mips_cpu_bus
     J type unique opcodes
     I type uniques opcodes
 */
+//  Defined opcodes FIXME:  LWR & LWL
     typedef enum logic[5:0]
     {
         OPCODE_R = 6'd0,
@@ -84,6 +85,7 @@ module mips_cpu_bus
     } opcode_t;
 
 //  R types are differentiated through their function code
+//  States
     typedef enum logic[5:0]
     {
         FUNCTION_CODE_ADDU = 6'd33,
@@ -104,10 +106,10 @@ module mips_cpu_bus
         FUNCTION_CODE_MULT = 6'd24,
         FUNCTION_CODE_MULTU = 6'd25,
 
-        FUNCTION_CODE_MTHI = 6'd17,
-        FUNCTION_CODE_MTLO = 6'd19,
         FUNCTION_CODE_MFHI = 6'd16,
+        FUNCTION_CODE_MTHI = 6'd17,
         FUNCTION_CODE_MFLO = 6'd18,
+        FUNCTION_CODE_MTLO = 6'd19,
 
         //FUNCTION_CODE_LWR = 6'd,    //FIXME:  Can't find any of the function codes for the two
         //FUNCTION_CODE_LWL = 6'd,    //FIXME:  Can't find any of the function codes for the two
@@ -217,10 +219,12 @@ module mips_cpu_bus
                     (opcode == OPCODE_LH)   ||
                     (opcode == OPCODE_LHU)  ||
                     (opcode == OPCODE_LW)));
-            assign sOp = ((
-                    (opcode == OPCODE_SB)   ||
-                    (opcode == OPCODE_SW)   ||
-                    (opcode == OPCODE_SH)));
+            /*
+                assign sOp = ((
+                        (opcode == OPCODE_SB)   ||
+                        (opcode == OPCODE_SW)   ||
+                        (opcode == OPCODE_SH)));
+            */
 
 //  Combinatorial block TODO:   Not implemented!
     always_comb begin
@@ -262,9 +266,7 @@ module mips_cpu_bus
                 register[i] <= 32'h00;
             end
         end
-
         case (state)
-
             (FETCH) : begin
                 //  If we enter halt state
                 if (address == 32'd0) begin
