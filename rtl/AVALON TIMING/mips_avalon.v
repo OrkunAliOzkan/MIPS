@@ -291,7 +291,7 @@ module mips_cpu_bus
                                     (FUNCTION_CODE_MULT): begin
 
                                         if(multing) begin
-                                            multWire += (register[rs][i] == 1) ? (register[rt] << i) : (64'd0);
+                                            multWire += (register[rs][i] == 1) ? (register[rt] << i) : (64'd0); //  FIXME:  Error
                                             count++;
                                         end
 
@@ -306,7 +306,7 @@ module mips_cpu_bus
                                     (FUNCTION_CODE_MULTU): begin
 
                                         if(multing) begin
-                                            multWire += (register[rs][i] == 1) ? ($unsigned(register[rt]) << i) : (64'd0);
+                                            multWire += (register[rs][i] == 1) ? ($unsigned(register[rt]) << i) : (64'd0);  //  FIXME:  Error
                                             count++;
                                         end
 
@@ -503,7 +503,7 @@ module mips_cpu_bus
 
                 endcase
                 PC <= PC_next;
-                state <= (!sOp) ? (FETCH) : (EXEC2);
+                state <= (!sOp) ? (FETCH) : (EXEC2);        //  Is it not a store operation?
                 state <= (!multing) ? (state) : (EXEC1);    //  Has multiplication finished?
             end
             (EXEC2) : begin
