@@ -174,6 +174,8 @@ module mips_cpu_bus
         //  initialise state
             state = HALT;
             multing = 0;
+        //  Program counter
+            PC = 0'hBFC00000;   //  Initialise the PC
     end
 
 //  Automatic wire assignment
