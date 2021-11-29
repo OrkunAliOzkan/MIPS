@@ -1,1 +1,1 @@
-(register[rs][count] == 1) ? (multWire + (register[rt] << i)) : (multWire)
+register[rs]

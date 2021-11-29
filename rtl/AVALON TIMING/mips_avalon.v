@@ -219,6 +219,13 @@ module mips_cpu_bus
                 */
                 read = 1;
                 address = PC;
+                /*
+                //  When do we multiply?
+                if((opcode == FUNCTION_CODE_MULT) || (opcode == FUNCTION_CODE_MULT)) begin
+                    multing = 1;
+                end
+                */
+
             end
             (EXEC1) : begin //  Specific operations, depending on if load or store
             end
@@ -292,7 +299,7 @@ module mips_cpu_bus
 
                                     (FUNCTION_CODE_MULT): begin
                                         if(multing) begin
-                                            multWire <= ((register[rs][count] == 1) ? (multWire + (register[rt] << count)) : (multWire)); //  FIXME:  Error
+                                            multWire <= (((register[rs])[count] == 1'b1) ? (multWire + (register[rt] << count)) : (multWire)); //  FIXME:  Error
                                             count++;
                                         end
 
