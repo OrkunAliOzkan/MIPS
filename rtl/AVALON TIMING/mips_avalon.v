@@ -174,28 +174,30 @@ module mips_cpu_bus
     logic stall;        //  Are we going to stall? Useful to differentiate
     logic multing;      //  Are we still multiplying?
 
-//  Initialising CPU    TODO:   PC_Jump
-    initial begin
-        //  Initialise register
-            integer i;
-            for(i = 0; i < 32; i++) begin
-                register[i] = 32'b0;
-            end
-            HI = 32'd0;
-            LO = 32'd0;
-        //  Initialise interupt handles
-            stall = 0;
-        //  initialise state
-            state = HALT;
-            multing = 0;
-        //  Program counter
-            PC = 32'hBFC00000;                  //  Initialise PC
-            PC_next = PC + 32'd4;               //  Initialise PC_next
-            PC_Jump_Branch = PC_next + 32'd4;   //  Initialise PC_jump_branch
-            isJumpOrBranch = 2'd0;
-        //  Memory Address
-            tempStoreReg = 32'd0;
+//  Initialising CPU    
+
+    //  Initialise register
+    integer i;
+    for(i = 0; i < 32; i++) begin
+        register[i] = 32'b0;
     end
+    HI = 32'd0;
+    LO = 32'd0;
+//  Initialise interupt handles
+    stall = 0;
+//  initialise state
+    state = HALT;
+    multing = 0;
+//  Program counter
+    PC = 32'hBFC00000;                  //  Initialise PC
+    PC_next = PC + 32'd4;               //  Initialise PC_next
+    PC_Jump_Branch = PC_next + 32'd4;   //  Initialise PC_jump_branch
+    isJumpOrBranch = 2'd0;
+//  Memory Address
+    tempStoreReg = 32'd0;
+
+
+    
 
 //  Automatic wire assignment
     //  Instruction register
