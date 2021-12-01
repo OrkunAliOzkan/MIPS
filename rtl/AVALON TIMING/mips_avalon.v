@@ -173,8 +173,8 @@ module mips_cpu_bus
             logic stall;        //  Are we going to stall? Useful to differentiate
             logic multing;      //  Are we still multiplying?
 
-//  Initialising CPU    TODO:   PC_Jump
-    initial begin
+//  Initialising CPU
+    initial begin   //  FIXME:  make me not initial
         //  Initialise register
             integer i;
             for(i = 0; i < 32; i++) begin
