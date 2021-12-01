@@ -39,9 +39,7 @@ module mips_cpu_bus
     $sp         :       29          :       Stack Pointer
     $fp         :       30          :       Frame pointer
     $ra         :       31          :       Return address
-*/
 
-/*
     Instructions (ref:https://opencores.org/projects/plasma/opcodes)
     Opcodes:
     R types have an opcode of 6d0
@@ -128,7 +126,8 @@ module mips_cpu_bus
 
 //  Registers
     //  Program counter registers
-        logic[31:0] PC, PC_next, PC_Jump;
+        logic[31:0] PC, PC_next, PC_Jump_Branch;
+        logic isJumpOrBranch[1:0];
     //  State registers
         state_t state;
     //  Instruction register
@@ -188,7 +187,7 @@ module mips_cpu_bus
             multing = 0;
         //  Program counter
             PC = 32'hBFC00000;   //  Initialise the PC
-            PC_Jump = PC + 32'd4;   //  Initialise the PC   TODO:   I have no idea how to make PC_Jump work
+            PC_Jump_Branch = PC + 32'd4;   //  Initialise the PC   TODO:   I have no idea how to make PC_Jump_Branch work
         //  Memory Address
             tempStoreReg = 32'd0;
     end
@@ -214,12 +213,12 @@ module mips_cpu_bus
                             ($unsigned(register[rs]) * $unsigned(register[rt])) : (64'h0000));
         */
         //  Memory access
-            assign lOp = ((
+            assign lOp = (
                     (opcode == OPCODE_LB)   ||
                     (opcode == OPCODE_LBU)  ||
                     (opcode == OPCODE_LH)   ||
                     (opcode == OPCODE_LHU)  ||
-                    (opcode == OPCODE_LW)));
+                    (opcode == OPCODE_LW));
             /*
                 assign sOp = ((
                         (opcode == OPCODE_SB)   ||
@@ -280,6 +279,7 @@ module mips_cpu_bus
                     PC_next <= PC + 32'd4;
                     address = PC;
                     state <= (waitrequest) ? (FETCH) : (EXEC1);
+                    isJumpOrBranch <= (isJumpOrBranch == 2'd1) ? (2'd2) : (2d'1);
                 end
             end
             (EXEC1) : begin
@@ -414,12 +414,14 @@ module mips_cpu_bus
 
                     //  J type instructions
                         (OPCODE_J): begin
-                            PC_next <= {8'b0, targetAddress};
+                            PC_Jump_Branch <= {8'b0, targetAddress};
+                            isJumpOrBranch <= 2'd1;
                         end
 
                         (OPCODE_JAL) : begin
                             register[31] <= PC + 5'd4;
-                            PC_next <= {8'b0, targetAddress};
+                            PC_Jump_Branch <= {8'b0, targetAddress};
+                            isJumpOrBranch <= 2'd1;
                         end
 
                     //  I type instructions
@@ -460,20 +462,24 @@ module mips_cpu_bus
                                     case (rt)
                                         (6'd1) : begin  //  BGTL
                                             // if (rs-rt) >= 0 then pc_next==immediate
-                                            PC_next <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                            PC_Jump_Branch <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
+                                            isJumpOrBranch <= (register[rs] >= 0) ? 2'd1 : 2'd0;
                                         end
 
                                         (6'd17) : begin //  BGTLAL
-                                            PC_next <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                            PC_Jump_Branch <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
+                                            isJumpOrBranch <= (register[rs] >= 0) ? 2'd1 : 2'd0;
                                             register[31] = PC;
                                         end
 
                                         (6'd0) : begin  //  BLTZ
-                                            PC_next <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                            PC_Jump_Branch <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
+                                            isJumpOrBranch <= (register[rs] < 0) ? 2'd1 : 2'd0;
                                         end
 
                                         (6'd16) : begin //  BLTZAL
-                                            PC_next <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                            PC_Jump_Branch <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
+                                            isJumpOrBranch <= (register[rs] < 0) ? 2'd1 : 2'd0;
                                             register[31] <= PC;
                                         end
                                     endcase
@@ -481,19 +487,23 @@ module mips_cpu_bus
 
                             //  Rest
                                 (OPCODE_BEQ) : begin
-                                    PC_next <= (register[rs] == register[rt]) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                    PC_Jump_Branch <= (register[rs] == register[rt]) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
+                                    isJumpOrBranch <= (register[rs] == register[rt]) ? 2'd1 : 2'd0;
                                 end
 
                                 (OPCODE_BGTZ) : begin
-                                    PC_next <= (register[rs] > 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                    PC_Jump_Branch <= (register[rs] > 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
+                                    isJumpOrBranch <= (register[rs] > 0) ? 2'd1 : 2'd0;
                                 end
 
                                 (OPCODE_BNE) : begin
-                                    PC <= (register[rs] != register[rt]) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                    PC_Jump_Branch <= (register[rs] != register[rt]) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
+                                    isJumpOrBranch <= (register[rs] != register[rt]) ? 2'd1 : 2'd0;
                                 end
 
                                 (OPCODE_BLEZ) : begin
-                                    PC <= (register[rs] <= 0) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
+                                    PC_Jump_Branch <= (register[rs] <= 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
+                                    isJumpOrBranch <= (register[rs] <= 0) ? 2'd1 : 2'd0;
                                     //if (rs-rt)==0 or MSB(rs-rt)==1 then pc==immediate
                                 end
 
@@ -556,6 +566,8 @@ module mips_cpu_bus
                     state <= (!lOp) ? (FETCH) : (EXEC2);        //  Is it not a store operation?
                     //state <= (!multing) ? (EXEC1) : (state);    //  Has multiplication finished?  FIXME:  Problematic
                     PC <= (!lOp) ? (PC_next) : (PC);
+                    PC <= (isJumpOrBranch == 2'd2) ? (PC_Jump_Branch) : (PC);
+                    isJumpOrBranch = (isJumpOrBranch == 2'd2) ? (2'd0) : (isJumpOrBranch);
             end
             (EXEC2) : begin
                 //  Resetting read
