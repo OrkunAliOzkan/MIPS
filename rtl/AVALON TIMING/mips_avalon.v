@@ -127,18 +127,18 @@ module mips_cpu_bus
         $fp         :       30          :       Frame pointer
         $ra         :       31          :       Return address
     */
-//  Program counter registers
-    logic[31:0] PC, PC_next, PC_Jump_Branch;
-    logic[1:0] isJumpOrBranch;
-//  State registers
-    state_t state;
-//  Instruction register
-    logic[31:0] InstructionReg;
-//  General Registers
-    logic [31:0][31:0] register; //  This is defined as signed to emphasise operations may be unsigned
-//  Multiplication registers
-    logic[31:0] HI;
-    logic[31:0] LO;
+    //  General Registers
+        logic signed [31:0][31:0] register; //  This is defined as signed to emphasise operations may be unsigned
+    //  Program counter registers
+        logic[31:0] PC, PC_next, PC_Jump_Branch;
+        logic[1:0] isJumpOrBranch;
+    //  State registers
+        state_t state;
+    //  Instruction register
+        logic[31:0] InstructionReg;
+    //  Multiplication registers
+        logic[31:0] HI;
+        logic[31:0] LO;
 
 
 //  Wire declaration
@@ -149,6 +149,8 @@ module mips_cpu_bus
             |I format:   op     |rs     |rt     |address/immediate               |
             |J format:   op     |target address                                  |
     */
+    //  Temporary variable
+        logic signed [31:0] tempWire;
     //  Used in ALU
         opcode_t opcode;
         logic[4:0] rs;
@@ -168,8 +170,6 @@ module mips_cpu_bus
     //  Memory access
         logic sOp; //  Are we loading memory? Useful to differentiate
         logic lOp; //  Are we storing memory? Useful to differentiate
-        //  Temporary variable
-            logic[31:0] tempWire;
     //  Branch or load
         logic bOj; //  Are we branching or storing? Useful to differentiate
     //  Interupts
