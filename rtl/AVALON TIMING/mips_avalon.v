@@ -26,27 +26,14 @@ module mips_cpu_bus
     input logic[31:0] readdata
 );
 
-/*
-    Register formats (ref: https://www.dcc.fc.up.pt/~ricroc/aulas/1920/ac/apontamentos/P04_encoding_mips_instructions.pdf)
-    Title       :       Reg #       :       Usage
-    $zero       :       0           :       Constantly of value 0
-    $v0-$v1     :       2, 3        :       Values for results and expression evaluation
-    $a0-$v3     :       4, 7        :       Argus
-    $t0-$t7     :       8, 15       :       Temps
-    $t8-$t9     :       24, 25      :       More temps
-    $s0-$s7     :       16, 23      :       Saved
-    $gp         :       28          :       Global pointers
-    $sp         :       29          :       Stack Pointer
-    $fp         :       30          :       Frame pointer
-    $ra         :       31          :       Return address
-
-    Instructions (ref:https://opencores.org/projects/plasma/opcodes)
-    Opcodes:
-    R types have an opcode of 6d0
-    J type unique opcodes
-    I type uniques opcodes
-*/
 //  Defined opcodes FIXME:  LWR & LWL
+    /*
+        Instructions (ref:https://opencores.org/projects/plasma/opcodes)
+        Opcodes:
+        R types have an opcode of 6d0
+        J type unique opcodes
+        I type uniques opcodes
+    */
     typedef enum logic[5:0]
     {
         OPCODE_R = 6'd0,
@@ -125,6 +112,20 @@ module mips_cpu_bus
     } state_t;
 
 //  Registers
+    /*
+        Register formats (ref: https://www.dcc.fc.up.pt/~ricroc/aulas/1920/ac/apontamentos/P04_encoding_mips_instructions.pdf)
+        Title       :       Reg #       :       Usage
+        $zero       :       0           :       Constantly of value 0
+        $v0-$v1     :       2, 3        :       Values for results and expression evaluation
+        $a0-$v3     :       4, 7        :       Argus
+        $t0-$t7     :       8, 15       :       Temps
+        $t8-$t9     :       24, 25      :       More temps
+        $s0-$s7     :       16, 23      :       Saved
+        $gp         :       28          :       Global pointers
+        $sp         :       29          :       Stack Pointer
+        $fp         :       30          :       Frame pointer
+        $ra         :       31          :       Return address
+    */
     //  Program counter registers
         logic[31:0] PC, PC_next, PC_Jump_Branch;
         logic[1:0] isJumpOrBranch;
@@ -138,14 +139,15 @@ module mips_cpu_bus
         logic[31:0] HI;
         logic[31:0] LO;
 
-/*
-        Wires used in ALU
-        |Field name: 6 bits |5 bits |5 bits |5 bits  |5 bits     |6 bits     |
-        |R format:   op     |rs     |rt     |rd      |shmat      |funct      |
-        |I format:   op     |rs     |rt     |address/immediate               |
-        |J format:   op     |target address                                  |
-*/
+
 //  Wire declaration
+    /*
+            Wires used in ALU
+            |Field name: 6 bits |5 bits |5 bits |5 bits  |5 bits     |6 bits     |
+            |R format:   op     |rs     |rt     |rd      |shmat      |funct      |
+            |I format:   op     |rs     |rt     |address/immediate               |
+            |J format:   op     |target address                                  |
+    */
     //  Used in ALU
         opcode_t opcode;
         logic[4:0] rs;
@@ -186,8 +188,9 @@ module mips_cpu_bus
             state = HALT;
             multing = 0;
         //  Program counter
-            PC = 32'hBFC00000;   //  Initialise the PC
-            PC_Jump_Branch = PC + 32'd4;   //  Initialise the PC   TODO:   I have no idea how to make PC_Jump_Branch work
+            PC = 32'hBFC00000;                  //  Initialise PC
+            PC_next = PC + 32'd4;               //  Initialise PC_next
+            PC_Jump_Branch = PC_next + 32'd4;   //  Initialise PC_jump_branch
             isJumpOrBranch = 2'd0;
         //  Memory Address
             tempStoreReg = 32'd0;
