@@ -669,7 +669,6 @@ module mips_cpu_bus
     end
 //  always block. Exclusively for testing! TODO:    DELET when not using
     /*
-    */
         always @(posedge clk) begin
             if (state == FETCH) begin
                 for(integer a = 0; a < 32; a++) begin
@@ -680,4 +679,5 @@ module mips_cpu_bus
             $display("LO:\t%d", LO);
             $display("HI:\t%d", HI);
         end
+    */
 endmodule
