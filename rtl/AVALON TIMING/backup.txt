@@ -5,7 +5,6 @@
  * @date 2021-11-28
  *
  * @copyright Copyright (c) 2021
-    FIXME:  Make BIG endian
  *
  */
 
@@ -127,18 +126,18 @@ module mips_cpu_bus
         $fp         :       30          :       Frame pointer
         $ra         :       31          :       Return address
     */
-    //  General Registers
-        logic signed [31:0][31:0] register; //  This is defined as signed to emphasise operations may be unsigned
-    //  Program counter registers
-        logic[31:0] PC, PC_next, PC_Jump_Branch;
-        logic[1:0] isJumpOrBranch;
-    //  State registers
-        state_t state;
-    //  Instruction register
-        logic[31:0] InstructionReg;
-    //  Multiplication registers
-        logic[31:0] HI;
-        logic[31:0] LO;
+//  Program counter registers
+    logic[31:0] PC, PC_next, PC_Jump_Branch;
+    logic[1:0] isJumpOrBranch;
+//  State registers
+    state_t state;
+//  Instruction register
+    logic[31:0] InstructionReg;
+//  General Registers
+    logic [31:0][31:0] register; //  This is defined as signed to emphasise operations may be unsigned
+//  Multiplication registers
+    logic[31:0] HI;
+    logic[31:0] LO;
 
 
 //  Wire declaration
@@ -149,8 +148,6 @@ module mips_cpu_bus
             |I format:   op     |rs     |rt     |address/immediate               |
             |J format:   op     |target address                                  |
     */
-    //  Temporary variable
-        logic signed [31:0] tempWire;
     //  Used in ALU
         opcode_t opcode;
         logic[4:0] rs;
@@ -170,6 +167,8 @@ module mips_cpu_bus
     //  Memory access
         logic sOp; //  Are we loading memory? Useful to differentiate
         logic lOp; //  Are we storing memory? Useful to differentiate
+        //  Temporary variable
+            logic[31:0] tempStoreReg;
     //  Branch or load
         logic bOj; //  Are we branching or storing? Useful to differentiate
     //  Interupts
@@ -196,7 +195,7 @@ module mips_cpu_bus
             PC_Jump_Branch = PC_next + 32'd4;   //  Initialise PC_jump_branch
             isJumpOrBranch = 2'd0;
         //  Memory Address
-            tempWire = 32'd0;
+            tempStoreReg = 32'd0;
     end
 
 //  Automatic wire assignment
@@ -298,8 +297,7 @@ module mips_cpu_bus
                     PC_Jump_Branch <= PC_next + 32'd4;
                     address = PC;
                     state <= (waitrequest) ? (FETCH) : (EXEC1);
-                    isJumpOrBranch <= (isJumpOrBranch == 2'd1) ? (2'd2) : (2'd1); //TODO: Branch to branch?
-                    isJumpOrBranch <= (bOj) ? (2'd1) : (2'd0);
+                    isJumpOrBranch <= (bOj) ? ((isJumpOrBranch == 2'd1) ? (2'd2) : (2'd1)) : (2'd0);
                 end
             end
             (EXEC1) : begin
@@ -391,11 +389,11 @@ module mips_cpu_bus
 
                                 //  Logical
                                     (FUNCTION_CODE_SLL): begin
-                                            register[rd] <= (rd != 0) ? (register[rt] << shmat) : (0);
+                                            register[rd] <= (rd != 0) ? (register[rs] << shmat) : (0);
                                     end
 
                                     (FUNCTION_CODE_SRL): begin
-                                            register[rd] <= (rd != 0) ? (register[rt] >>> shmat) : (0);
+                                            register[rd] <= (rd != 0) ? (register[rs] >>> shmat) : (0);
                                     end
 
                                     (FUNCTION_CODE_SLLV): begin
@@ -403,11 +401,11 @@ module mips_cpu_bus
                                     end
 
                                     (FUNCTION_CODE_SRLV): begin
-                                            register[rd] <= (rd != 0) ? (register[rt] >>> register[shmat]) : (0);
+                                            register[rd] <= (rd != 0) ? (register[rs] >>> register[shmat]) : (0);
                                     end
                                 //  Arithmetic
                                     (FUNCTION_CODE_SRA): begin
-                                            register[rd] <= (rd != 0) ? (register[rt] >>> shmat) : (0);
+                                            register[rd] <= (rd != 0) ? (register[rs] >>> shmat) : (0);
                                     end
 
                                     (FUNCTION_CODE_SRAV): begin
@@ -435,13 +433,13 @@ module mips_cpu_bus
                     //  J type instructions
                         (OPCODE_J): begin
                             PC_Jump_Branch <= {8'b0, targetAddress};
-                            //isJumpOrBranch <= 2'd1;
+                            isJumpOrBranch <= 2'd1;
                         end
 
                         (OPCODE_JAL) : begin
                             register[31] <= PC + 5'd4;
                             PC_Jump_Branch <= {8'b0, targetAddress};
-                            //isJumpOrBranch <= 2'd1;
+                            isJumpOrBranch <= 2'd1;
                         end
 
                     //  I type instructions
@@ -452,15 +450,15 @@ module mips_cpu_bus
 
                         //  Bitwise operations
                             (OPCODE_ANDI) : begin
-                                register[rt] <= (rt != 0) ? ($unsigned(register[rs]) & $unsigned(address_immediate)) : (0);
+                                register[rd] <= (rt != 0) ? ($unsigned(register[rs]) & $unsigned(address_immediate)) : (0);
                             end
 
                             (OPCODE_ORI) : begin
-                                register[rt] <= (rt != 0) ? ($unsigned(register[rs]) | $unsigned(address_immediate)) : (0);
+                                register[rd] <= (rt != 0) ? ($unsigned(register[rs]) | $unsigned(address_immediate)) : (0);
                             end
 
                             (OPCODE_XORI) : begin
-                                register[rt] <= (rt != 0) ? ($unsigned(register[rs]) ^ $unsigned(address_immediate)) : (0);
+                                register[rd] <= (rt != 0) ? ($unsigned(register[rs]) ^ $unsigned(address_immediate)) : (0);
                             end
 
                         //  Load and sets
@@ -469,12 +467,11 @@ module mips_cpu_bus
                             end
 
                             (OPCODE_SLTI) : begin
-                                tempWire = (address_immediate[15]) ? ({16'hFFFF, address_immediate}) : ({16'h0, address_immediate});
-                                register[rt] <= ((rt != 0) && (register[rs] < tempWire)) ?  (1) : (0);
+                                    register[rt] <= (rt != 0) ? ((register[rs] < register[address_immediate]) ? (1) : (0)) : (0);
                             end
 
                             (OPCODE_SLTIU) : begin
-                                register[rt] <= ((rt != 0) && ($unsigned(register[rs]) < $unsigned(address_immediate))) ? (1) : (0);
+                                    register[rt] <= (rt != 0) ? (($unsigned(register[rs]) < $unsigned(register[address_immediate])) ? (1) : (0)) : (0);
                             end
 
                         //  Branch
@@ -484,23 +481,23 @@ module mips_cpu_bus
                                         (6'd1) : begin  //  BGTL
                                             // if (rs-rt) >= 0 then pc_next==immediate
                                             PC_Jump_Branch <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                            //isJumpOrBranch <= (register[rs] >= 0) ? 2'd1 : 2'd0;
+                                            isJumpOrBranch <= (register[rs] >= 0) ? 2'd1 : 2'd0;
                                         end
 
                                         (6'd17) : begin //  BGTLAL
                                             PC_Jump_Branch <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                            //isJumpOrBranch <= (register[rs] >= 0) ? 2'd1 : 2'd0;
+                                            isJumpOrBranch <= (register[rs] >= 0) ? 2'd1 : 2'd0;
                                             register[31] = PC;
                                         end
 
                                         (6'd0) : begin  //  BLTZ
                                             PC_Jump_Branch <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                            //isJumpOrBranch <= (register[rs] < 0) ? 2'd1 : 2'd0;
+                                            isJumpOrBranch <= (register[rs] < 0) ? 2'd1 : 2'd0;
                                         end
 
                                         (6'd16) : begin //  BLTZAL
                                             PC_Jump_Branch <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                            //isJumpOrBranch <= (register[rs] < 0) ? 2'd1 : 2'd0;
+                                            isJumpOrBranch <= (register[rs] < 0) ? 2'd1 : 2'd0;
                                             register[31] <= PC;
                                         end
                                     endcase
@@ -509,22 +506,22 @@ module mips_cpu_bus
                             //  Rest
                                 (OPCODE_BEQ) : begin
                                     PC_Jump_Branch <= (register[rs] == register[rt]) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                    //isJumpOrBranch <= (register[rs] == register[rt]) ? 2'd1 : 2'd0;
+                                    isJumpOrBranch <= (register[rs] == register[rt]) ? 2'd1 : 2'd0;
                                 end
 
                                 (OPCODE_BGTZ) : begin
                                     PC_Jump_Branch <= (register[rs] > 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                    //isJumpOrBranch <= (register[rs] > 0) ? 2'd1 : 2'd0;
+                                    isJumpOrBranch <= (register[rs] > 0) ? 2'd1 : 2'd0;
                                 end
 
                                 (OPCODE_BNE) : begin
                                     PC_Jump_Branch <= (register[rs] != register[rt]) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                    //isJumpOrBranch <= (register[rs] != register[rt]) ? 2'd1 : 2'd0;
+                                    isJumpOrBranch <= (register[rs] != register[rt]) ? 2'd1 : 2'd0;
                                 end
 
                                 (OPCODE_BLEZ) : begin
                                     PC_Jump_Branch <= (register[rs] <= 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                    //isJumpOrBranch <= (register[rs] <= 0) ? 2'd1 : 2'd0;
+                                    isJumpOrBranch <= (register[rs] <= 0) ? 2'd1 : 2'd0;
                                     //if (rs-rt)==0 or MSB(rs-rt)==1 then pc==immediate
                                 end
 
@@ -538,7 +535,7 @@ module mips_cpu_bus
                                     */
                                     write = 1;  //  Enable write so that memory can be written upon
                                     address = (register[rs] + address_immediate);
-                                    tempWire = register[rt];
+                                    tempStoreReg = register[rt];
                                     case(address % 4)
                                         (0) : begin
                                             byteenable <= (4'd1);    //  Byte enable the first byte
@@ -553,7 +550,7 @@ module mips_cpu_bus
                                             byteenable <= (4'd8);    //  Byte enable the fourth byte
                                         end
                                     endcase
-                                    writedata <= {24'd0, tempWire[7:0]};   //  FIXME:   Error
+                                    writedata <= {24'd0, tempStoreReg[7:0]};   //  FIXME:   Error
                                 end
 
                                 (OPCODE_SH) : begin
@@ -567,7 +564,7 @@ module mips_cpu_bus
                                             byteenable <= (4'd12);   //  Byte anable the latter two bytes
                                         end
                                     endcase
-                                    writedata = {16'd0, tempWire[15:0]};   //  FIXME:   Error
+                                    writedata = {16'd0, tempStoreReg[15:0]};   //  FIXME:   Error
                                 end
 
                                 (OPCODE_SW) : begin
@@ -589,10 +586,8 @@ module mips_cpu_bus
                     //state <= (!multing) ? (EXEC1) : (state);    //  Has multiplication finished?  FIXME:  Problematic
                     // TODO: Add if statement to implement waitrequest.
                     PC <= (!lOp) ? (PC_next) : (PC);
-                    if(isJumpOrBranch == 2'd2) begin
-                        PC <= PC_Jump_Branch;
-                        isJumpOrBranch <= 0;
-                    end
+                    PC <= ((!lOp) && (isJumpOrBranch == 2'd2)) ? (PC_Jump_Branch) : (PC);
+                    isJumpOrBranch <= ((!lOp) && (isJumpOrBranch == 2'd2)) ? (2'd0) : (isJumpOrBranch);
             end
             (EXEC2) : begin
                 //  Resetting read
@@ -669,6 +664,7 @@ module mips_cpu_bus
     end
 //  always block. Exclusively for testing! TODO:    DELET when not using
     /*
+    */
         always @(posedge clk) begin
             if (state == FETCH) begin
                 for(integer a = 0; a < 32; a++) begin
@@ -676,8 +672,6 @@ module mips_cpu_bus
                 end
             end
 
-            $display("LO:\t%d", LO);
-            $display("HI:\t%d", HI);
+            $display("Register %d", LO);
         end
-    */
 endmodule
