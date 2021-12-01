@@ -127,7 +127,7 @@ module mips_cpu_bus
 //  Registers
     //  Program counter registers
         logic[31:0] PC, PC_next, PC_Jump_Branch;
-        logic isJumpOrBranch[1:0];
+        logic[1:0] isJumpOrBranch;
     //  State registers
         state_t state;
     //  Instruction register
@@ -188,6 +188,7 @@ module mips_cpu_bus
         //  Program counter
             PC = 32'hBFC00000;   //  Initialise the PC
             PC_Jump_Branch = PC + 32'd4;   //  Initialise the PC   TODO:   I have no idea how to make PC_Jump_Branch work
+            isJumpOrBranch = 2'd0;
         //  Memory Address
             tempStoreReg = 32'd0;
     end
@@ -279,7 +280,7 @@ module mips_cpu_bus
                     PC_next <= PC + 32'd4;
                     address = PC;
                     state <= (waitrequest) ? (FETCH) : (EXEC1);
-                    isJumpOrBranch <= (isJumpOrBranch == 2'd1) ? (2'd2) : (2d'1);
+                    isJumpOrBranch <= (isJumpOrBranch == 2'd1) ? (2'd2) : (2'd1);
                 end
             end
             (EXEC1) : begin
@@ -567,7 +568,7 @@ module mips_cpu_bus
                     //state <= (!multing) ? (EXEC1) : (state);    //  Has multiplication finished?  FIXME:  Problematic
                     PC <= (!lOp) ? (PC_next) : (PC);
                     PC <= (isJumpOrBranch == 2'd2) ? (PC_Jump_Branch) : (PC);
-                    isJumpOrBranch = (isJumpOrBranch == 2'd2) ? (2'd0) : (isJumpOrBranch);
+                    isJumpOrBranch <= (isJumpOrBranch == 2'd2) ? (2'd0) : (isJumpOrBranch);
             end
             (EXEC2) : begin
                 //  Resetting read
