@@ -128,7 +128,7 @@ module mips_cpu_bus
 
 //  Registers
     //  Program counter registers
-        logic[31:0] PC, PC_next;
+        logic[31:0] PC, PC_next, PC_Jump;
     //  State registers
         state_t state;
     //  Instruction register
@@ -172,7 +172,7 @@ module mips_cpu_bus
             logic stall;        //  Are we going to stall? Useful to differentiate
             logic multing;      //  Are we still multiplying?
 
-//  Initialising CPU
+//  Initialising CPU    TODO:   PC_Jump
     initial begin
         //  Initialise register
             integer i;
@@ -188,6 +188,7 @@ module mips_cpu_bus
             multing = 0;
         //  Program counter
             PC = 32'hBFC00000;   //  Initialise the PC
+            PC_Jump = PC + 32'd4;   //  Initialise the PC   TODO:   I have no idea how to make PC_Jump work
         //  Memory Address
             tempStoreReg = 32'd0;
     end
