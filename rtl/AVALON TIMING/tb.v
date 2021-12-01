@@ -149,6 +149,7 @@ module tb_cpu();
         $display("%d %d",103, RAM[103]);
         $display("%d %d",104, RAM[104]);
         $display("%d %d",105, RAM[105]);
+        $display("%d", $unsigned(16'hFFFF));
         $display("--------------------");
         for(int i=200; i<201; i++) begin
             $display("%d %d",i, RAM[i]);
