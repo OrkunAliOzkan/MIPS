@@ -11,8 +11,8 @@
 set -eou pipefail
 #$1 is absolute or relative
 
-echo $1
-echo $2
+#echo $1
+#echo $2
 
 #$1 is the location of a cpu.v
 #we must recompile for every instruction (iterate through)
@@ -21,7 +21,15 @@ echo $2
 #list of instructions?
 #problem is the compilation - $1 is the directory i.e. rtl, not the .v file
 
-iverilog -Wall -g 2012 -s tb -o tb -P tb.RAM tb.v ${1}/*.v  > /dev/null 2>&1
+instructions = 
 
-./tb
+for instruction in #directory containing all the RAM outputs so we can compare against
+    do
+    #iverilog -Wall -g 2012 -s tb -o tb \
+    #-P tb.RAM_FILE = \"${test_case}\" -P tb.OUT_FILE = \"${test_case}_out\" \
+    #tb.v ${1}/*.v  > /dev/null 2>&1
+
+    #./tb
+    echo instruction
+    done
 
