@@ -469,7 +469,7 @@ module mips_cpu_bus
                             end
 
                             (OPCODE_SLTI) : begin
-                                tempWire = (address_immediate[15]) ? ({16'h1FFFF, address_immediate}) : ({16'h0, address_immediate});
+                                tempWire = (address_immediate[15]) ? ({16'hFFFF, address_immediate}) : ({16'h0, address_immediate});
                                 register[rt] <= ((rt != 0) && (register[rs] < tempWire)) ?  (1) : (0);
                             end
 
