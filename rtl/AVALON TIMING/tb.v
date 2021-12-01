@@ -22,9 +22,9 @@ module tb_cpu();
         RAM[105] = 32'b0101;
 
         //Instruction Data  TODO:   Change from $1
-        RAM[1168] = 32'b10001100000000010000000001100100;//LW $1, 100,      $0 $1=123
-        RAM[1172] = 32'b00000000001000000000000000010001;//MTHI $1          HI=123
-        RAM[1176] = 32'b10001100000000010000000001100101;//LW $1, 101,      $1=404
+        RAM[1168] = 32'b10001100000000010000000001100100;//LW $1, 100,      $0 $1=123       :)
+        RAM[1172] = 32'b00000000001000000000000000010001;//MTHI $1          HI=123          :)
+        RAM[1176] = 32'b10001100000000010000000001100101;//LW $1, 101,      $1=404          :)
         RAM[1180] = 32'b00000000001000000000000000010011;//MTLO $1          LO=404
         RAM[1184] = 32'b00000000000000000000100000010000;//MFHI $1          $1=HI=123
         RAM[1188] = 32'b10101100000000010000000011001000;//SW $1, 200, $0 RAM[200]=123
@@ -97,15 +97,24 @@ module tb_cpu();
         $finish(0);
     end
 
-    mips_cpu_bus mips_cpu_bus(.clk(clk), .reset(reset), .active(active), .register_v0(register_v0), .address(address), 
-    .write(write), .read(read), .waitrequest(waitrequest), .writedata(writedata), .byteenable(byteenable), .readdata(readdata));
+    mips_cpu_bus mips_cpu_bus(  .clk(clk), 
+                                .reset(reset), 
+                                .active(active), 
+                                .register_v0(register_v0), 
+                                .address(address), 
+                                .write(write), 
+                                .read(read), 
+                                .waitrequest(waitrequest), 
+                                .writedata(writedata), 
+                                .byteenable(byteenable), 
+                                .readdata(readdata));
 
     initial begin
         waitrequest=0;
         reset=0;
 
         repeat (200) begin
-            #0.5;
+            #2;
             $display("%d",address);
         end
 

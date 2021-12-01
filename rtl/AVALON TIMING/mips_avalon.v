@@ -281,6 +281,7 @@ module mips_cpu_bus
                     read = 1;
                     write = 0;
                     PC_next <= PC + 32'd4;
+                    PC_Jump_Branch <= PC_next + 32'd4;
                     address = PC;
                     state <= (waitrequest) ? (FETCH) : (EXEC1);
                     isJumpOrBranch <= (isJumpOrBranch == 2'd1) ? (2'd2) : (2'd1);
@@ -570,8 +571,8 @@ module mips_cpu_bus
                     state <= (!lOp) ? (FETCH) : (EXEC2);        //  Is it not a store operation?
                     //state <= (!multing) ? (EXEC1) : (state);    //  Has multiplication finished?  FIXME:  Problematic
                     PC <= (!lOp) ? (PC_next) : (PC);
-                    PC <= (isJumpOrBranch == 2'd2) ? (PC_Jump_Branch) : (PC);
-                    isJumpOrBranch <= (isJumpOrBranch == 2'd2) ? (2'd0) : (isJumpOrBranch);
+                    PC <= ((!lOp) && (isJumpOrBranch == 2'd2)) ? (PC_Jump_Branch) : (PC);
+                    isJumpOrBranch <= ((!lOp) && (isJumpOrBranch == 2'd2)) ? (2'd0) : (isJumpOrBranch);
             end
             (EXEC2) : begin
                 //  Resetting read
@@ -634,7 +635,8 @@ module mips_cpu_bus
                             end
                     endcase
                 //  Next state
-                    PC <= PC_next;
+                    PC <= (isJumpOrBranch == 2'd2) ? (PC_Jump_Branch) : (PC_next);
+                    isJumpOrBranch <= (isJumpOrBranch == 2'd2) ? (2'd0) : (isJumpOrBranch);
                     state <= (FETCH);
             end
             (HALT) : begin
