@@ -1,4 +1,5 @@
 module tb_cpu();
+
     logic [31:0] readdata;
     logic [31:0] writedata;
     logic reset;
@@ -10,7 +11,7 @@ module tb_cpu();
     logic waitrequest;
     logic [3:0] byteenable;
     logic clk;
-
+    
     logic [31:0] RAM [0:1999];
     logic [31:0] TESTRAM [0:1999];
     logic passed;
@@ -62,20 +63,28 @@ module tb_cpu();
         end
     end
 
+    assign rdata = (address > 3217031167) ? RAM[address-3217030169] : RAM[address];
+
+    logic [7:0] rd1, rd2, rd3, rd4, wd1, wd2, wd3, wd4;
+
+    assign rd1 = rdata[31:24]&{8{byteenable[3]}};
+    assign rd2 = rdata[23:16]&{8{byteenable[2]}};
+    assign rd3 = rdata[15:8]&{8{byteenable[1]}};
+    assign rd4 = rdata[7:0]&{8{byteenable[0]}};
+
+    assign wd1 = writedata[31:24]&{8{byteenable[3]}};
+    assign wd2 = writedata[23:16]&{8{byteenable[2]}};
+    assign wd3 = writedata[15:8]&{8{byteenable[1]}};
+    assign wd4 = writedata[7:0]&{8{byteenable[0]}};
+
     always_comb begin
         if (read) begin
-            if (address > 3217031167) begin
-                rdata = RAM[address-3217030169];
-                readdata = {rdata[31:24]&{8{byteenable[3]}},rdata[23:16]&{8{byteenable[2]}},rdata[15:8]&{8{byteenable[1]}},rdata[7:0]&{8{byteenable[0]}}};
-            end
-            else begin
-                rdata = RAM[address];
-                readdata = {rdata[31:24]&{8{byteenable[3]}},rdata[23:16]&{8{byteenable[2]}},rdata[15:8]&{8{byteenable[1]}},rdata[7:0]&{8{byteenable[0]}}};
-            end
+            readdata = {rd1,rd2,rd3,rd4};
         end
         if (write) begin
-            RAM[address] = {writedata[31:24]&{8{byteenable[3]}},writedata[23:16]&{8{byteenable[2]}},writedata[15:8]&{8{byteenable[1]}},writedata[7:0]&{8{byteenable[0]}}};
+            RAM[address] = {wd1,wd2,wd3,wd4};
         end
     end
 
 endmodule
+
