@@ -48,6 +48,15 @@ module tb_cpu();
     initial begin
         waitrequest=0;
         reset=0;
+        repeat (100) begin
+            $display("active - %d",active);
+            $display("address - %d",address);
+            $display("write - %d",write);
+            $display("read - %d",read);
+            $display("writedata - %d",writedata);
+            $display("byteenable - %d",byteenable);
+            #2;
+        end
         #500;
         passed=1;
         for(int i=0;i<2000;i++) begin
