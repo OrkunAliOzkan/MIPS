@@ -5,6 +5,7 @@ module tb_cpu();
     logic passed;
     logic [31:0] RAM [0:1999];
     logic [31:0] TESTRAM [0:1999];
+    logic [3:0] byteenable;
     parameter RAM_FILE="";
     parameter OUT_FILE="";
 
@@ -32,8 +33,8 @@ module tb_cpu();
         $finish(0);
     end
 
-    //mips_cpu_bus mips_cpu_bus(.clk(clk), .reset(reset), .active(active), .register_v0(register_v0), .address(address), 
-    //.write(write), .read(read), .waitrequest(waitrequest), .writedata(writedata), .byteenable(byteenable), .readdata(readdata));
+    mips_cpu_bus mips_cpu_bus(.clk(clk), .reset(reset), .active(active), .register_v0(register_v0), .address(address), 
+    .write(write), .read(read), .waitrequest(waitrequest), .writedata(writedata), .byteenable(byteenable), .readdata(readdata));
 
     initial begin
         waitrequest=0;
@@ -56,14 +57,16 @@ module tb_cpu();
     always_comb begin
         if (read) begin
             if (address > 3217031167) begin
-                readdata = RAM[address-3217030000];
+                rdata = RAM[address-3217030000];
+                readdata = {rdata[31:24]&{8{byteenable[3]}},rdata[23:16]&{8{byteenable[2]}},rdata[15:8]&{8{byteenable[1]}},rdata[7:0]&{8{byteenable[0]}}};
             end
             else begin
-                readdata = RAM[address];
+                rdata = RAM[address];
+                readdata = {rdata[31:24]&{8{byteenable[3]}},rdata[23:16]&{8{byteenable[2]}},rdata[15:8]&{8{byteenable[1]}},rdata[7:0]&{8{byteenable[0]}}};
             end
         end
         if (write) begin
-            RAM[address] = writedata;
+            RAM[address] = {writedata[31:24]&{8{byteenable[3]}},writedata[23:16]&{8{byteenable[2]}},writedata[15:8]&{8{byteenable[1]}},writedata[7:0]&{8{byteenable[0]}}};
         end
     end
 
