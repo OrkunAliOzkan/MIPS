@@ -1,11 +1,9 @@
 /**
  * @MIPS CPU
- * @brief:  Implementing a clean CPU with Avalon timing put into consideration
- * @version 0.1
+ * @brief:  Little Endian CPU
  * @date 2021-11-28
  *
  * @copyright Copyright (c) 2021
-    FIXME:  Make BIG endian
  *
  */
 
