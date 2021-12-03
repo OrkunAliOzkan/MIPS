@@ -55,6 +55,7 @@ module tb_cpu();
             $display("read - %d",read);
             $display("writedata - %d",writedata);
             $display("byteenable - %d",byteenable);
+            $display(" ");
             #2;
         end
         #500;
