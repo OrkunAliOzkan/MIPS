@@ -425,44 +425,26 @@ module mips_cpu_bus
                                     write = 1;  //  Enable write so that memory can be written upon
                                     tempWire = register[rt];
                                     case(byteEnableOutOfBound)
-                                        (0) : begin
-                                            byteenable <= (4'd1);    //  Byte enable the first byte
-                                            writedata <= {24'd0, tempWire[7:0]};
-                                        end
-                                        (1) : begin
-                                            byteenable <= (4'd2);    //  Byte enable the second byte
-                                            writedata <= {16'd0, tempWire[15:8], 8'd0};
-                                        end
-                                        (2) : begin
-                                            byteenable <= (4'd4);    //  Byte enable the third byte
-                                            writedata <= {8'd0, tempWire[23:16], 16'd0};
-                                        end
-                                        (3) : begin
-                                            byteenable <= (4'd8);    //  Byte enable the fourth byte
-                                            writedata <= {tempWire[31:24], 24'd0};
-                                        end
+                                        (0) : byteenable <= (4'd1);    //  Byte enable the first byte
+                                        (1) : byteenable <= (4'd2);    //  Byte enable the second byte
+                                        (2) : byteenable <= (4'd4);    //  Byte enable the third byte
+                                        (3) : byteenable <= (4'd8);    //  Byte enable the fourth byte
                                     endcase
+                                    writedata <= {24'd0, tempWire[7:0]};
                                 end
                                 (OPCODE_SH) : begin
                                     write = 1;  //  Enable write so that memory can be written upon
                                     case(byteEnableOutOfBound)
-                                        (0) : begin
-                                            byteenable <= (4'd3);    //  Byte enable the first two bytes
-                                            writedata = {16'd0, tempWire[15:0]};
-                                        end
-                                        (1 || 3) : byteenable <= (4'd0);   //  Do nothing. This won't work
-                                        (2) : begin
-                                            byteenable <= (4'd12);   //  Byte anable the latter two bytes
-                                            writedata = {tempWire[15:0], 16'd0};
-                                        end
+                                        (0) : byteenable <= (4'd3);    //  Byte enable the first two bytes
+                                        (1) : byteenable <= (4'd0);   //  Do nothing. This won't work
+                                        (2) : byteenable <= (4'd12);   //  Byte anable the latter two bytes
+                                        (3) : byteenable <= (4'd0);       //  Do nothing. This won't work
                                     endcase
+                                    writedata = {16'd0, tempWire[15:0]};
                                 end
                                 (OPCODE_SW) : begin
-                                    if(byteEnableOutOfBound == 0) begin
-                                        byteenable <= 4'd15;           //  Byte enable all bytes
-                                    end else
-                                        byteenable <= 4'd0;         //  Not wrote
-                                    end
+                                    if(byteEnableOutOfBound == 0)   byteenable <= 4'd15;           //  Byte enable all bytes
+                                    else                            byteenable <= 4'd0;         //  Not wrote
                                     write <= 1;                  //  Enable write so that memory can be written upon
                                     read = 0;
                                     writedata <= register[rt];   //  Write
@@ -517,82 +499,35 @@ module mips_cpu_bus
                                 //  Determine if latter 24 bits are 0 or 1
                                 //  ((readdata[7]) ? (24'hFFF): (24'h0))    TODO:   Maybe reinsert!
                                 case(byteenable)
-                                    (0):    begin
-                                        byteenable <= 4'b0001;
-                                        register[rt] <= {((readdata[7])  ? (24'hFFF): (24'h0)), readdata[7:0]};
-                                    end
-                                    (1):    begin
-                                        byteenable <= 4'b0010;
-                                        register[rt] <= {((readdata[15]) ? (24'hFFF): (24'h0)), readdata[15:8]};
-                                    end
-                                    (2):    begin
-                                        byteenable <= 4'b0100;
-                                        register[rt] <= {((readdata[23]) ? (24'hFFF): (24'h0)), readdata[23:16]};
-                                    end
-                                    (3):    begin
-                                        byteenable <= 4'b1000;
-                                        endregister[rt] <= {((readdata[31]) ? (24'hFFF): (24'h0)), readdata[31:24]};
-                                    end
+                                    (0):    register[rt] <= {((readdata[7])  ? (24'hFFF): (24'h0)), readdata[7:0]};
+                                    (1):    register[rt] <= {((readdata[15]) ? (24'hFFF): (24'h0)), readdata[15:8]};
+                                    (2):    register[rt] <= {((readdata[23]) ? (24'hFFF): (24'h0)), readdata[23:16]};
+                                    (3):    register[rt] <= {((readdata[31]) ? (24'hFFF): (24'h0)), readdata[31:24]};
                                 endcase
                             end
                             (OPCODE_LBU) : begin
                                 case(byteenable)
-                                    (0):    begin
-                                        byteenable <= 4'b0001;
-                                        register[rt] <= {24'b0, readdata[7:0]};
-                                    end
-                                    (1):    begin
-                                        byteenable <= 4'b0010;
-                                        register[rt] <= {24'b0, readdata[15:8]};
-                                    end
-                                    (2):    begin
-                                        byteenable <= 4'b0100;
-                                        register[rt] <= {24'b0, readdata[23:16]};
-                                    end
-                                    (3):    begin
-                                        byteenable <= 4'b1000;
-                                        endregister[rt] <= {24'b0, readdata[31:24
-                                        ]};
+                                    (0):    register[rt] <= {24'b0, readdata[7:0]};
+                                    (1):    register[rt] <= {24'b0, readdata[15:8]};
+                                    (2):    register[rt] <= {24'b0, readdata[23:16]};
+                                    (3):    register[rt] <= {24'b0, readdata[31:24]};
                                 endcase
                             end
                             (OPCODE_LH) : begin
                                 case(byteenable)
-                                    (0):        begin
-                                        byteenable <= 4'b0011;
-                                        register[rt] <= {((readdata[15]) ? (16'hFF): (16'h0)), readdata[15:0]};
-                                    end
-                                    (1):        begin
-                                        byteenable <= 4'b1100;
-                                        register[rt] <= {((readdata[31]) ? (16'hFF): (16'h0)), readdata[31:16]};
-                                    end
-                                    (2 || 3):   begin
-                                        byteenable <= 4'b0000;
-                                        register[rt] <= register[rt];
-                                    end
+                                    (0):        register[rt] <= {((readdata[15]) ? (16'hFF): (16'h0)), readdata[15:0]};
+                                    (1):        register[rt] <= {((readdata[31]) ? (16'hFF): (16'h0)), readdata[31:16]};
+                                    (2 || 3):  register[rt] <= register[rt];
                                 endcase
                             end
                             (OPCODE_LHU) : begin
                                 case(byteenable)
-                                    (0):        begin
-                                        byteenable <= 4'b0011;
-                                        register[rt] <= {16'b0, readdata[15:0]};
-                                    end
-                                    (1):        begin
-                                        byteenable <= 4'b1100;
-                                        register[rt] <= {16'b0, readdata[31:16]};
-                                    end
-                                    (2 || 3):   begin
-                                        byteenable <= 4'b0000;
-                                        register[rt] <= register[rt];
-                                    end
+                                    (0):        register[rt] <= {16'b0, readdata[15:0]};
+                                    (1):        register[rt] <= {16'b0, readdata[31:16]};
+                                    (2 || 3):   register[rt] <= register[rt];
                                 endcase
                             end
-                            (OPCODE_LW) :  begin
-                                if(byteenable == 15) begin
-                                    byteenable <= 4'b1111;
-                                    register[rt] <= readdata;
-                                end
-                            end
+                            (OPCODE_LW) :  if(byteenable == 15) register[rt] <= readdata;
                     endcase
                 //  Next state
                     PC <= (isJumpOrBranch == 2'd2) ? (PC_Jump_Branch) : (PC_next);
