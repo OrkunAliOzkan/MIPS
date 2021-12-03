@@ -13,6 +13,8 @@ module tb_cpu();
 
     logic [31:0] RAM [0:1999];
     logic [31:0] TESTRAM [0:1999];
+    logic passed;
+    logic [31:0] rdata;
     parameter RAM_FILE="";
     parameter OUT_FILE="";
 
