@@ -166,7 +166,6 @@ module mips_cpu_bus
             Depending on which multiply instruction it is, we shall set to different values.
         */
         logic[63:0] multWire;
-        logic[31:0] temp;  //  Used for iterative multiplication and division
     //  Memory access
         logic sOp; //  Are we loading memory? Useful to differentiate
         logic lOp; //  Are we storing memory? Useful to differentiate
@@ -176,7 +175,6 @@ module mips_cpu_bus
         logic[31:0] addressBit;
     //  Interupts
         logic stall;        //  Are we going to stall? Useful to differentiate
-        logic multing;      //  Are we still multiplying?
     //  Byteenable logic
         logic [1:0] byteEnableOutOfBound;
 
@@ -194,7 +192,6 @@ module mips_cpu_bus
             stall = 0;
         //  initialise state
             state = HALT;
-            multing = 0;
         //  Program counter
             PC = 32'hBFC00000;                  //  Initialise PC
             PC_next = PC + 32'd4;               //  Initialise PC_next
@@ -221,13 +218,7 @@ module mips_cpu_bus
     assign address_immediate = InstructionReg[15:0];
     //  Temporary wires
         //  Multiplication
-            /*
-                assign multWire = ((state == EXEC1) && (opcode == OPCODE_R)) ?
-                            ((funct == FUNCTION_CODE_MULT) ? 
-                                (register[rs] * register[rt]) : (64'h0000)) :
-                            ((funct == FUNCTION_CODE_MULTU) ? 
-                                ($unsigned(register[rs]) * $unsigned(register[rt])) : (64'h0000));
-            */
+                assign multWire = 64'd0;
 //  Memory access
     assign lOp = (
             (opcode == OPCODE_LB)   ||
@@ -253,6 +244,7 @@ module mips_cpu_bus
         //  Jump or Branch
 
 //  Combinatorial block TODO:   Not implemented!
+    /*
     always_comb begin
         case (state)
             (FETCH) : begin
@@ -260,13 +252,6 @@ module mips_cpu_bus
                 read = 1;
                 write = 0;
                 address = PC;
-                //  When do we multiply?
-                    /*
-                    if((opcode == FUNCTION_CODE_MULT) || (opcode == FUNCTION_CODE_MULT)) begin
-                        multing = 1;
-                        temp = register[rs];
-                    end
-                    */
             end
             (EXEC1) : begin //  Specific operations, depending on if load or store
             end
@@ -278,6 +263,7 @@ module mips_cpu_bus
             end
         endcase
     end
+    */
 
 //  Clocked block   <-  Where instructions are orchestrated
     always_ff @(posedge clk) begin
@@ -324,51 +310,32 @@ module mips_cpu_bus
                         (OPCODE_R): begin
                             //  We have to determine what the R type instruction is by virtue of its function code
                             case(funct)
-                            //  Basic arithematic   <-  FIXME:  MULT AND DIV need to be implemented properly
+                            //  Basic arithematic
                                     (FUNCTION_CODE_ADDU): register[rd] <= (rd != 0) ? ($unsigned(register[rs]) + $unsigned(register[rt])) : (32'h00);
 
                                     (FUNCTION_CODE_SUBU): register[rd] <= (rd != 0) ? ($unsigned(register[rs]) - $unsigned(register[rt])) : (0);
 
-                                    (FUNCTION_CODE_DIV): begin  //  TODO:   Possibly not implemented fully
+                                    (FUNCTION_CODE_DIV): begin
                                         HI <= register[rs] % register[rt];
                                         LO <= register[rs] / register[rt];
                                     end
 
-                                    (FUNCTION_CODE_DIVU): begin //  TODO:   Possibly not implemented fully
+                                    (FUNCTION_CODE_DIVU): begin 
                                         HI <= $unsigned(register[rs]) % $unsigned(register[rt]);
                                         LO <= $unsigned(register[rs]) / $unsigned(register[rt]);
                                     end
 
 
-                                    (FUNCTION_CODE_MULT): begin //  FIXME:  not functional!
-                                        /*
-                                        if(multing) begin
-                                            multWire <= ((temp == 1'b1) ? (multWire + (register[rt] << count)) : (multWire)); //  FIXME:  Error
-                                            temp >> 1;
-                                        end
-
-                                        if(!multing) begin
-                                            HI <= multWire[63:32];
-                                            LO <=  multWire[31:0];
-                                            count = 0;
-                                        end
-                                        */
+                                    (FUNCTION_CODE_MULT): begin
+                                        multWire = register[rs] * register[rt];
+                                        HI <= multWire[63:32];
+                                        LO <= multWire[31:0];
                                     end
 
-
-                                    (FUNCTION_CODE_MULTU): begin //  FIXME:  not functional!
-                                        /*
-                                        if(multing) begin
-                                            multWire += (register[rs] && 1) ? ($unsigned(register[rt]) << count) : (64'd0);  //  FIXME:  Error
-                                            count++;
-                                        end
-
-                                        if(!multing) begin
-                                            HI <= multWire[63:32];
-                                            LO <=  multWire[31:0];
-                                            count = 0;
-                                        end
-                                        */
+                                    (FUNCTION_CODE_MULTU): begin
+                                        multWire = $unsigned(register[rs]) * $unsigned(register[rt]);
+                                        HI <= multWire[63:32];
+                                        LO <= multWire[31:0];
                                     end
 
                             //  Bitwise operation
@@ -377,7 +344,7 @@ module mips_cpu_bus
                                 (FUNCTION_CODE_OR):         register[rd] <= (rd != 0) ? (register[rs] | register[rt]) : (0);
 
                                 (FUNCTION_CODE_XOR):        register[rd] <= (rd != 0) ? (register[rs] ^ register[rt]) : (0);
-                                
+
                             //  Set operations
                                 (FUNCTION_CODE_SLT):        register[rd] <= ((rd != 0) && (register[rs] < register[rt])) ? ({32'b1}) : ({32'b0});
 
@@ -467,7 +434,7 @@ module mips_cpu_bus
                                 (OPCODE_BLEZ) : PC_Jump_Branch <= (register[rs] <= 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
 
 
-                        //  Store   FIXME:  Not operational.
+                        //  Store
                                 (OPCODE_SB) : begin
                                     /*  Write must be high
                                         setting values ton writedata
@@ -482,7 +449,7 @@ module mips_cpu_bus
                                         (2) : byteenable <= (4'd4);    //  Byte enable the third byte
                                         (3) : byteenable <= (4'd8);    //  Byte enable the fourth byte
                                     endcase
-                                    writedata <= {24'd0, tempWire[7:0]};   //  FIXME:   Error
+                                    writedata <= {24'd0, tempWire[7:0]};
                                 end
 
                                 (OPCODE_SH) : begin
@@ -493,7 +460,7 @@ module mips_cpu_bus
                                         (2) : byteenable <= (4'd12);   //  Byte anable the latter two bytes
                                         (3) : byteenable <= (4'd0);       //  Do nothing. This won't work
                                     endcase
-                                    writedata = {16'd0, tempWire[15:0]};   //  FIXME:   Error
+                                    writedata = {16'd0, tempWire[15:0]};
                                 end
 
                                 (OPCODE_SW) : begin
@@ -535,7 +502,6 @@ module mips_cpu_bus
                 //  Setting up for next state/stalls
                     state <= (!lOp) ? (FETCH) : (EXEC2);        //  Is it not a store operation?
                     //state <= (waitrequest && (lOp || sOp)) ? (EXEC1) : (state);   //  TODO:   RE-ADD ME
-                    //state <= (!multing) ? (EXEC1) : (state);    //  Has multiplication finished?  FIXME:  Problematic
                     // TODO: Add if statement to implement waitrequest.
                     PC <= (!lOp) ? (PC_next) : (PC);
                     if(isJumpOrBranch == 2'd2) begin
@@ -594,6 +560,8 @@ module mips_cpu_bus
                     byteenable <= 4'b1111;
             end
             (HALT) : begin
+                read <= 0;
+                write <= 0;
                 active <= 0;
                 if (!waitrequest) begin
                     state <= FETCH; //  Might accidentally execute something if EXEC2 so set to FETCH?
