@@ -12,3 +12,25 @@ Completed Testcases:
 - AND
 - ANDI
 - BEQ
+
+Orkuns instructions:
+-   XOR
+-   J
+-   DIV
+-   BGTZ
+-   BNE
+-   MULT
+-   SLL
+-   SRA
+
+Brendons isntructions:
+-   OR
+-   SLLV
+-   SLTIU
+-   SRL
+-   SRLV
+-   XORI
+-   SUBU
+-   MULTU
+
+Harshils instructions:
