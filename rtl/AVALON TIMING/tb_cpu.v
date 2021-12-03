@@ -52,7 +52,7 @@ module tb_cpu();
         passed=1;
         for(int i=0;i<2000;i++) begin
             if (RAM[i]!=TESTRAM[i]) begin
-                $display("RAM[%d], expected %d given %d",i,TESTRAM[i],RAM[i]); 
+                $display("RAM %d, expected %d given %d",i,TESTRAM[i],RAM[i]); 
                 passed=0;
             end
         end
