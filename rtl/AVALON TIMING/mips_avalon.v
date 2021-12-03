@@ -172,9 +172,14 @@ module mips_cpu_bus
         logic lOp; //  Are we storing memory? Useful to differentiate
     //  Branch or load
         logic bOj; //  Are we branching or storing? Useful to differentiate
+    //  Load stores
+        logic[31:0] addressBit;
     //  Interupts
         logic stall;        //  Are we going to stall? Useful to differentiate
         logic multing;      //  Are we still multiplying?
+    //  Byteenable logic
+        logic [1:0] byteEnableOutOfBound;
+
 
 //  Initialising CPU
     initial begin   //  FIXME:  make me not initial
@@ -197,6 +202,9 @@ module mips_cpu_bus
             isJumpOrBranch = 2'd0;
         //  Memory Address
             tempWire = 32'd0;
+        //  Byteable logic
+            byteenable = 1111;
+            byteEnableOutOfBound = 0;
     end
 
 //  Automatic wire assignment
@@ -279,10 +287,17 @@ module mips_cpu_bus
         if(reset) begin
             state <= FETCH;
             active <= 1;
-            address = 32'hBFC00000;
+            address <= 32'hBFC00000;
             for(integer i = 0; i < 32; i++) begin
                 register[i] <= 32'h00;
             end
+            byteenable <= 1111;
+            case((register[rs] + address_immediate) % 4)  //  Define byteEnableOutOfBounds for load in EXEC2 and store in EXEC1
+                (0): byteEnableOutOfBound <= 2'd0;
+                (1): byteEnableOutOfBound <= 2'd1;
+                (2): byteEnableOutOfBound <= 2'd2;
+                (3): byteEnableOutOfBound <= 2'd3;
+            endcase
         end
         case (state)
             (FETCH) : begin
@@ -300,6 +315,9 @@ module mips_cpu_bus
                     state <= (waitrequest) ? (FETCH) : (EXEC1);
                     isJumpOrBranch <= (isJumpOrBranch == 2'd1) ? (2'd2) : (2'd1); //TODO: Branch to branch?
                     isJumpOrBranch <= (bOj) ? (2'd1) : (2'd0);
+
+                    byteenable = 1111;
+                    byteEnableOutOfBound = 0;
                 end
             end
             (EXEC1) : begin
@@ -537,51 +555,62 @@ module mips_cpu_bus
                                         Address is determined @ exec1
                                     */
                                     write = 1;  //  Enable write so that memory can be written upon
-                                    address = (register[rs] + address_immediate);
                                     tempWire = register[rt];
-                                    case(address % 4)
-                                        (0) : begin
-                                            byteenable <= (4'd1);    //  Byte enable the first byte
-                                        end
-                                        (1) : begin
-                                            byteenable <= (4'd2);    //  Byte enable the second byte
-                                        end
-                                        (2) : begin
-                                            byteenable <= (4'd4);    //  Byte enable the third byte
-                                        end
-                                        (3) : begin
-                                            byteenable <= (4'd8);    //  Byte enable the fourth byte
-                                        end
+                                    case(byteEnableOutOfBound)
+                                        (0) : byteenable <= (4'd1);    //  Byte enable the first byte
+                                        (1) : byteenable <= (4'd2);    //  Byte enable the second byte
+                                        (2) : byteenable <= (4'd4);    //  Byte enable the third byte
+                                        (3) : byteenable <= (4'd8);    //  Byte enable the fourth byte
                                     endcase
                                     writedata <= {24'd0, tempWire[7:0]};   //  FIXME:   Error
                                 end
 
                                 (OPCODE_SH) : begin
                                     write = 1;  //  Enable write so that memory can be written upon
-                                    address = (register[rs] + address_immediate);
-                                    case(address % 2)
-                                        (0) : begin
-                                            byteenable <= (4'd3);    //  Byte enable the first two bytes
-                                        end
-                                        (1) : begin
-                                            byteenable <= (4'd12);   //  Byte anable the latter two bytes
-                                        end
+                                    case(byteEnableOutOfBound)
+                                        (0) : byteenable <= (4'd3);    //  Byte enable the first two bytes
+                                        (1) : byteenable <= (4'd0);   //  Do nothing. This won't work
+                                        (2) : byteenable <= (4'd12);   //  Byte anable the latter two bytes
+                                        (3) : byteenable <= (4'd0);       //  Do nothing. This won't work
                                     endcase
                                     writedata = {16'd0, tempWire[15:0]};   //  FIXME:   Error
                                 end
 
                                 (OPCODE_SW) : begin
+                                    if(byteEnableOutOfBound == 0)   byteenable <= 4'd15;           //  Byte enable all bytes
+                                    else                            byteenable <= 4'd0;         //  Not wrote
                                     write <= 1;                  //  Enable write so that memory can be written upon
-                                    address <= (register[rs] + address_immediate);
-                                    byteenable <= 4'd15;           //  Byte enable all bytes
                                     writedata <= register[rt];   //  Write
+                                    address <= (register[rs] + address_immediate);
                                 end
-
                 endcase
                 //  Load
                     if(lOp) begin
                         read <= 1;
-                        address <= (register[rs] + address_immediate);
+                        address <= (OPCODE_LBU || OPCODE_LHU) ? (register[rs] + $signed(address_immediate)) : ($unsigned(register[rs]) + {16'b0, address_immediate});
+                        case (opcode)
+                            (OPCODE_LB || OPCODE_LBU) : begin
+                                case(byteEnableOutOfBound)
+                                    (0):        byteenable <= 4'b0001;
+                                    (1):        byteenable <= 4'b0010;
+                                    (2):        byteenable <= 4'b0100;
+                                    (3):        byteenable <= 4'b1000;
+                                endcase
+                            end
+                            (OPCODE_LH || OPCODE_LHU) : begin
+                                case(byteEnableOutOfBound)
+                                    (0):        byteenable <= 4'b0011;
+                                    (1 || 3):   byteenable <= 4'b0000;
+                                    (2):        byteenable <= 4'b1100;
+                                endcase
+                            end
+                            (OPCODE_LW) : begin
+                                case(byteEnableOutOfBound)
+                                    (0):            byteenable <= 4'b1111;
+                                    (1 || 2 || 3):  byteenable <= 4'd0000;
+                                endcase
+                            end
+                        endcase
                     end
                 //  Setting up for next state/stalls
                     state <= (!lOp) ? (FETCH) : (EXEC2);        //  Is it not a store operation?
@@ -603,56 +632,41 @@ module mips_cpu_bus
                                 //  Load in the nth byte from the RAMs input to the CPU
                                 //  Determine if latter 24 bits are 0 or 1
                                 //  ((readdata[7]) ? (24'hFFF): (24'h0))    TODO:   Maybe reinsert!
-                                case(address % 4)
-                                    (0): begin
-                                        register[rt] <= {24'b0, readdata[7:0]};
-                                    end
-                                    (1): begin
-                                        register[rt] <= {24'b0, readdata[15:8]};
-                                    end
-                                    (2): begin
-                                        register[rt] <= {24'b0, readdata[23:16]};
-                                    end
-                                    (3): begin
-                                        register[rt] <= {24'b0, readdata[31:24]};
-                                    end
+                                case(byteenable)
+                                    (0):    register[rt] <= {((readdata[7])  ? (24'hFFF): (24'h0)), readdata[7:0]};
+                                    (1):    register[rt] <= {((readdata[15]) ? (24'hFFF): (24'h0)), readdata[15:8]};
+                                    (2):    register[rt] <= {((readdata[23]) ? (24'hFFF): (24'h0)), readdata[23:16]};
+                                    (3):    register[rt] <= {((readdata[31]) ? (24'hFFF): (24'h0)), readdata[31:24]};
                                 endcase
                             end
 
                             (OPCODE_LBU) : begin
-                                //  Load in the nth byte from the RAMs input to the CPU (unsigned)
-                                case(address % 4)
-                                    (0):
-                                        register[rt] <= {24'b0, readdata[7:0]};
-                                    (1):
-                                        register[rt] <= {24'b0, readdata[15:8]};
-                                    (2):
-                                        register[rt] <= {24'b0, readdata[23:16]};
-                                    (3):
-                                        register[rt] <= {24'b0, readdata[31:24]};
+                                case(byteenable)
+                                    (0):    register[rt] <= {24'b0, readdata[7:0]};
+                                    (1):    register[rt] <= {24'b0, readdata[15:8]};
+                                    (2):    register[rt] <= {24'b0, readdata[23:16]};
+                                    (3):    register[rt] <= {24'b0, readdata[31:24]};
                                 endcase
                             end
 
                             (OPCODE_LH) : begin
-                                case(address % 2)
-                                    (0):
-                                        register[rt] <= {((readdata[15]) ? (16'hFFF): (216'h0)), readdata[15:0]};
-                                    (1):
-                                        register[rt] <= {((readdata[31]) ? (16'hFFF): (16'h0)), readdata[31:16]};
+                                case(byteenable)
+                                    (0):    register[rt] <= {((readdata[15]) ? (16'hFF): (16'h0)), readdata[15:0]};
+                                    (1):    register[rt] <= {((readdata[31]) ? (16'hFF): (16'h0)), readdata[31:16]};
+                                    (2 || 3):  register[rt] <= register[rt];
                                 endcase
                             end
 
                             (OPCODE_LHU) : begin
-                                case(address % 4)
-                                    (0):
-                                        register[rt] <= {16'b0, readdata[15:0]};
-                                    (1):
-                                        register[rt] <= {16'b0, readdata[31:16]};
+                                case(byteenable)
+                                    (0):    register[rt] <= {16'b0, readdata[15:0]};
+                                    (1):    register[rt] <= {16'b0, readdata[31:16]};
+                                    (2 || 3):  register[rt] <= register[rt];
                                 endcase
                             end
 
                             (OPCODE_LW) : begin
-                                    register[rt] <= readdata;
+                                if(byteenable == 15) register[rt] <= readdata;
                             end
                     endcase
                 //  Next state
@@ -670,7 +684,6 @@ module mips_cpu_bus
     end
 //  always block. Exclusively for testing! TODO:    DELET when not using
     /*
-    */
         always @(posedge clk) begin
             if (state == FETCH) begin
                 for(integer a = 0; a < 32; a++) begin
@@ -681,4 +694,5 @@ module mips_cpu_bus
             //$display("LO:\t%d", LO);
             //$display("HI:\t%d", HI);
         end
+    */
 endmodule

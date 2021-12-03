@@ -397,8 +397,11 @@
             end
         end
         if (write) begin
-            
-            RAM[address] = writedata;
+
+            RAM[address]        = writedata[7:0];
+            RAM[address + 1]    = writedata[15:8];
+            RAM[address + 2]    = writedata[23:16];
+            RAM[address + 3]    = writedata[31:24];
         end
     end
 
