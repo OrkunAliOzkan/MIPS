@@ -12,7 +12,18 @@ Completed Testcases:
 - AND
 - ANDI
 - BEQ
-
+- BGEZ
+- BGEZAL
+- BGTZ
+- BLEZ
+- BNE
+- DIV
+- DIVU
+- J
+- JALR
+- JAL
+- JR
+- LB
 Orkuns instructions:
 -   XOR
 -   J
