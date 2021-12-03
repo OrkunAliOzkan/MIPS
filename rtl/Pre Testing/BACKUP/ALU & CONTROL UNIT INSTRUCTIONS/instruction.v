@@ -6,8 +6,6 @@
  *
  * @copyright Copyright (c) 2021
  *
-
-    Suck ur mum
  */
 
 module mips_cpu_bus(
@@ -26,8 +24,6 @@ module mips_cpu_bus(
     output logic[3:0] byteenable,
     input logic[31:0] readdata
 );
-
-    logic signed [31:0][31:0] register;
 
 //  Wire declarations
     logic[31:0] PC, PC_next, PC_jump;
@@ -89,7 +85,7 @@ typedef enum logic[5:0]
     OPCODE_ANDI = 6'd12,
     OPCODE_ORI = 6'd13,
     OPCODE_SLTI = 6'd10,
-    OPCODE_XORI = 6'd14,
+    OPCODE_XORI = 6'd14
 
     OPCODE_LB = 6'd32,
     OPCODE_LBU = 6'd36,
@@ -98,13 +94,13 @@ typedef enum logic[5:0]
     OPCODE_LW = 6'd35,
     OPCODE_SB = 6'd40,
     OPCODE_SH = 6'd41,
-    OPCODE_SW = 6'd43
+    OPCODE_SW = 6'd43,
 } opcode_t;
 
 /*
     R types are differentiated through their function code
 */
-typedef enum logic[5:0]
+typedef enum logics[5:0]
 {
     FUNCTION_CODE_ADDU = 6'd33,
     FUNCTION_CODE_SUBU = 6'd35,
@@ -127,9 +123,13 @@ typedef enum logic[5:0]
     FUNCTION_CODE_MTLO = 6'd18,
     //FUNCTION_CODE_LWR = 6'd,    //FIXME:  Can't find any of the function codes for the two
     //FUNCTION_CODE_LWL = 6'd,    //FIXME:  Can't find any of the function codes for the two
-    FUNCTION_CODE_JALR = 6'd9,
-    FUNCTION_CODE_JR = 6'd8
+    FUNCTION_CODE_JALR = 6'd,
+    FUNCTION_CODE_JR = 6'd,
 } fcode_t;
+
+    //  State Registers
+    logic[31:0] PC, PC_next, PC_jump;
+    logic[1:0] state;
 
     //  Registers
         //  General Registers
@@ -281,40 +281,50 @@ typedef enum logic[5:0]
             end
 
         //  I type instructions
-            //  Basic Arithmetic
-                (OPCODE_ADDIU) : begin
-                    register[rt] <= (rt != 0) ? ($unsigned(register[rs]) + $unsigned(address_immediate)) : (0);
-                end
+            (OPCODE_ADDIU) : begin
+                register[rd] <= (rd != 0) ? ($unsigned(register[rs]) + $unsigned(register[address_immediate])) : (0);
+            end
 
-            //  Bitwise operations
-                (OPCODE_ANDI) : begin
-                    register[rd] <= (rt != 0) ? ($unsigned(register[rs]) & $unsigned(address_immediate)) : (0);
-                end
+            (OPCODE_ANDI) : begin
+                register[rd] <= (rd != 0) ? ($unsigned(register[rs]) & $unsigned(register[address_immediate])) : (0);
+            end
 
-                (OPCODE_ORI) : begin
-                    register[rd] <= (rt != 0) ? ($unsigned(register[rs]) | $unsigned(address_immediate)) : (0);
+            (OPCODE_ORI) : begin
+                register[rd] <= (rd != 0) ? ($unsigned(register[rs]) | $unsigned(register[address_immediate])) : (0);
+            end
 
-                (OPCODE_XORI) : begin
-                    register[rd] <= (rt != 0) ? ($unsigned(register[rs]) ^ $unsigned(address_immediate)) : (0);
-                end
+            (OPCODE_XORI) : begin
+                register[rd] <= (rd != 0) ? ($unsigned(register[rs]) ^ $unsigned(register[address_immediate])) : (0);
+            end
 
-            //  Load and sets
-                (OPCODE_LUI) : begin
-                    register[rt] <= (rt != 0) ? (address_immediate << 16) : (0);
-                end
+            (OPCODE_LUI) : begin
+                register[rd] <= (rd != 0) ? (address_immediate << 16) : (0);
+            end
 
-                (OPCODE_SLTI) : begin
-                        register[rt] = (rt != 0) ? ((register[rs] < register[address_immediate]) ? (1) : (0)) : (0);
-                end
+            (OPCODE_SLTI) : begin
+                    register[rd] = (rd != 0) ? ((register[rs] < register[address_immediate]) ? (1) : (0)) : (0);
+            end
 
-                (OPCODE_SLTIU) : begin
-                        register[rt] = (rt != 0) ? (($unsigned(register[rs]) < $unsigned(register[address_immediate])) ? (1) : (0)) : (0);
-                end
+            (OPCODE_SLTIU) : begin
+                    register[rd] = (rd != 0) ? (($unsigned(register[rs]) < $unsigned(register[address_immediate])) ? (1) : (0)) : (0);
+            end
 
-            //  Branch
-                (OPCODE_BEQ) : begin
-                    PC_next <= (register[rs] == register[rt]) ? (PC + (address_immediate << 2)) : (PC + 5'd4);
-                end
+        //  Branch
+            (OPCODE_BEQ) : begin
+                //  add 4 since TODO:   Why?
+                PC_next <= (register[rs] == register[rt]) ? (address_immediate + 5'd4) : (pc);
+    
+            end
+            
+        end
+        
+            
+        
+            
+            
+
+            
+
 
                 (OPCODE_BGEZ) : begin
                     // if (rs-rt) >= 0 then pc_next==immediate
@@ -421,9 +431,8 @@ typedef enum logic[5:0]
                         (3) : begin
                             byteenable = (4'd8);    //  Byte enable the fourth byte
                         end
-                        writedata = {24'd0, register[rt][8:0]};   //  Write
                     endcase
-
+                    writedata = register[rt];   //  Write
                 end
 
                 (OPCODE_SH) : begin
@@ -437,7 +446,7 @@ typedef enum logic[5:0]
                             byteenable = (4'd12);   //  Byte anable the latter two bytes
                         end
                     endcase
-                    writedata = {16'd0, register[rt][15:0]};   //  Write
+                    writedata = register[rt];   //  Write
                 end
 
                 (OPCODE_SW) : begin
