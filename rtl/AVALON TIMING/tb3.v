@@ -393,10 +393,11 @@
                 readdata = RAM[address-3217030000];
             end
             else begin
-                readdata = RAM[address];
+                readdata = {RAM[address], RAM[address + 1], RAM[address + 2], RAM[address + 3]};
             end
         end
         if (write) begin
+            
             RAM[address] = writedata;
         end
     end
