@@ -205,9 +205,9 @@ module mips_cpu_bus
 //  Automatic wire assignment
 //  Instruction register
     //  Yes, this really is what you think it is. And yes, it really is there because of why you think it is. Don't judge...
-    assign InstructionReg = (state == FETCH) ? ({   readdata[0], readdata[1], readdata[2], readdata[3],
-                                                    readdata[4], readdata[5], readdata[6], readdata[7],
-                                                    readdata[8], readdata[9], readdata[10], readdata[11],
+    assign InstructionReg = (state == FETCH) ? ({   readdata[0],  readdata[1],  readdata[2],  readdata[3],
+                                                    readdata[4],  readdata[5],  readdata[6],  readdata[7],
+                                                    readdata[8],  readdata[9],  readdata[10], readdata[11],
                                                     readdata[12], readdata[13], readdata[14], readdata[15],
                                                     readdata[16], readdata[17], readdata[18], readdata[19],
                                                     readdata[20], readdata[21], readdata[22], readdata[23],
@@ -588,4 +588,6 @@ module mips_cpu_bus
             $display("LO:\t%d", LO);
             $display("HI:\t%d", HI);
         end
+
+        
 endmodule
