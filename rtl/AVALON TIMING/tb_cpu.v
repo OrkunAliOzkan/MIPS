@@ -1,11 +1,19 @@
 module tb_cpu();
-    logic clk;
+    logic [31:0] readdata;
+    logic [31:0] writedata;
     logic reset;
+    logic active;
+    logic [31:0] register_v0;
+    logic [31:0] address;
+    logic write;
+    logic read;
     logic waitrequest;
+    logic [3:0] byteenable;
+    logic clk;
+    
     logic passed;
     logic [31:0] RAM [0:1999];
     logic [31:0] TESTRAM [0:1999];
-    logic [3:0] byteenable;
     parameter RAM_FILE="";
     parameter OUT_FILE="";
 
