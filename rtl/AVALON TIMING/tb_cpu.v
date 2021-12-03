@@ -57,7 +57,7 @@ module tb_cpu();
     always_comb begin
         if (read) begin
             if (address > 3217031167) begin
-                rdata = RAM[address-3217030000];
+                rdata = RAM[address-3217030169];
                 readdata = {rdata[31:24]&{8{byteenable[3]}},rdata[23:16]&{8{byteenable[2]}},rdata[15:8]&{8{byteenable[1]}},rdata[7:0]&{8{byteenable[0]}}};
             end
             else begin
