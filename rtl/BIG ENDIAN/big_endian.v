@@ -205,15 +205,7 @@ module mips_cpu_bus
 //  Automatic wire assignment
 //  Instruction register
     //  Yes, this really is what you think it is. And yes, it really is there because of why you think it is. Don't judge...
-    assign InstructionReg = (state == FETCH) ? ({   readdata[0],  readdata[1],  readdata[2],  readdata[3],
-                                                    readdata[4],  readdata[5],  readdata[6],  readdata[7],
-                                                    readdata[8],  readdata[9],  readdata[10], readdata[11],
-                                                    readdata[12], readdata[13], readdata[14], readdata[15],
-                                                    readdata[16], readdata[17], readdata[18], readdata[19],
-                                                    readdata[20], readdata[21], readdata[22], readdata[23],
-                                                    readdata[24], readdata[25], readdata[26], readdata[27],
-                                                    readdata[28], readdata[29], readdata[30], readdata[31],
-                                                }) : (InstructionReg);   //  Utilise instructionReg to keep contents up to date
+    assign InstructionReg = (state == FETCH) ? (changeEndian(readdata)) : (InstructionReg);   //  Utilise instructionReg to keep contents up to date
 //  ALU wires
     assign opcode = InstructionReg[31:26];
     assign funct = InstructionReg[5:0];
@@ -455,7 +447,7 @@ module mips_cpu_bus
                                         (2) : byteenable <= (4'd4);    //  Byte enable the third byte
                                         (3) : byteenable <= (4'd8);    //  Byte enable the fourth byte
                                     endcase
-                                    writedata <= {24'd0, tempWire[7:0]};
+                                    writedata <= changeEndian({24'd0, tempWire[7:0]});
                                 end
 
                                 (OPCODE_SH) : begin
@@ -466,14 +458,14 @@ module mips_cpu_bus
                                         (2) : byteenable <= (4'd12);   //  Byte anable the latter two bytes
                                         (3) : byteenable <= (4'd0);       //  Do nothing. This won't work
                                     endcase
-                                    writedata = {16'd0, tempWire[15:0]};
+                                    writedata = changeEndian({16'd0, tempWire[15:0]});
                                 end
 
                                 (OPCODE_SW) : begin
                                     if(byteEnableOutOfBound == 0)   byteenable <= 4'd15;           //  Byte enable all bytes
                                     else                            byteenable <= 4'd0;         //  Not wrote
                                     write <= 1;                  //  Enable write so that memory can be written upon
-                                    writedata <= register[rt];   //  Write
+                                    writedata <= changeEndian(register[rt]);   //  Write
                                     address <= (register[rs] + address_immediate);
                                 end
                 endcase
@@ -525,39 +517,39 @@ module mips_cpu_bus
                                 //  Determine if latter 24 bits are 0 or 1
                                 //  ((readdata[7]) ? (24'hFFF): (24'h0))    TODO:   Maybe reinsert!
                                 case(byteenable)
-                                    (0):    register[rt] <= {((readdata[7])  ? (24'hFFF): (24'h0)), readdata[7:0]};
-                                    (1):    register[rt] <= {((readdata[15]) ? (24'hFFF): (24'h0)), readdata[15:8]};
-                                    (2):    register[rt] <= {((readdata[23]) ? (24'hFFF): (24'h0)), readdata[23:16]};
-                                    (3):    register[rt] <= {((readdata[31]) ? (24'hFFF): (24'h0)), readdata[31:24]};
+                                    (0):    register[rt] <= changeEndian({((readdata[7])  ? (24'hFFF): (24'h0)), readdata[7:0]});
+                                    (1):    register[rt] <= changeEndian({((readdata[15]) ? (24'hFFF): (24'h0)), readdata[15:8]});
+                                    (2):    register[rt] <= changeEndian({((readdata[23]) ? (24'hFFF): (24'h0)), readdata[23:16]});
+                                    (3):    register[rt] <= changeEndian({((readdata[31]) ? (24'hFFF): (24'h0)), readdata[31:24]});
                                 endcase
                             end
 
                             (OPCODE_LBU) : begin
                                 case(byteenable)
-                                    (0):    register[rt] <= {24'b0, readdata[7:0]};
-                                    (1):    register[rt] <= {24'b0, readdata[15:8]};
-                                    (2):    register[rt] <= {24'b0, readdata[23:16]};
-                                    (3):    register[rt] <= {24'b0, readdata[31:24]};
+                                    (0):    register[rt] <= changeEndian({24'b0, readdata[7:0]});
+                                    (1):    register[rt] <= changeEndian({24'b0, readdata[15:8]});
+                                    (2):    register[rt] <= changeEndian({24'b0, readdata[23:16]});
+                                    (3):    register[rt] <= changeEndian({24'b0, readdata[31:24]});
                                 endcase
                             end
 
                             (OPCODE_LH) : begin
                                 case(byteenable)
-                                    (0):        register[rt] <= {((readdata[15]) ? (16'hFF): (16'h0)), readdata[15:0]};
-                                    (1):        register[rt] <= {((readdata[31]) ? (16'hFF): (16'h0)), readdata[31:16]};
+                                    (0):        register[rt] <= changeEndian({((readdata[15]) ? (16'hFF): (16'h0)), readdata[15:0]});
+                                    (1):        register[rt] <= changeEndian({((readdata[31]) ? (16'hFF): (16'h0)), readdata[31:16]});
                                     (2 || 3):  register[rt] <= register[rt];
                                 endcase
                             end
 
                             (OPCODE_LHU) : begin
                                 case(byteenable)
-                                    (0):        register[rt] <= {16'b0, readdata[15:0]};
-                                    (1):        register[rt] <= {16'b0, readdata[31:16]};
+                                    (0):        register[rt] <= changeEndian({16'b0, readdata[15:0]});
+                                    (1):        register[rt] <= changeEndian({16'b0, readdata[31:16]});
                                     (2 || 3):   register[rt] <= register[rt];
                                 endcase
                             end
 
-                            (OPCODE_LW) :  if(byteenable == 15) register[rt] <= readdata;
+                            (OPCODE_LW) :  if(byteenable == 15) register[rt] <= changeEndian(readdata);
                     endcase
                 //  Next state
                     PC <= (isJumpOrBranch == 2'd2) ? (PC_Jump_Branch) : (PC_next);
@@ -589,5 +581,18 @@ module mips_cpu_bus
             $display("HI:\t%d", HI);
         end
 
-        
+//  Big Endian
+    function [31:0] changeEndian;
+        input [31:0] EndianInput;
+        changeEndian =  {EndianInput[0],  EndianInput[1],  EndianInput[2],  EndianInput[3],
+                        EndianInput[4],  EndianInput[5],  EndianInput[6],  EndianInput[7],
+                        EndianInput[8],  EndianInput[9],  EndianInput[10], EndianInput[11],
+                        EndianInput[12], EndianInput[13], EndianInput[14], EndianInput[15],
+                        EndianInput[16], EndianInput[17], EndianInput[18], EndianInput[19],
+                        EndianInput[20], EndianInput[21], EndianInput[22], EndianInput[23],
+                        EndianInput[24], EndianInput[25], EndianInput[26], EndianInput[27],
+                        EndianInput[28], EndianInput[29], EndianInput[30], EndianInput[31]};
+    endfunction
+
+
 endmodule

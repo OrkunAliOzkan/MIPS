@@ -217,6 +217,7 @@ module mips_cpu_bus
                                                 })
                                 : (InstructionReg);   //  Utilise instructionReg to keep contents up to date
     */
+    assign InstructionReg = (state == FETCH) ? (readdata) : (InstructionReg);
 //  ALU wires
     assign opcode = InstructionReg[31:26];
     assign funct = InstructionReg[5:0];
@@ -234,7 +235,7 @@ module mips_cpu_bus
                         ((funct == FUNCTION_CODE_MULTU) ? 
                             ($unsigned(register[rs]) * $unsigned(register[rt])) : (64'h0000));
 //  Endian Wire
-    assign 
+    
 //  Memory access
     assign lOp = (
             (opcode == OPCODE_LB)   ||
@@ -580,7 +581,6 @@ module mips_cpu_bus
     end
 //  always block. Exclusively for testing! TODO:    DELET when not using
     /*
-    */
         always @(posedge clk) begin
             if (state == FETCH) begin
                 for(integer a = 0; a < 32; a++) begin
@@ -591,4 +591,5 @@ module mips_cpu_bus
             $display("LO:\t%d", LO);
             $display("HI:\t%d", HI);
         end
+    */
 endmodule
