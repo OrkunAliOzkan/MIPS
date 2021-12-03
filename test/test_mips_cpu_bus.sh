@@ -20,11 +20,26 @@ set -eou pipefail
 
 #list of instructions?
 #problem is the compilation - $1 is the directory i.e. rtl, not the .v file
-testcases=/testcases/${2}.txt
+
+
+if [ $# -eq 1 ]
+then
+    instruction="*"
+elif [ $# -eq 2 ]
+then
+    instruction=$2
+else
+    echo too many/few arguments
+    exit 1
+fi
 
 
 
-for test in testcases #directory containing all the RAM outputs so we can compare against
+testcases=/testcases/${instruction}.txt
+
+
+
+for test in testcases #directory containing all the RAM outputs so we can compare against. iterate since it could be one, or all
     do
     test=$(basename ${test} .txt)
     #ram_file = 
