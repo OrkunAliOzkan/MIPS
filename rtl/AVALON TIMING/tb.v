@@ -12,14 +12,16 @@ module tb_cpu();
     logic clk;
 
     logic [31:0] RAM[0:2000];
+    //logic [8:0] RAM[0:2000];
     initial begin
         //Data We Will Utilize
         RAM[100] = 123;
         RAM[101] = 404;
         RAM[102] = 3;
         RAM[103] = 4;
-        RAM[104] = 32'b1001;
+        RAM[104] = 32'd42;
         RAM[105] = 32'b0101;
+        RAM[408] = 32'hAABBCCDD;
 
         //Instruction Data  TODO:   Change from $1
 
@@ -46,7 +48,12 @@ module tb_cpu();
         RAM[1232] = 32'b00000000001000100111000000100011;//SUBU $14, $1, $2
 
         RAM[1236] = 32'b10101100000000010000000011001000;//SW $1, 200, $0 RAM[200]=404
-        
+        //          32'b100000|00001|01111|0000000000000;//LB $15, 5($1) = 
+        RAM[1240] = 32'b10000000001011110000000000000100;//LB $15, 4($1)    $15 = MEM[$1 + 4] = MEM[408]
+        RAM[1244] = 32'b00001000000000000000000000000000;//  JUMP TO ADDRESS 0 TO HALT
+    //  RAM[1244] = 32'b//  LH
+    //  RAM[1248] = 32'b//  SB
+    //  RAM[1252] = 32'b//  SH
         //RAM[1236] = 32'b00000000001000100111100000100110;//XOR $15, $1, $2
 
         //RAM[1240] = 32'b00111000001100000000000000000101;//XORI $16, $1, 0b101
@@ -148,7 +155,7 @@ module tb_cpu();
         waitrequest=0;
         reset=0;
 
-        repeat (200) begin
+        repeat (46) begin
             #2;
             $display("%d",address);
         end

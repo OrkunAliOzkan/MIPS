@@ -602,18 +602,19 @@ module mips_cpu_bus
                             (OPCODE_LB) : begin
                                 //  Load in the nth byte from the RAMs input to the CPU
                                 //  Determine if latter 24 bits are 0 or 1
+                                //  ((readdata[7]) ? (24'hFFF): (24'h0))    TODO:   Maybe reinsert!
                                 case(address % 4)
                                     (0): begin
-                                        register[rt] <= {((readdata[7]) ? (24'hFFF): (24'h0)), readdata[7:0]};
+                                        register[rt] <= {24'b0, readdata[7:0]};
                                     end
                                     (1): begin
-                                        register[rt] <= {((readdata[15]) ? (24'hFFF): (24'h0)), readdata[15:8]};
+                                        register[rt] <= {24'b0, readdata[15:8]};
                                     end
                                     (2): begin
-                                        register[rt] <= {((readdata[23]) ? (24'hFFF): (24'h0)), readdata[23:16]};
+                                        register[rt] <= {24'b0, readdata[23:16]};
                                     end
                                     (3): begin
-                                        register[rt] <= {((readdata[31]) ? (24'hFFF): (24'h0)), readdata[31:24]};
+                                        register[rt] <= {24'b0, readdata[31:24]};
                                     end
                                 endcase
                             end
@@ -669,6 +670,7 @@ module mips_cpu_bus
     end
 //  always block. Exclusively for testing! TODO:    DELET when not using
     /*
+    */
         always @(posedge clk) begin
             if (state == FETCH) begin
                 for(integer a = 0; a < 32; a++) begin
@@ -676,8 +678,7 @@ module mips_cpu_bus
                 end
             end
 
-            $display("LO:\t%d", LO);
-            $display("HI:\t%d", HI);
+            //$display("LO:\t%d", LO);
+            //$display("HI:\t%d", HI);
         end
-    */
 endmodule
