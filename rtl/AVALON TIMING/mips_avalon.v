@@ -256,11 +256,9 @@ module mips_cpu_bus
     always_comb begin
         case (state)
             (FETCH) : begin
-                /*
-                    Address is set to program counter, which requires read to be set to 1
-                */
+                //Address is set to program counter, which requires read to be set to 1
                 read = 1;
-                read = 0;
+                write = 0;
                 address = PC;
                 //  When do we multiply?
                     /*
@@ -269,7 +267,6 @@ module mips_cpu_bus
                         temp = register[rs];
                     end
                     */
-
             end
             (EXEC1) : begin //  Specific operations, depending on if load or store
             end
@@ -328,20 +325,9 @@ module mips_cpu_bus
                             //  We have to determine what the R type instruction is by virtue of its function code
                             case(funct)
                             //  Basic arithematic   <-  FIXME:  MULT AND DIV need to be implemented properly
-                                    (FUNCTION_CODE_ADDU): begin
-                                        /*
-                                            We can conduct register addition with anything except for 
-                                            destination being $zero, so use a multiplexer to make this
-                                        */
-                                        register[rd] <= (rd != 0) ? ($unsigned(register[rs]) + $unsigned(register[rt])) : (32'h00);
-                                    end
+                                    (FUNCTION_CODE_ADDU): register[rd] <= (rd != 0) ? ($unsigned(register[rs]) + $unsigned(register[rt])) : (32'h00);
 
-                                    (FUNCTION_CODE_SUBU): begin
-                                        /*
-                                            Like addition, use a multiplexer to confirm rd is not $zero
-                                        */
-                                        register[rd] <= (rd != 0) ? ($unsigned(register[rs]) - $unsigned(register[rt])) : (0);
-                                    end
+                                    (FUNCTION_CODE_SUBU): register[rd] <= (rd != 0) ? ($unsigned(register[rs]) - $unsigned(register[rt])) : (0);
 
                                     (FUNCTION_CODE_DIV): begin  //  TODO:   Possibly not implemented fully
                                         HI <= register[rs] % register[rt];
@@ -386,165 +372,99 @@ module mips_cpu_bus
                                     end
 
                             //  Bitwise operation
-                                    (FUNCTION_CODE_AND): begin
-                                        register[rd] <= (rd != 0) ? (register[rs] & register[rt]) : (0);
-                                    end
+                                (FUNCTION_CODE_AND):        register[rd] <= (rd != 0) ? (register[rs] & register[rt]) : (0);
 
-                                    (FUNCTION_CODE_OR): begin
-                                        register[rd] <= (rd != 0) ? (register[rs] | register[rt]) : (0);
-                                    end
+                                (FUNCTION_CODE_OR):         register[rd] <= (rd != 0) ? (register[rs] | register[rt]) : (0);
 
-                                    (FUNCTION_CODE_XOR): begin
-                                        register[rd] <= (rd != 0) ? (register[rs] ^ register[rt]) : (0);
-                                    end
-
+                                (FUNCTION_CODE_XOR):        register[rd] <= (rd != 0) ? (register[rs] ^ register[rt]) : (0);
+                                
                             //  Set operations
-                                (FUNCTION_CODE_SLT): begin
-                                    register[rd] <= ((rd != 0) && (register[rs] < register[rt])) ? ({32'b1}) : ({32'b0});
-                                end
+                                (FUNCTION_CODE_SLT):        register[rd] <= ((rd != 0) && (register[rs] < register[rt])) ? ({32'b1}) : ({32'b0});
 
-                                (FUNCTION_CODE_SLTU): begin
-                                    register[rd] <= ((rd != 0) && ($unsigned(register[rs]) < $unsigned(register[rt]))) ? ({32'b1}) : ({32'b0});
-                                end
+                                (FUNCTION_CODE_SLTU):       register[rd] <= ((rd != 0) && ($unsigned(register[rs]) < $unsigned(register[rt]))) ? ({32'b1}) : ({32'b0});
 
                                 //  Logical
-                                    (FUNCTION_CODE_SLL): begin
-                                            register[rd] <= (rd != 0) ? (register[rt] << shmat) : (0);
-                                    end
+                                    (FUNCTION_CODE_SLL):    register[rd] <= (rd != 0) ? (register[rt] << shmat) : (0);
 
-                                    (FUNCTION_CODE_SRL): begin
-                                            register[rd] <= (rd != 0) ? (register[rt] >>> shmat) : (0);
-                                    end
+                                    (FUNCTION_CODE_SRL):    register[rd] <= (rd != 0) ? (register[rt] >>> shmat) : (0);
 
-                                    (FUNCTION_CODE_SLLV): begin
-                                            register[rd] <= (rd != 0) ? (register[rt] << register[rs]) : (0);
-                                    end
+                                    (FUNCTION_CODE_SLLV):   register[rd] <= (rd != 0) ? (register[rt] << register[rs]) : (0);
 
-                                    (FUNCTION_CODE_SRLV): begin
-                                            register[rd] <= (rd != 0) ? (register[rt] >>> register[shmat]) : (0);
-                                    end
+                                    (FUNCTION_CODE_SRLV):   register[rd] <= (rd != 0) ? (register[rt] >>> register[shmat]) : (0);
                                 //  Arithmetic
-                                    (FUNCTION_CODE_SRA): begin
-                                            register[rd] <= (rd != 0) ? (register[rt] >>> shmat) : (0);
-                                    end
+                                    (FUNCTION_CODE_SRA):    register[rd] <= (rd != 0) ? (register[rt] >>> shmat) : (0);
 
-                                    (FUNCTION_CODE_SRAV): begin
-                                            register[rd] <= (rd != 0) ? (register[rt] >>> register[rs]) : (0);
-                                    end
+                                    (FUNCTION_CODE_SRAV):   register[rd] <= (rd != 0) ? (register[rt] >>> register[rs]) : (0);
 
                             //  Move instructions
-                                (FUNCTION_CODE_MFHI): begin
-                                    register[rd] <= (rd != 0) ? (HI) : (0);
-                                end
+                                (FUNCTION_CODE_MFHI):   register[rd] <= (rd != 0) ? (HI) : (0);
 
-                                (FUNCTION_CODE_MFLO): begin
-                                    register[rd] <= (rd != 0) ? (LO) : (0);
-                                end
-                                (FUNCTION_CODE_MTHI): begin
-                                    HI <= (register[rs]);
-                                end
+                                (FUNCTION_CODE_MFLO):   register[rd] <= (rd != 0) ? (LO) : (0);
 
-                                (FUNCTION_CODE_MTLO): begin
-                                    LO <= (register[rs]);
-                                end
+                                (FUNCTION_CODE_MTHI):   HI <= (register[rs]);
+
+                                (FUNCTION_CODE_MTLO):   LO <= (register[rs]);
                             endcase
                         end
 
                     //  J type instructions
-                        (OPCODE_J): begin
-                            PC_Jump_Branch <= {8'b0, targetAddress};
-                            //isJumpOrBranch <= 2'd1;
-                        end
+                        (OPCODE_J): PC_Jump_Branch <= {8'b0, targetAddress};
 
                         (OPCODE_JAL) : begin
                             register[31] <= PC + 5'd4;
                             PC_Jump_Branch <= {8'b0, targetAddress};
-                            //isJumpOrBranch <= 2'd1;
                         end
 
                     //  I type instructions
                         //  Basic Arithmetic
-                            (OPCODE_ADDIU) : begin
-                                register[rt] <= (rt != 0) ? ($unsigned(register[rs]) + $unsigned(address_immediate)) : (0);
-                            end
+                            (OPCODE_ADDIU) :    register[rt] <= (rt != 0) ? ($unsigned(register[rs]) + $unsigned(address_immediate)) : (0);
 
                         //  Bitwise operations
-                            (OPCODE_ANDI) : begin
-                                register[rt] <= (rt != 0) ? ($unsigned(register[rs]) & $unsigned(address_immediate)) : (0);
-                            end
+                            (OPCODE_ANDI) :     register[rt] <= (rt != 0) ? ($unsigned(register[rs]) & $unsigned(address_immediate)) : (0);
 
-                            (OPCODE_ORI) : begin
-                                register[rt] <= (rt != 0) ? ($unsigned(register[rs]) | $unsigned(address_immediate)) : (0);
-                            end
+                            (OPCODE_ORI) :      register[rt] <= (rt != 0) ? ($unsigned(register[rs]) | $unsigned(address_immediate)) : (0);
 
-                            (OPCODE_XORI) : begin
-                                register[rt] <= (rt != 0) ? ($unsigned(register[rs]) ^ $unsigned(address_immediate)) : (0);
-                            end
+                            (OPCODE_XORI) :     register[rt] <= (rt != 0) ? ($unsigned(register[rs]) ^ $unsigned(address_immediate)) : (0);
 
                         //  Load and sets
-                            (OPCODE_LUI) : begin
-                                register[rt] <= (rt != 0) ? (address_immediate << 16) : (0);
-                            end
+                            (OPCODE_LUI) :      register[rt] <= (rt != 0) ? (address_immediate << 16) : (0);
 
-                            (OPCODE_SLTI) : begin
-                                tempWire = (address_immediate[15]) ? ({16'hFFFF, address_immediate}) : ({16'h0, address_immediate});
-                                register[rt] <= ((rt != 0) && (register[rs] < tempWire)) ?  (1) : (0);
-                            end
+                            (OPCODE_SLTI) :     register[rt] <= ((rt != 0) && (register[rs] < $signed(address_immediate))) ?  (1) : (0);
 
-                            (OPCODE_SLTIU) : begin
-                                register[rt] <= ((rt != 0) && ($unsigned(register[rs]) < $unsigned(address_immediate))) ? (1) : (0);
-                            end
+                            (OPCODE_SLTIU) :    register[rt] <= ((rt != 0) && ($unsigned(register[rs]) < $unsigned(address_immediate))) ? (1) : (0);
 
                         //  Branch
                             //  Share opcode
                                 (6'd1): begin   //  Is instruction BGEZ; BGEZAL; BLTZ; BLTZAL
                                     case (rt)
-                                        (6'd1) : begin  //  BGTL
-                                            // if (rs-rt) >= 0 then pc_next==immediate
-                                            PC_Jump_Branch <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                            //isJumpOrBranch <= (register[rs] >= 0) ? 2'd1 : 2'd0;
-                                        end
+                                        //  BGTL
+                                        (6'd1) :    PC_Jump_Branch <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
 
-                                        (6'd17) : begin //  BGTLAL
+                                        //  BGTLAL
+                                        (6'd17) : begin 
                                             PC_Jump_Branch <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                            //isJumpOrBranch <= (register[rs] >= 0) ? 2'd1 : 2'd0;
                                             register[31] = PC;
                                         end
 
-                                        (6'd0) : begin  //  BLTZ
-                                            PC_Jump_Branch <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                            //isJumpOrBranch <= (register[rs] < 0) ? 2'd1 : 2'd0;
-                                        end
+                                        //  BLTZ
+                                        (6'd0) :    PC_Jump_Branch <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
 
-                                        (6'd16) : begin //  BLTZAL
+                                        //  BLTZAL
+                                        (6'd16) : begin 
                                             PC_Jump_Branch <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                            //isJumpOrBranch <= (register[rs] < 0) ? 2'd1 : 2'd0;
                                             register[31] <= PC;
                                         end
                                     endcase
                                 end
 
                             //  Rest
-                                (OPCODE_BEQ) : begin
-                                    PC_Jump_Branch <= (register[rs] == register[rt]) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                    //isJumpOrBranch <= (register[rs] == register[rt]) ? 2'd1 : 2'd0;
-                                end
+                                (OPCODE_BEQ) :  PC_Jump_Branch <= (register[rs] == register[rt]) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
 
-                                (OPCODE_BGTZ) : begin
-                                    PC_Jump_Branch <= (register[rs] > 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                    //isJumpOrBranch <= (register[rs] > 0) ? 2'd1 : 2'd0;
-                                end
+                                (OPCODE_BGTZ) : PC_Jump_Branch <= (register[rs] > 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
 
-                                (OPCODE_BNE) : begin
-                                    PC_Jump_Branch <= (register[rs] != register[rt]) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                    //isJumpOrBranch <= (register[rs] != register[rt]) ? 2'd1 : 2'd0;
-                                end
+                                (OPCODE_BNE) :  PC_Jump_Branch <= (register[rs] != register[rt]) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
 
-                                (OPCODE_BLEZ) : begin
-                                    PC_Jump_Branch <= (register[rs] <= 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                    //isJumpOrBranch <= (register[rs] <= 0) ? 2'd1 : 2'd0;
-                                    //if (rs-rt)==0 or MSB(rs-rt)==1 then pc==immediate
-                                end
+                                (OPCODE_BLEZ) : PC_Jump_Branch <= (register[rs] <= 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
 
 
                         //  Store   FIXME:  Not operational.
@@ -651,28 +571,27 @@ module mips_cpu_bus
 
                             (OPCODE_LH) : begin
                                 case(byteenable)
-                                    (0):    register[rt] <= {((readdata[15]) ? (16'hFF): (16'h0)), readdata[15:0]};
-                                    (1):    register[rt] <= {((readdata[31]) ? (16'hFF): (16'h0)), readdata[31:16]};
+                                    (0):        register[rt] <= {((readdata[15]) ? (16'hFF): (16'h0)), readdata[15:0]};
+                                    (1):        register[rt] <= {((readdata[31]) ? (16'hFF): (16'h0)), readdata[31:16]};
                                     (2 || 3):  register[rt] <= register[rt];
                                 endcase
                             end
 
                             (OPCODE_LHU) : begin
                                 case(byteenable)
-                                    (0):    register[rt] <= {16'b0, readdata[15:0]};
-                                    (1):    register[rt] <= {16'b0, readdata[31:16]};
-                                    (2 || 3):  register[rt] <= register[rt];
+                                    (0):        register[rt] <= {16'b0, readdata[15:0]};
+                                    (1):        register[rt] <= {16'b0, readdata[31:16]};
+                                    (2 || 3):   register[rt] <= register[rt];
                                 endcase
                             end
 
-                            (OPCODE_LW) : begin
-                                if(byteenable == 15) register[rt] <= readdata;
-                            end
+                            (OPCODE_LW) :  if(byteenable == 15) register[rt] <= readdata;
                     endcase
                 //  Next state
                     PC <= (isJumpOrBranch == 2'd2) ? (PC_Jump_Branch) : (PC_next);
                     isJumpOrBranch <= (isJumpOrBranch == 2'd2) ? (2'd0) : (isJumpOrBranch);
                     state <= (FETCH);
+                    byteenable <= 4'b1111;
             end
             (HALT) : begin
                 active <= 0;
