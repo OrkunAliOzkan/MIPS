@@ -24,10 +24,10 @@ set -eou pipefail
 
 if [ $# -eq 1 ]
 then
-    instruction="*"
+    testcases=test/testcases/*.txt
 elif [ $# -eq 2 ]
 then
-    instruction=$2
+    testcases=test/testcases/${2^^}.txt #IF YOU HAVE MULTIPLE TEST CASES, YOU MAY NEED TO ADD AN ASTERISK, LIKE _*
 else
     echo too many/few arguments
     exit 1
@@ -35,23 +35,24 @@ fi
 
 
 
-testcases=/testcases/${instruction}.txt
+#echo $testcases
 
-
-
-for test in testcases #directory containing all the RAM outputs so we can compare against. iterate since it could be one, or all
+for test in $testcases #directory containing all the RAM outputs so we can compare against. iterate since it could be one, or all
     do
+    echo $test
     test=$(basename ${test} .txt)
-    #ram_file = 
 
-    iverilog -Wall -g 2012 -s tb -o tb \
-    -P tb.RAM_FILE = \"${test}.txt\" \
-    -P tb.OUT_FILE = \"${test}expected.txt\" \
-    tb.v ${1}/*.v  > /dev/null 2>&1
 
-    #./tb
-    echo test
+    iverilog -Wall -g 2012 -s tb_cpu -o tb_cpu \
+    -P tb.RAM_FILE=\"${test}.txt\" \
+    -P tb.OUT_FILE=\"${test}expected.txt\" \
+    rtl/${ye}/tb_cpu.v ${1}/*.v  #> /dev/null 2>&1 #change mips_avlong to *.v
+
+    #./tb #this should output with display? Ok - i really don't know how it's handled. I'll assume it can fail on the execution level
+    #except it can't it really can't. So all the pass fail is inside the testbench I think
+
+    #echo test
     done
 
 
-./cleardecals.sh
+#./cleardecals.sh
