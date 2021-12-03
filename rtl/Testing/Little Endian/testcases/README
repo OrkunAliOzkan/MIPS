@@ -3,7 +3,9 @@
 - Write the expected memory changes in [Instruction]expected.txt. Maybe good to copy paste your original [Instruction].txt and just make the minor changes.
 - Write Instructions in hexadecimal
 
-Completed Testcases:
+Working Testcases
+
+Completed Testcases (Not working):
 - LW
 - SW
 - ADD
@@ -24,7 +26,7 @@ Completed Testcases:
 - JAL
 - JR
 - LB
-Orkuns instructions:
+Orkuns instructions ():
 -   XOR
 -   J
 -   DIV
