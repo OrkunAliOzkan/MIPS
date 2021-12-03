@@ -1,0 +1,1 @@
+$unsigned(register[rs]) * $unsigned(register[rt])

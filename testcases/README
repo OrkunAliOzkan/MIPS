@@ -1,7 +1,0 @@
-- Start writing instructions at line 1000. Increment instructions by 4 lines.
-- You can use line 2-999 for memory
-- Write the expected memory changes in [Instruction]expected.txt. Maybe good to copy paste your original [Instruction].txt and just make the minor changes.
-- Write Instructions in hexadecimal
-
-Completed Testcases:
-
