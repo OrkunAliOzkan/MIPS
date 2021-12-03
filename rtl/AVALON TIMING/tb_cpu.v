@@ -1,11 +1,18 @@
 module tb_cpu();
-    logic clk;
+    logic [31:0] readdata;
+    logic [31:0] writedata;
     logic reset;
+    logic active;
+    logic [31:0] register_v0;
+    logic [31:0] address;
+    logic write;
+    logic read;
     logic waitrequest;
-    logic passed;
+    logic [3:0] byteenable;
+    logic clk;
+
     logic [31:0] RAM [0:1999];
     logic [31:0] TESTRAM [0:1999];
-    logic [3:0] byteenable;
     parameter RAM_FILE="";
     parameter OUT_FILE="";
 
@@ -35,7 +42,6 @@ module tb_cpu();
 
     mips_cpu_bus mips_cpu_bus(.clk(clk), .reset(reset), .active(active), .register_v0(register_v0), .address(address), 
     .write(write), .read(read), .waitrequest(waitrequest), .writedata(writedata), .byteenable(byteenable), .readdata(readdata));
-
     initial begin
         waitrequest=0;
         reset=0;

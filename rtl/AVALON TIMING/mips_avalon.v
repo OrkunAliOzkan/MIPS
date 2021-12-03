@@ -162,9 +162,6 @@ module mips_cpu_bus
         logic[25:0] targetAddress;
     //  Temporary wires
     //  Multiplication
-        /*  x2 32bit values multiplied make 64bit soln.
-            Depending on which multiply instruction it is, we shall set to different values.
-        */
         logic[63:0] multWire;
     //  Memory access
         logic sOp; //  Are we loading memory? Useful to differentiate
@@ -218,7 +215,13 @@ module mips_cpu_bus
     assign address_immediate = InstructionReg[15:0];
     //  Temporary wires
         //  Multiplication
-                assign multWire = 64'd0;
+/*
+            assign multWire = ((state == EXEC1) && (opcode == OPCODE_R)) ?
+                        ((funct == FUNCTION_CODE_MULT) ? 
+                            (register[rs] * register[rt]) : (64'h0000)) :
+                        ((funct == FUNCTION_CODE_MULTU) ? 
+                            ($unsigned(register[rs]) * $unsigned(register[rt])) : (64'h0000));
+*/
 //  Memory access
     assign lOp = (
             (opcode == OPCODE_LB)   ||
@@ -290,8 +293,8 @@ module mips_cpu_bus
                 end
                 //  General case
                 else begin
-                    read = 1;
-                    write = 0;
+                    read <= 1;
+                    write <= 0;
                     PC_next <= PC + 32'd4;
                     PC_Jump_Branch <= PC_next + 32'd4;
                     address = PC;
@@ -311,32 +314,29 @@ module mips_cpu_bus
                             //  We have to determine what the R type instruction is by virtue of its function code
                             case(funct)
                             //  Basic arithematic
-                                    (FUNCTION_CODE_ADDU): register[rd] <= (rd != 0) ? ($unsigned(register[rs]) + $unsigned(register[rt])) : (32'h00);
+                                (FUNCTION_CODE_ADDU): register[rd] <= (rd != 0) ? ($unsigned(register[rs]) + $unsigned(register[rt])) : (32'h00);
 
-                                    (FUNCTION_CODE_SUBU): register[rd] <= (rd != 0) ? ($unsigned(register[rs]) - $unsigned(register[rt])) : (0);
+                                (FUNCTION_CODE_SUBU): register[rd] <= (rd != 0) ? ($unsigned(register[rs]) - $unsigned(register[rt])) : (0);
 
-                                    (FUNCTION_CODE_DIV): begin
+                                (FUNCTION_CODE_DIV): begin
                                         HI <= register[rs] % register[rt];
                                         LO <= register[rs] / register[rt];
-                                    end
+                                end
 
-                                    (FUNCTION_CODE_DIVU): begin 
+                                (FUNCTION_CODE_DIVU): begin 
                                         HI <= $unsigned(register[rs]) % $unsigned(register[rt]);
                                         LO <= $unsigned(register[rs]) / $unsigned(register[rt]);
-                                    end
+                                end
 
+                                (FUNCTION_CODE_MULT): begin
+                                    HI <= multWire[63:32];
+                                    LO <= multWire[31:0];
+                                end
 
-                                    (FUNCTION_CODE_MULT): begin
-                                        multWire = register[rs] * register[rt];
-                                        HI <= multWire[63:32];
-                                        LO <= multWire[31:0];
-                                    end
-
-                                    (FUNCTION_CODE_MULTU): begin
-                                        multWire = $unsigned(register[rs]) * $unsigned(register[rt]);
-                                        HI <= multWire[63:32];
-                                        LO <= multWire[31:0];
-                                    end
+                                (FUNCTION_CODE_MULTU): begin
+                                    HI <= multWire[63:32];
+                                    LO <= multWire[31:0];
+                                end
 
                             //  Bitwise operation
                                 (FUNCTION_CODE_AND):        register[rd] <= (rd != 0) ? (register[rs] & register[rt]) : (0);
@@ -571,6 +571,7 @@ module mips_cpu_bus
     end
 //  always block. Exclusively for testing! TODO:    DELET when not using
     /*
+    */
         always @(posedge clk) begin
             if (state == FETCH) begin
                 for(integer a = 0; a < 32; a++) begin
@@ -578,8 +579,7 @@ module mips_cpu_bus
                 end
             end
 
-            //$display("LO:\t%d", LO);
-            //$display("HI:\t%d", HI);
+            $display("LO:\t%d", LO);
+            $display("HI:\t%d", HI);
         end
-    */
 endmodule
