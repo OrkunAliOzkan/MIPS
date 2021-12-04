@@ -196,7 +196,7 @@ module mips_cpu_bus
         //  Memory Address
             tempWire = 32'd0;
         //  Byteable logic
-            byteenable = 1111;
+            byteenable = 4'b1111;
             byteEnableOutOfBound = 0;
     end
 
@@ -267,7 +267,7 @@ module mips_cpu_bus
                     read = 1;
                     write = 0;
                 //  Byte enable specified
-                    byteenable <= 1111;
+                    byteenable = 4'b1111;
             end
             (EXEC1 || EXEC2) : begin //  Specific operations, depending on if load or store Specific operations, depending on if load or store
                 //  
@@ -289,7 +289,7 @@ module mips_cpu_bus
             for(integer i = 0; i < 32; i++) begin
                 register[i] <= 32'h00;
             end
-            byteenable <= 1111;
+            byteenable <= 4'b1111;
             case((register[rs] + address_immediate) % 4)  //  Define byteEnableOutOfBounds for load in EXEC2 and store in EXEC1
                 (0): byteEnableOutOfBound <= 2'd0;
                 (1): byteEnableOutOfBound <= 2'd1;
@@ -314,7 +314,7 @@ module mips_cpu_bus
                     isJumpOrBranch <= (isJumpOrBranch == 2'd1) ? (2'd2) : (2'd1); //TODO: Branch to branch?
                     isJumpOrBranch <= (bOj) ? (2'd1) : (2'd0);
 
-                    byteenable <= 1111;
+                    byteenable <= 4'b1111;
                     byteEnableOutOfBound = 0;
                 end
             end
@@ -460,7 +460,8 @@ module mips_cpu_bus
                                 (OPCODE_SW) : begin
                                     if(byteEnableOutOfBound == 0) begin
                                         byteenable <= 4'd15;           //  Byte enable all bytes
-                                    end else
+                                    end
+                                    else begin
                                         byteenable <= 4'd0;         //  Not wrote
                                     end
                                     write <= 1;                  //  Enable write so that memory can be written upon
@@ -531,7 +532,7 @@ module mips_cpu_bus
                                     end
                                     (3):    begin
                                         byteenable <= 4'b1000;
-                                        endregister[rt] <= {((readdata[31]) ? (24'hFFF): (24'h0)), readdata[31:24]};
+                                        register[rt] <= {((readdata[31]) ? (24'hFFF): (24'h0)), readdata[31:24]};
                                     end
                                 endcase
                             end
@@ -551,21 +552,22 @@ module mips_cpu_bus
                                     end
                                     (3):    begin
                                         byteenable <= 4'b1000;
-                                        endregister[rt] <= {24'b0, readdata[31:24
+                                        register[rt] <= {24'b0, readdata[31:24
                                         ]};
+                                    end
                                 endcase
                             end
                             (OPCODE_LH) : begin
                                 case(byteenable)
-                                    (0):        begin
+                                    (0): begin
                                         byteenable <= 4'b0011;
                                         register[rt] <= {((readdata[15]) ? (16'hFF): (16'h0)), readdata[15:0]};
                                     end
-                                    (1):        begin
+                                    (1): begin
                                         byteenable <= 4'b1100;
                                         register[rt] <= {((readdata[31]) ? (16'hFF): (16'h0)), readdata[31:16]};
                                     end
-                                    (2 || 3):   begin
+                                    (2 || 3): begin
                                         byteenable <= 4'b0000;
                                         register[rt] <= register[rt];
                                     end
