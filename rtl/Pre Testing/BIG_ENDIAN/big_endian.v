@@ -593,6 +593,4 @@ module mips_cpu_bus
                         EndianInput[24], EndianInput[25], EndianInput[26], EndianInput[27],
                         EndianInput[28], EndianInput[29], EndianInput[30], EndianInput[31]};
     endfunction
-
-
 endmodule
