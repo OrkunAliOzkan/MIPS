@@ -422,7 +422,8 @@ module mips_cpu_bus
                                         byte enable will be us choosing byte at address
                                         Address is determined @ exec1
                                     */
-                                    write = 1;  //  Enable write so that memory can be written upon
+                                    write <= 1;  //  Enable write so that memory can be written upon
+                                    read <= 0;
                                     tempWire = register[rt];
                                     case(byteEnableOutOfBound)
                                         (0) : begin
@@ -444,7 +445,8 @@ module mips_cpu_bus
                                     endcase
                                 end
                                 (OPCODE_SH) : begin
-                                    write = 1;  //  Enable write so that memory can be written upon
+                                    write <= 1;  //  Enable write so that memory can be written upon
+                                    read <= 0;
                                     case(byteEnableOutOfBound)
                                         (0) : begin
                                             byteenable <= (4'd3);    //  Byte enable the first two bytes
@@ -465,7 +467,7 @@ module mips_cpu_bus
                                         byteenable <= 4'd0;         //  Not wrote
                                     end
                                     write <= 1;                  //  Enable write so that memory can be written upon
-                                    read = 0;
+                                    read <= 0;
                                     writedata <= register[rt];   //  Write
                                     address <= (register[rs] + address_immediate);
                                 end
@@ -614,6 +616,7 @@ module mips_cpu_bus
     end
 //  always block. Exclusively for testing! TODO:    DELET when not using
     /*
+    */
         always @(posedge clk) begin
             if (state == FETCH) begin
                 for(integer a = 0; a < 32; a++) begin
@@ -624,5 +627,4 @@ module mips_cpu_bus
             $display("LO:\t%d", LO);
             $display("HI:\t%d", HI);
         end
-    */
 endmodule

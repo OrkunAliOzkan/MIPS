@@ -48,16 +48,18 @@ module tb_cpu();
     initial begin
         waitrequest=0;
         reset=0;
-        repeat (100) begin
+        /*repeat (100) begin
             $display("active\t\t%d",active);
             $display("address\t\t%d",address);
             $display("write\t\t%d",write);
             $display("read\t\t%d",read);
             $display("writedata %d",writedata);
             $display("byteenable\t%d",byteenable);
+            $display("readdata %d",readdata);
+            $display("ram[address] %d",RAM[address]);
             $display(" ");
             #2;
-        end
+        end*/
         #500;
         passed=1;
         for(int i=0;i<2000;i++) begin
