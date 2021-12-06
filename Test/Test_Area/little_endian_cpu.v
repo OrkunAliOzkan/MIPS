@@ -150,12 +150,12 @@ module mips_cpu_bus
     //  Temporary variable
         logic signed [31:0] tempWire;
     //  Used in ALU
-        opcode_t opcode;
+        logic[5:0] opcode;
         logic[4:0] rs;
         logic[4:0] rt;
         logic[4:0] rd;
         logic[4:0] shmat;
-        fcode_t funct;
+        logic[5:0] funct;
         logic[15:0] address_immediate;
         logic[25:0] targetAddress;
     //  Temporary wires

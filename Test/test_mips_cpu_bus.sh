@@ -8,7 +8,7 @@
 #
 #
 #!/bin/bash
-set -eou pipefail
+#set -eou pipefail
 #$1 is absolute or relative
 
 #echo $1
@@ -46,7 +46,7 @@ for test in $testcases #directory containing all the RAM outputs so we can compa
     iverilog -Wall -g 2012 -s tb_cpu -o tb_cpu \
     -P tb.RAM_FILE=\"${test}.txt\" \
     -P tb.OUT_FILE=\"${test}expected.txt\" \
-    rtl/${ye}/tb_cpu.v ${1}/*.v  #> /dev/null 2>&1 #change mips_avlong to *.v
+    test/Test_Area/tb_cpu.v ${1}/*.v  #> /dev/null 2>&1 #change mips_avlong to *.v
 
     #./tb #this should output with display? Ok - i really don't know how it's handled. I'll assume it can fail on the execution level
     #except it can't it really can't. So all the pass fail is inside the testbench I think
