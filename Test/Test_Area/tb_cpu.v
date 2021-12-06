@@ -85,18 +85,17 @@ module tb_cpu();
     assign rd3 = rdata[15:8]&{8{byteenable[1]}};
     assign rd4 = rdata[7:0]&{8{byteenable[0]}};
 
-    //assign wd1 = writedata[31:24]&{8{byteenable[3]}};
-    //assign wd2 = writedata[23:16]&{8{byteenable[2]}};
-    //assign wd3 = writedata[15:8]&{8{byteenable[1]}};
-    //assign wd4 = writedata[7:0]&{8{byteenable[0]}};
+    assign wd1 = writedata[31:24]&{8{byteenable[3]}};
+    assign wd2 = writedata[23:16]&{8{byteenable[2]}};
+    assign wd3 = writedata[15:8]&{8{byteenable[1]}};
+    assign wd4 = writedata[7:0]&{8{byteenable[0]}};
 
     always_comb begin
         if (read) begin
             readdata = {rd1,rd2,rd3,rd4};
         end
         if (write) begin
-            RAM[address] = writedata;
-            //{wd1,wd2,wd3,wd4};
+            RAM[address] = {wd1,wd2,wd3,wd4};
         end
     end
 
