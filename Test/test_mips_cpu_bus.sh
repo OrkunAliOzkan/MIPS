@@ -24,10 +24,10 @@
 
 if [ $# -eq 1 ]
 then
-    testcases=test/testcases/*.txt
+    testcases="test/testcases/*.txt"
 elif [ $# -eq 2 ]
 then
-    testcases=test/testcases/${2^^}.txt #IF YOU HAVE MULTIPLE TEST CASES, YOU MAY NEED TO ADD AN ASTERISK, LIKE _*
+    testcases="test/testcases/${2^^}.txt" #IF YOU HAVE MULTIPLE TEST CASES, YOU MAY NEED TO ADD AN ASTERISK, LIKE _*
 else
     echo too many/few arguments
     exit 1
@@ -37,19 +37,27 @@ fi
 
 #echo $testcases
 
-for test in $testcases #directory containing all the RAM outputs so we can compare against. iterate since it could be one, or all
+for test_dir in $testcases #directory containing all the RAM outputs so we can compare against. iterate since it could be one, or all
     do
-    echo $test
-    test=$(basename ${test} .txt)
+    echo $test_dir
+    test=$(basename ${test_dir} .txt)
+    expected_dir="test/testcases_expected/${test}expected.txt"
 
-
-    iverilog -Wall -g 2012 -s tb_cpu -o tb_cpu \
-    -P tb.RAM_FILE=\"${test}.txt\" \
-    -P tb.OUT_FILE=\"${test}expected.txt\" \
-    test/Test_Area/tb_cpu.v ${1}/*.v  #> /dev/null 2>&1 #change mips_avlong to *.v
-
+    iverilog -Wall -g 2012 -s tb_cpu -o test/tb_cpu \
+    -P tb.RAM_FILE=\"${test_dir}\" \
+    -P tb.OUT_FILE=\"${expected_dir}\" \
+    test/tb_cpu.v ${1}/*.v  #> /dev/null 2>&1 #change mips_avlong to *.v
+    
+    #cd /test/Test_Area
+    ./test/tb_cpu
+    #cd ..
+    #cd ..
+    #test/Test_Area/tb_cpu
     #./tb #this should output with display? Ok - i really don't know how it's handled. I'll assume it can fail on the execution level
     #except it can't it really can't. So all the pass fail is inside the testbench I think
+
+    #so the problem I have is that I don't want to have to be in the directory of test bench to run it. It will have to deal with the fact that
+    #the cwd will be root, not /test
 
     #echo test
     done

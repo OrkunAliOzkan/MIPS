@@ -619,12 +619,12 @@ module mips_cpu_bus
     */
         always @(posedge clk) begin
             if (state == FETCH) begin
-                for(integer a = 0; a < 32; a++) begin
-                    $display("Register %d:\t%d", a, register[a]);
-                end
+                // for(integer a = 0; a < 32; a++) begin
+                //     $display("Register %d:\t%d", a, register[a]);
+                // end
             end
 
-            $display("LO:\t%d", LO);
-            $display("HI:\t%d", HI);
+            // $display("LO:\t%d", LO);
+            // $display("HI:\t%d", HI);
         end
 endmodule
