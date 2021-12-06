@@ -270,7 +270,13 @@ module mips_cpu_bus
                     byteenable = 4'b1111;
             end
             (EXEC1 || EXEC2) : begin //  Specific operations, depending on if load or store Specific operations, depending on if load or store
-                //  
+                    byteenable <= 4'b1111;
+                    case((register[rs] + address_immediate) % 4)  //  Define byteEnableOutOfBounds for load in EXEC2 and store in EXEC1
+                        (0): byteEnableOutOfBound = 2'd0;
+                        (1): byteEnableOutOfBound = 2'd1;
+                        (2): byteEnableOutOfBound = 2'd2;
+                        (3): byteEnableOutOfBound = 2'd3;
+                    endcase
             end
             (HALT) : begin
                 read = 0;
@@ -289,13 +295,6 @@ module mips_cpu_bus
             for(integer i = 0; i < 32; i++) begin
                 register[i] <= 32'h00;
             end
-            byteenable <= 4'b1111;
-            case((register[rs] + address_immediate) % 4)  //  Define byteEnableOutOfBounds for load in EXEC2 and store in EXEC1
-                (0): byteEnableOutOfBound <= 2'd0;
-                (1): byteEnableOutOfBound <= 2'd1;
-                (2): byteEnableOutOfBound <= 2'd2;
-                (3): byteEnableOutOfBound <= 2'd3;
-            endcase
         end
         case (state)
             (FETCH) : begin
@@ -315,7 +314,6 @@ module mips_cpu_bus
                     isJumpOrBranch <= (bOj) ? (2'd1) : (2'd0);
 
                     byteenable <= 4'b1111;
-                    byteEnableOutOfBound = 0;
                 end
             end
             (EXEC1) : begin
@@ -475,7 +473,9 @@ module mips_cpu_bus
                 //  Load
                     if(lOp) begin
                         read <= 1;
-                        address <= (OPCODE_LBU || OPCODE_LHU) ? (register[rs] + $unsigned(address_immediate)) : ($signed(register[rs]) + ({{16{address_immediate[15]}}, address_immediate}));
+                        address <= (OPCODE_LBU || OPCODE_LHU) ? 
+                            (register[rs] + $unsigned(address_immediate)) : 
+                            ($signed(register[rs]) + ({{16{address_immediate[15]}}, address_immediate}));
                         case (opcode)
                             (OPCODE_LB || OPCODE_LBU) : begin
                                 case(byteEnableOutOfBound)
@@ -594,8 +594,8 @@ module mips_cpu_bus
                             (OPCODE_LW) :  begin
                                 if(byteenable == 15) begin
                                     byteenable <= 4'b1111;
-                                    register[rt] <= readdata;
                                 end
+                                register[rt] <= readdata;
                             end
                     endcase
                 //  Next state
@@ -616,18 +616,18 @@ module mips_cpu_bus
     end
 //  always block. Exclusively for testing! TODO:    DELET when not using
         always @(posedge clk) begin
-            if (state == FETCH)  begin
+            if (state == EXEC1)  begin
                 $display("OPCODE:\t%d", opcode);
                 //$display("FCODE:\t%d", f_code);
-            end
-    /*
-                for(integer a = 0; a < 32; a++) begin
+
+                for(integer a = 0; (a < 32) && (opcode != 0); a++) begin
                     $display("Register %d:\t%d", a, register[a]);
                 end
-            end
-    */
+            end   
+        end
+    
 
             //$display("LO:\t%d", LO);
             //$display("HI:\t%d", HI);
-        end
+    //    end
 endmodule

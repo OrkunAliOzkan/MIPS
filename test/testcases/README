@@ -3,55 +3,15 @@
 - Write the expected memory changes in [Instruction]expected.txt. Maybe good to copy paste your original [Instruction].txt and just make the minor changes.
 - Write Instructions in hexadecimal
 
-Working Testcases
+Rigourous Testing
+LW/SW
+LB/SB
+LH/SH
 
-Completed Testcases (Not working):
-- LW
-- SW
-- ADD
-- ADDIU
-- ADDU
-- AND
-- ANDI
-- BEQ
-- BGEZ
-- BGEZAL
-- BGTZ
-- BLEZ
-- BNE
-- DIV
-- DIVU
-- J
-- JALR
-- JAL
-- JR
-- LB
-Orkuns instructions ():
--   XOR
--   J
--   DIV
--   BGTZ
--   BNE
--   MULT
--   SLL
--   SRA
+J
+JAL
 
-Brendons isntructions:
--   OR
--   SLLV
--   SLTIU
--   SRL
--   SRLV
--   XORI
--   SUBU
--   MULTU
+All branches
 
-Harshils instructions:
--   
--   
--   
--   
--   
--   
--   
--   
+I
+R

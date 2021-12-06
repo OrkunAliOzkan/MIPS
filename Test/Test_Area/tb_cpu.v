@@ -12,18 +12,18 @@ module tb_cpu();
     logic [3:0] byteenable;
     logic clk;
 
-    logic [31:0] RAM [0:1999];
-    logic [31:0] TESTRAM [0:1999];
+    logic [7:0] RAM [0:1999];
+    logic [7:0] TESTRAM [0:1999];
     logic passed;
     logic [31:0] rdata;
-    parameter RAM_FILE="BGEZ.txt";
-    parameter OUT_FILE="BGEZexpected.txt";
+    parameter RAM_FILE="LWSW.txt";
+    parameter OUT_FILE="LWSWexpected.txt";
 
     initial begin
         //initialize the RAM
         $display("%s",RAM_FILE);
         $display("%s",OUT_FILE);
-        for (int i=0;i<2000;i++) begin
+        for (int i=0;i<200;i++) begin
             RAM[i]=0;
             TESTRAM[i]=0;
         end
@@ -62,7 +62,7 @@ module tb_cpu();
         end*/
         #500;
         passed=1;
-        for(int i=0;i<2000;i++) begin
+        for(int i=0;i<200;i++) begin
             if (RAM[i]!=TESTRAM[i]) begin
                 $display("byteenable\t%d\n%d\nexpected %d\ngiven %d\n\n", byteenable,i,TESTRAM[i],RAM[i]); 
                 passed=0;
@@ -77,27 +77,43 @@ module tb_cpu();
         end
     end
 
-    assign rdata = (address > 3217031167) ? RAM[address-3217030169] : RAM[address-1];
+    assign rdata = (address > 3217031167) ? {RAM[address-3217031069],RAM[address-3217031067],RAM[address-3217031068],RAM[address-3217031069]} : {RAM[address+2],RAM[address+1],RAM[address],RAM[address-1]}; //1111111100001111
 
     logic [7:0] rd1, rd2, rd3, rd4, wd1, wd2, wd3, wd4;
 
-    assign rd1 = rdata[31:24]&{8{byteenable[3]}};
-    assign rd2 = rdata[23:16]&{8{byteenable[2]}};
-    assign rd3 = rdata[15:8]&{8{byteenable[1]}};
-    assign rd4 = rdata[7:0]&{8{byteenable[0]}};
+    /*
+        assign rd1 = rdata[31:24]&{8{byteenable[3]}};
+        assign rd2 = rdata[23:16]&{8{byteenable[2]}};
+        assign rd3 = rdata[15:8]&{8{byteenable[1]}};
+        assign rd4 = rdata[7:0]&{8{byteenable[0]}};
+    */
 
-    assign wd1 = writedata[31:24]&{8{byteenable[3]}};
-    assign wd2 = writedata[23:16]&{8{byteenable[2]}};
-    assign wd3 = writedata[15:8]&{8{byteenable[1]}};
-    assign wd4 = writedata[7:0]&{8{byteenable[0]}};
+    assign rd1 = rdata[31:24];
+    assign rd2 = rdata[23:16];
+    assign rd3 = rdata[15:8];
+    assign rd4 = rdata[7:0];
+
+    /*
+        assign wd1 = writedata[31:24]&{8{byteenable[3]}};
+        assign wd2 = writedata[23:16]&{8{byteenable[2]}};
+        assign wd3 = writedata[15:8]&{8{byteenable[1]}};
+        assign wd4 = writedata[7:0]&{8{byteenable[0]}};
+    */
+
+    assign wd1 = writedata[31:24];
+    assign wd2 = writedata[23:16];
+    assign wd3 = writedata[15:8];
+    assign wd4 = writedata[7:0];
 
     always_comb begin
         if (read) begin
             readdata = {rd1,rd2,rd3,rd4};
         end
         if (write) begin
-            RAM[address-1] = writedata;
-            //{wd1,wd2,wd3,wd4};
+            RAM[address] = wd4;
+            RAM[address+1] = wd3;
+            RAM[address+2] = wd2;
+            RAM[address+3] = wd1;
         end
     end
 
