@@ -270,7 +270,7 @@ module mips_cpu_bus
                     byteenable = 4'b1111;
             end
             (EXEC1 || EXEC2) : begin //  Specific operations, depending on if load or store Specific operations, depending on if load or store
-                    byteenable <= 4'b1111;
+                    byteenable = 4'b1111;
                     case((register[rs] + address_immediate) % 4)  //  Define byteEnableOutOfBounds for load in EXEC2 and store in EXEC1
                         (0): byteEnableOutOfBound = 2'd0;
                         (1): byteEnableOutOfBound = 2'd1;
@@ -617,17 +617,22 @@ module mips_cpu_bus
         always @(posedge clk) begin
             if (state == EXEC1)  begin
                 $display("OPCODE:\t%d", opcode);
+                $display("readdata:\t%d", readdata);
+                $display("address:\t%d", address - 3217031068);
+            end
+        end
+    /*
                 //$display("FCODE:\t%d", f_code);
 
                 for(integer a = 0; (a < 32) && (opcode != 0); a++) begin
-                    $display("Register %d:\t%d", a, register[a]);
-                    $display("Byte Enable out of bound\t%d\n", byteEnableOutOfBound);
-                    $display("Byte Enable \t\t%d\n\n", byteenable);
-                    $display("Read data \t\t%d\n", readdata);
+                    //$display("Register %d:\t%d", a, register[a]);
+                    //$display("Byte Enable out of bound\t%d\n", byteEnableOutOfBound);
+                    //$display("Byte Enable \t\t%d\n\n", byteenable);
+                    //$display("Read data \t\t%d\n", readdata);
                 end
             end   
         end
-    
+    */
 
             //$display("LO:\t%d", LO);
             //$display("HI:\t%d", HI);

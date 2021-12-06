@@ -11,21 +11,31 @@ module tb_cpu();
     logic [3:0] byteenable;
     logic clk;
 
+    logic [8:0] r1;
+    logic [8:0] r2;
+    logic [8:0] r3;
+    logic [8:0] r4;
+    logic [8:0] w1;
+    logic [8:0] w2;
+    logic [8:0] w3;
+    logic [8:0] w4;
+    logic [32:0] tempVal;
+
     logic [8:0] RAM[0:200];
     initial begin
         //Data We Will Utilize:
-        RAM[4] = 8'FC;
-        RAM[5] = 8'18;
-        RAM[6] = 8'3A;
-        RAM[7] = 8'5C;
+        RAM[4] = 8'hFC;
+        RAM[5] = 8'h18;
+        RAM[6] = 8'h3A;
+        RAM[7] = 8'h5C;
         // we write to here:
-        RAM[8] = 8'd0;
-        RAM[9] = 8'b0;
-        RAM[10] = 8'0;
-        RAM[11] = 8'0;
+        RAM[8] = 8'h0;
+        RAM[9] = 8'h0;
+        RAM[10] = 8'h0;
+        RAM[11] = 8'h0;
 
         //LW $1, 4, $0
-        RAM[100] = 8'h04
+        RAM[100] = 8'h04;
         RAM[101] = 8'h00;
         RAM[102] = 8'h01;
         RAM[103] = 8'h8C;
@@ -61,175 +71,206 @@ module tb_cpu();
         waitrequest=0;
         reset=0;
 
-        repeat (54) begin
+        repeat (100) begin
             #2;
+            //$display("Working?");
         end
-        $display("%d %d",8, RAM[8]);
-        $display("%d %d",9, RAM[9]);
-        $display("%d %d",10, RAM[10]);
-        $display("%d %d",11, RAM[11]);
+        $display("%d %d", 8, RAM[8]);
+        $display("%d %d", 9, RAM[9]);
+        $display("%d %d", 10, RAM[10]);
+        $display("%d %d", 11, RAM[11]);
+    end
+            //$display("%d", $unsigned(16'hFFFF));
+            //$display("--------------------");
+            //for(int i=200; i<201; i++) begin
+            //    $display("%d %d",i, RAM[i]);
+            //end
+            // We are checking each part of the RAM to see which instruction works and which one does not
+        /*
+            if (RAM[200]==123 && RAM[201]==404) begin
+                $display("MTHI Passed");
+                $display("MTLO Passed");
+                $display("MFHI Passed");
+                $display("MFLO Passed");
+            end
+            else begin
+                $display("MTHI Failed");
+                $display("MTLO Failed");
+                $display("MFHI Failed");
+                $display("MFLO Failed");
+            end
+            if (RAM[202]==12 && RAM[203]==12) begin
+                $display("MULT Passed");
+                $display("MULTU Passed");
+            end
+            else begin
+                $display("MULT Failed");
+                $display("MULTU Failed");
+            end
+            if (RAM[204]==32'b1101 && RAM[205]==32'b1101) begin
+                $display("OR Passed");
+                $display("ORI Passed");
+            end
+            else begin
+                $display("OR Failed");
+                $display("ORI Failed");
+            end
+            if (RAM[206]==32'b1001 && RAM[207]==32'b1001) begin
+                $display("SB Passed");
+                $display("SH Passed");
+            end
+            else begin
+                $display("SB Failed");
+                $display("SH Failed");
+            end
+            if (RAM[208]==32'b100100 && RAM[209]==32'b100100000) begin
+                $display("SLL Passed");
+                $display("SLLV Passed");
+            end
+            else begin
+                $display("SLL Failed");
+                $display("SLLV Failed");
+            end
+            if (RAM[210]==0) begin
+                $display("SLT Passed");
+            end
+            else begin
+                $display("SLT Failed");
+            end
+            if (RAM[211]==1) begin
+                $display("SLTI Passed");
+            end
+            else begin
+                $display("SLTI Failed");
+            end
+            if (RAM[212]==1) begin
+                $display("SLTIU Passed");
+            end
+            else begin
+                $display("SLTIU Failed");
+            end
+            if (RAM[213]==0) begin
+                $display("SLTU Passed");
+            end
+            else begin
+                $display("SLTU Failed");
+            end
+            if (RAM[214]==1) begin
+                $display("SRA Passed");
+            end
+            else begin
+                $display("SRA Failed");
+            end
+            if (RAM[215]==0) begin
+                $display("SRAV Passed");
+            end
+            else begin
+                $display("SRAV Failed");
+            end
+            if (RAM[216]==1) begin
+                $display("SRL Passed");
+            end
+            else begin
+                $display("SRL Failed");
+            end
+            if (RAM[217]==0) begin
+                $display("SRLV Passed");
+            end
+            else begin
+                $display("SRLV Failed");
+            end
+            if (RAM[218]==32'b100) begin
+                $display("SUBU Passed");
+            end
+            else begin
+                $display("SUBU Failed");
+            end
+            if (RAM[219]==32'b1100) begin
+                $display("XOR Passed");
+            end
+            else begin
+                $display("XOR Failed");
+            end
+            if (RAM[220]==32'b1100) begin
+                $display("XORI Passed");
+            end
+            else begin
+                $display("XORI Failed");
+            end
+        end
+    */
 
-        //$display("%d", $unsigned(16'hFFFF));
-        //$display("--------------------");
-        //for(int i=200; i<201; i++) begin
-        //    $display("%d %d",i, RAM[i]);
-        //end
-        // We are checking each part of the RAM to see which instruction works and which one does not
-        /*if (RAM[200]==123 && RAM[201]==404) begin
-            $display("MTHI Passed");
-            $display("MTLO Passed");
-            $display("MFHI Passed");
-            $display("MFLO Passed");
-        end
-        else begin
-            $display("MTHI Failed");
-            $display("MTLO Failed");
-            $display("MFHI Failed");
-            $display("MFLO Failed");
-        end
-        if (RAM[202]==12 && RAM[203]==12) begin
-            $display("MULT Passed");
-            $display("MULTU Passed");
-        end
-        else begin
-            $display("MULT Failed");
-            $display("MULTU Failed");
-        end
-        if (RAM[204]==32'b1101 && RAM[205]==32'b1101) begin
-            $display("OR Passed");
-            $display("ORI Passed");
-        end
-        else begin
-            $display("OR Failed");
-            $display("ORI Failed");
-        end
-        if (RAM[206]==32'b1001 && RAM[207]==32'b1001) begin
-            $display("SB Passed");
-            $display("SH Passed");
-        end
-        else begin
-            $display("SB Failed");
-            $display("SH Failed");
-        end
-        if (RAM[208]==32'b100100 && RAM[209]==32'b100100000) begin
-            $display("SLL Passed");
-            $display("SLLV Passed");
-        end
-        else begin
-            $display("SLL Failed");
-            $display("SLLV Failed");
-        end
-        if (RAM[210]==0) begin
-            $display("SLT Passed");
-        end
-        else begin
-            $display("SLT Failed");
-        end
-        if (RAM[211]==1) begin
-            $display("SLTI Passed");
-        end
-        else begin
-            $display("SLTI Failed");
-        end
-        if (RAM[212]==1) begin
-            $display("SLTIU Passed");
-        end
-        else begin
-            $display("SLTIU Failed");
-        end
-        if (RAM[213]==0) begin
-            $display("SLTU Passed");
-        end
-        else begin
-            $display("SLTU Failed");
-        end
-        if (RAM[214]==1) begin
-            $display("SRA Passed");
-        end
-        else begin
-            $display("SRA Failed");
-        end
-        if (RAM[215]==0) begin
-            $display("SRAV Passed");
-        end
-        else begin
-            $display("SRAV Failed");
-        end
-        if (RAM[216]==1) begin
-            $display("SRL Passed");
-        end
-        else begin
-            $display("SRL Failed");
-        end
-        if (RAM[217]==0) begin
-            $display("SRLV Passed");
-        end
-        else begin
-            $display("SRLV Failed");
-        end
-        if (RAM[218]==32'b100) begin
-            $display("SUBU Passed");
-        end
-        else begin
-            $display("SUBU Failed");
-        end
-        if (RAM[219]==32'b1100) begin
-            $display("XOR Passed");
-        end
-        else begin
-            $display("XOR Failed");
-        end
-        if (RAM[220]==32'b1100) begin
-            $display("XORI Passed");
-        end
-        else begin
-            $display("XORI Failed");
-        end
-    end*/
-
-    logic [8:0] r1, r2, r3, r4;
-    logic [8:0] w1, w2, w3, w4;
-    logic [32:0] tempVal;
     /*
-    assign r1 = readdata[31:24] * byteenable[3];
-    assign r2 = readdata[23:16] * byteenable[2];
-    assign r3 = readdata[15:8] * byteenable[1];
-    assign r4 = readdata[7:0] * byteenable[0];
+        assign r1 = readdata[31:24] * byteenable[3];
+        assign r2 = readdata[23:16] * byteenable[2];
+        assign r3 = readdata[15:8] * byteenable[1];
+        assign r4 = readdata[7:0] * byteenable[0];
 
+        assign w1 = writedata[31:24] * byteenable[3];
+        assign w2 = writedata[23:16] * byteenable[2];
+        assign w3 = writedata[15:8] * byteenable[1];
+        assign w4 = writedata[7:0] * byteenable[0];
+    */
+    assign r1 = (address > 3217031167) ? (RAM[address - 3217031068]) : (RAM[address]);
+    assign r2 = (address > 3217031167) ? (RAM[address + 1 - 3217031068]) : (RAM[address + 1]);
+    assign r3 = (address > 3217031167) ? (RAM[address + 2 - 3217031068]) : (RAM[address + 2]);
+    assign r4 = (address > 3217031167) ? (RAM[address + 3 - 3217031068]) : (RAM[address + 3]);
+    /*
     assign w1 = writedata[31:24] * byteenable[3];
     assign w2 = writedata[23:16] * byteenable[2];
     assign w3 = writedata[15:8] * byteenable[1];
     assign w4 = writedata[7:0] * byteenable[0];
     */
+    assign w1 = writedata[31:24];
+    assign w2 = writedata[23:16];
+    assign w3 = writedata[15:8];
+    assign w4 = writedata[7:0];
+
     always_comb begin
         if (read) begin
             if (address > 3217031167) begin
+                /*
                 r4 = RAM[address - 3217031068] * byteenable[0];
                 r3 = RAM[address + 1 - 3217031068] * byteenable[1];
                 r2 = RAM[address + 2 - 3217031068] * byteenable[2];
                 r1 = RAM[address + 3 - 3217031068] * byteenable[3];
+                
+                r4 = RAM[address - 3217031068];
+                r3 = RAM[address + 1 - 3217031068];
+                r2 = RAM[address + 2 - 3217031068];
+                r1 = RAM[address + 3 - 3217031068];
+                */
                 readdata = {r1, r2, r3, r4};
             end
             else begin
+                /*
                 r4 = RAM[address] * byteenable[0];
                 r3 = RAM[address + 1] * byteenable[1];
                 r2 = RAM[address + 2] * byteenable[2];
                 r1 = RAM[address + 3] * byteenable[3];
+                
+                r4 = RAM[address];
+                r3 = RAM[address + 1];
+                r2 = RAM[address + 2];
+                r1 = RAM[address + 3];
+                */
                 readdata = {r1, r2, r3, r4};
             end
         end
         if (write) begin
+            /*
             w1 = writedata[31:24] * byteenable[3];
             w2 = writedata[23:16] * byteenable[2];
             w3 = writedata[15:8] * byteenable[1];
             w4 = writedata[7:0] * byteenable[0];
+            */
+            
             RAM[address + 3] = w1;
             RAM[address + 2] = w2;
             RAM[address + 1] = w3;
             RAM[address] = w4;
         end
     end
-
 endmodule
 
 /*
