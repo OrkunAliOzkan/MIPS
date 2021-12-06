@@ -277,6 +277,10 @@ module mips_cpu_bus
                         (2): byteEnableOutOfBound = 2'd2;
                         (3): byteEnableOutOfBound = 2'd3;
                     endcase
+
+                    if (sOp) begin
+                        read = 0;
+                        write = 1;
             end
             (HALT) : begin
                 read = 0;
@@ -616,6 +620,8 @@ module mips_cpu_bus
 //  always block. Exclusively for testing! TODO:    DELET when not using
         always @(posedge clk) begin
             if (state == EXEC1)  begin
+
+                $display("BEOOB\t%d\n", byteEnableOutOfBound);
                 for(integer a = 0; (a < 32) && (opcode != 0); a++) begin
                     //$display("Register %d:\t%d\n", a, register[a]);
                     //$display("write data %d:\t", writedata);
