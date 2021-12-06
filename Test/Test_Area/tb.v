@@ -78,14 +78,11 @@ module tb_cpu();
             $display("R3:\t%d", r3);
             $display("R2:\t%d", r2);
             $display("R1:\t%d", r1);
-            $display("shit:\t%d", {r1 , r2, r3, r4});
+            $display("DATA BACK:\t%d", {r1,r2,r3,r4});
 
             $display("address:\t%d", address - 3217031068);
         end
-        $display("%d %d", 8, RAM[8]);
-        $display("%d %d", 9, RAM[9]);
-        $display("%d %d", 10, RAM[10]);
-        $display("%d %d", 11, RAM[11]);
+        
     end
             //$display("%d", $unsigned(16'hFFFF));
             //$display("--------------------");
@@ -247,8 +244,8 @@ module tb_cpu();
                 r2 = RAM[address + 2 - 3217031068];
                 r1 = RAM[address + 3 - 3217031068];
                 */
-                //readdata = {r1, r2, r3, r4};
-                readdata = {8'h(r1), 8'h(r2), 8'h(r3), 8'h(r4)};
+                readdata = {r1, r2, r3, r4};
+                //readdata = (r1 << 24) + (r2 << 16) + (r3 << 8) + (r4);
             end
             else begin
                 /*
@@ -262,8 +259,8 @@ module tb_cpu();
                 r2 = RAM[address + 2];
                 r1 = RAM[address + 3];
                 */
-                //readdata = {r1, r2, r3, r4};
-                readdata = {8'h(r1), 8'h(r2), 8'h(r3), 8'h(r4)};
+                readdata = {r1, r2, r3, r4};
+                //readdata = (r1 << 24) + (r2 << 16) + (r3 << 8) + (r4);
             end
         end
         if (write) begin

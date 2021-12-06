@@ -293,7 +293,7 @@ module mips_cpu_bus
             active <= 1;
             address <= 32'hBFC00000;
             for(integer i = 0; i < 32; i++) begin
-                register[i] <= 32'h00;
+                register[i] <= 32'h0;
             end
         end
         case (state)
@@ -304,9 +304,9 @@ module mips_cpu_bus
                 end
                 //  General case
                 else begin
-                    //address = PC;
-                    //read <= 1;
-                    //write <= 0;
+                    address = PC;
+                    read <= 1;
+                    write <= 0;
                     PC_next <= PC + 32'd4;
                     PC_Jump_Branch <= PC_next + 32'd4;
                     state <= (waitrequest) ? (FETCH) : (EXEC1);
@@ -400,7 +400,7 @@ module mips_cpu_bus
                                         (6'd0) :    PC_Jump_Branch <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC_next + 32'd4);
                                         //  BLTZAL
                                         (6'd16) : begin 
-                                            PC_Jump_Branch <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC_next + 3'd4);
+                                            PC_Jump_Branch <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC_next + 32'd4);
                                             register[31] <= PC;
                                         end
                                     endcase
