@@ -16,8 +16,8 @@ module tb_cpu();
     logic [31:0] TESTRAM [0:1999];
     logic passed;
     logic [31:0] rdata;
-    parameter RAM_FILE="";
-    parameter OUT_FILE="";
+    parameter RAM_FILE="BGEZ.txt";
+    parameter OUT_FILE="BGEZexpected.txt";
 
     initial begin
         //initialize the RAM
@@ -64,10 +64,11 @@ module tb_cpu();
         passed=1;
         for(int i=0;i<2000;i++) begin
             if (RAM[i]!=TESTRAM[i]) begin
-                $display("RAM %d, expected %d given %d",i,TESTRAM[i],RAM[i]); 
+                $display("byteenable\t%d\n%d\nexpected %d\ngiven %d\n\n", byteenable,i,TESTRAM[i],RAM[i]); 
                 passed=0;
             end
         end
+
         if (passed==1) begin
             $display("%s passed",RAM_FILE);
         end
@@ -76,7 +77,7 @@ module tb_cpu();
         end
     end
 
-    assign rdata = (address > 3217031167) ? RAM[address-3217030169] : RAM[address];
+    assign rdata = (address > 3217031167) ? RAM[address-3217030169] : RAM[address-1];
 
     logic [7:0] rd1, rd2, rd3, rd4, wd1, wd2, wd3, wd4;
 
@@ -95,7 +96,7 @@ module tb_cpu();
             readdata = {rd1,rd2,rd3,rd4};
         end
         if (write) begin
-            RAM[address] = writedata;
+            RAM[address-1] = writedata;
             //{wd1,wd2,wd3,wd4};
         end
     end

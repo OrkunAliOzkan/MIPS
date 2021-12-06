@@ -40,10 +40,10 @@ module mips_cpu_bus
         OPCODE_JAL = 6'd3,
 
         //  TODO:   move those 4 into a new case where differentiated by their rt
-        OPCODE_BGEZ = 6'd51,  
+        /*OPCODE_BGEZ = 6'd51,  
         OPCODE_BGEZAL = 6'd52,
         OPCODE_BLTZ = 6'd53,  
-        OPCODE_BLTZAL = 6'd54,
+        OPCODE_BLTZAL = 6'd54,*/
 
         OPCODE_BEQ = 6'd4,
         OPCODE_BGTZ = 6'd7,
@@ -391,28 +391,28 @@ module mips_cpu_bus
                             //  Share opcode
                                 (6'd1): begin   //  Is instruction BGEZ; BGEZAL; BLTZ; BLTZAL
                                     case (rt)
-                                        //  BGTL
-                                        (6'd1) :    PC_Jump_Branch <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                        //  BGTLAL
+                                        //  BGEZ    TODO:   Check I need to be implemented
+                                        (6'd1) :    PC_Jump_Branch <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC_next + 32'd4);
+                                        //  BGEZAL  TODO:   Check I need to be implemented
                                         (6'd17) : begin 
-                                            PC_Jump_Branch <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
+                                            PC_Jump_Branch <= (register[rs] >= 0) ? (PC + (address_immediate << 2)) : (PC_next + 32'd4);
                                             register[31] = PC;
                                         end
                                         //  BLTZ
-                                        (6'd0) :    PC_Jump_Branch <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
+                                        (6'd0) :    PC_Jump_Branch <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC_next + 32'd4);
                                         //  BLTZAL
                                         (6'd16) : begin 
-                                            PC_Jump_Branch <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
+                                            PC_Jump_Branch <= (register[rs] < 0) ? (PC + (address_immediate << 2)) : (PC_next + 3'd4);
                                             register[31] <= PC;
                                         end
                                     endcase
                                 end
 
                             //  Rest
-                                (OPCODE_BEQ) :  PC_Jump_Branch <= (register[rs] == register[rt]) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                (OPCODE_BGTZ) : PC_Jump_Branch <= (register[rs] > 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                (OPCODE_BNE) :  PC_Jump_Branch <= (register[rs] != register[rt]) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
-                                (OPCODE_BLEZ) : PC_Jump_Branch <= (register[rs] <= 0) ? (PC + (address_immediate << 2)) : (PC_next + 5'd4);
+                                (OPCODE_BEQ) :  PC_Jump_Branch <= (register[rs] == register[rt]) ? (PC + (address_immediate << 2)) : (PC_next + 32'd4);
+                                (OPCODE_BGTZ) : PC_Jump_Branch <= (register[rs] > 0) ? (PC + (address_immediate << 2)) : (PC_next + 32'd4);
+                                (OPCODE_BNE) :  PC_Jump_Branch <= (register[rs] != register[rt]) ? (PC + (address_immediate << 2)) : (PC_next + 32'd4);
+                                (OPCODE_BLEZ) : PC_Jump_Branch <= (register[rs] <= 0) ? (PC + (address_immediate << 2)) : (PC_next + 32'd4);
 
 
                         //  Store
@@ -475,7 +475,7 @@ module mips_cpu_bus
                 //  Load
                     if(lOp) begin
                         read <= 1;
-                        address <= (OPCODE_LBU || OPCODE_LHU) ? (register[rs] + $signed(address_immediate)) : ($unsigned(register[rs]) + {16'b0, address_immediate});
+                        address <= (OPCODE_LBU || OPCODE_LHU) ? (register[rs] + $unsigned(address_immediate)) : ($signed(register[rs]) + ({{16{address_immediate[15]}}, address_immediate}));
                         case (opcode)
                             (OPCODE_LB || OPCODE_LBU) : begin
                                 case(byteEnableOutOfBound)
@@ -615,16 +615,19 @@ module mips_cpu_bus
         endcase
     end
 //  always block. Exclusively for testing! TODO:    DELET when not using
-    /*
-    */
         always @(posedge clk) begin
-            if (state == FETCH) begin
+            if (state == FETCH)  begin
+                $display("OPCODE:\t%d", opcode);
+                //$display("FCODE:\t%d", f_code);
+            end
+    /*
                 for(integer a = 0; a < 32; a++) begin
                     $display("Register %d:\t%d", a, register[a]);
                 end
             end
+    */
 
-            $display("LO:\t%d", LO);
-            $display("HI:\t%d", HI);
+            //$display("LO:\t%d", LO);
+            //$display("HI:\t%d", HI);
         end
 endmodule
