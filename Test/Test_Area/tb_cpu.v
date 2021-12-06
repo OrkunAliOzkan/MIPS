@@ -43,8 +43,17 @@ module tb_cpu();
         $finish(0);
     end
 
-    mips_cpu_bus mips_cpu_bus(.clk(clk), .reset(reset), .active(active), .register_v0(register_v0), .address(address), 
-    .write(write), .read(read), .waitrequest(waitrequest), .writedata(writedata), .byteenable(byteenable), .readdata(readdata));
+    mips_cpu_bus mips_cpu_bus(  .clk(clk), 
+                                .reset(reset), 
+                                .active(active), 
+                                .register_v0(register_v0), 
+                                .address(address), 
+                                .write(write), 
+                                .read(read), 
+                                .waitrequest(waitrequest), 
+                                .writedata(writedata), 
+                                .byteenable(byteenable), 
+                                .readdata(readdata));
     initial begin
         waitrequest=0;
         reset=0;
@@ -114,7 +123,7 @@ module tb_cpu();
             RAM[address] = wd3;
             RAM[address+1] = wd2;
             RAM[address+2] = wd1;
-            
+
         end
     end
 
