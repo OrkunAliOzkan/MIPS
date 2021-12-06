@@ -11,7 +11,7 @@ module tb_cpu();
     logic waitrequest;
     logic [3:0] byteenable;
     logic clk;
-    
+
     logic [31:0] RAM [0:1999];
     logic [31:0] TESTRAM [0:1999];
     logic passed;
