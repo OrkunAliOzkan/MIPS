@@ -74,6 +74,13 @@ module tb_cpu();
         repeat (100) begin
             #2;
             //$display("Working?");
+            $display("R4:\t%d", r4);
+            $display("R3:\t%d", r3);
+            $display("R2:\t%d", r2);
+            $display("R1:\t%d", r1);
+            $display("shit:\t%d", {r1 , r2, r3, r4});
+
+            $display("address:\t%d", address - 3217031068);
         end
         $display("%d %d", 8, RAM[8]);
         $display("%d %d", 9, RAM[9]);
@@ -211,10 +218,10 @@ module tb_cpu();
         assign w3 = writedata[15:8] * byteenable[1];
         assign w4 = writedata[7:0] * byteenable[0];
     */
-    assign r1 = (address > 3217031167) ? (RAM[address - 3217031068]) : (RAM[address]);
-    assign r2 = (address > 3217031167) ? (RAM[address + 1 - 3217031068]) : (RAM[address + 1]);
-    assign r3 = (address > 3217031167) ? (RAM[address + 2 - 3217031068]) : (RAM[address + 2]);
-    assign r4 = (address > 3217031167) ? (RAM[address + 3 - 3217031068]) : (RAM[address + 3]);
+    assign r4 = (address > 3217031167) ? (RAM[address - 3217031068]) : (RAM[address]);
+    assign r3 = (address > 3217031167) ? (RAM[address + 1 - 3217031068]) : (RAM[address + 1]);
+    assign r2 = (address > 3217031167) ? (RAM[address + 2 - 3217031068]) : (RAM[address + 2]);
+    assign r1 = (address > 3217031167) ? (RAM[address + 3 - 3217031068]) : (RAM[address + 3]);
     /*
     assign w1 = writedata[31:24] * byteenable[3];
     assign w2 = writedata[23:16] * byteenable[2];
@@ -240,7 +247,8 @@ module tb_cpu();
                 r2 = RAM[address + 2 - 3217031068];
                 r1 = RAM[address + 3 - 3217031068];
                 */
-                readdata = {r1, r2, r3, r4};
+                //readdata = {r1, r2, r3, r4};
+                readdata = {8'h(r1), 8'h(r2), 8'h(r3), 8'h(r4)};
             end
             else begin
                 /*
@@ -254,7 +262,8 @@ module tb_cpu();
                 r2 = RAM[address + 2];
                 r1 = RAM[address + 3];
                 */
-                readdata = {r1, r2, r3, r4};
+                //readdata = {r1, r2, r3, r4};
+                readdata = {8'h(r1), 8'h(r2), 8'h(r3), 8'h(r4)};
             end
         end
         if (write) begin

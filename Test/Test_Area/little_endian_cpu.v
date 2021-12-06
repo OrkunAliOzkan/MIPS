@@ -616,9 +616,9 @@ module mips_cpu_bus
 //  always block. Exclusively for testing! TODO:    DELET when not using
         always @(posedge clk) begin
             if (state == EXEC1)  begin
-                $display("OPCODE:\t%d", opcode);
-                $display("readdata:\t%d", readdata);
-                $display("address:\t%d", address - 3217031068);
+                //$display("OPCODE:\t%d", opcode);
+                //$display("readdata:\t%d", readdata);
+                //$display("address:\t%d", address - 3217031068);
             end
         end
     /*
