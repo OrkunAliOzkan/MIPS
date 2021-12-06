@@ -28,10 +28,10 @@ module tb_cpu();
         RAM[6] = 8'h3A;
         RAM[7] = 8'h5C;
         // we write to here:
-        RAM[8] = 8'h0;
-        RAM[9] = 8'h0;
-        RAM[10] = 8'h0;
-        RAM[11] = 8'h0;
+        //RAM[8] = 8'h0;
+        //RAM[9] = 8'h0;
+        //RAM[10] = 8'h0;
+        //RAM[11] = 8'h0;
 
         //LW $1, 4, $0
         RAM[100] = 8'h04;
@@ -79,6 +79,8 @@ module tb_cpu();
             //$display("R1:\t%h", r1);
             $display("DATA BACK:\t%h", {r1,r2,r3,r4});
             $display("DATA TO WRITE:\t%h", {w1,w2,w3,w4});
+            $display("address:\t%d", address);
+
 
             //$display("address:\t%d", address - 3217031068);
 
@@ -225,10 +227,6 @@ module tb_cpu();
     assign r2 = (address > 3217031167) ? (RAM[address + 2 - 3217031068]) : (RAM[address + 2]);
     assign r1 = (address > 3217031167) ? (RAM[address + 3 - 3217031068]) : (RAM[address + 3]);
     /*
-    assign w1 = writedata[31:24] * byteenable[3];
-    assign w2 = writedata[23:16] * byteenable[2];
-    assign w3 = writedata[15:8] * byteenable[1];
-    assign w4 = writedata[7:0] * byteenable[0];
     */
     assign w1 = writedata[31:24];
     assign w2 = writedata[23:16];
@@ -250,7 +248,6 @@ module tb_cpu();
                 r1 = RAM[address + 3 - 3217031068];
                 */
                 readdata = {r1, r2, r3, r4};
-                //readdata = (r1 << 24) + (r2 << 16) + (r3 << 8) + (r4);
             end
             else begin
                 /*
@@ -265,7 +262,6 @@ module tb_cpu();
                 r1 = RAM[address + 3];
                 */
                 readdata = {r1, r2, r3, r4};
-                //readdata = (r1 << 24) + (r2 << 16) + (r3 << 8) + (r4);
             end
         end
         if (write) begin

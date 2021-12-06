@@ -277,10 +277,6 @@ module mips_cpu_bus
                         (2): byteEnableOutOfBound = 2'd2;
                         (3): byteEnableOutOfBound = 2'd3;
                     endcase
-
-                    if (sOp) begin
-                        read = 0;
-                        write = 1;
             end
             (HALT) : begin
                 read = 0;
@@ -445,6 +441,7 @@ module mips_cpu_bus
                                             writedata <= {tempWire[31:24], 24'd0};
                                         end
                                     endcase
+                                    address <= (register[rs] + address_immediate) - ((register[rs] + address_immediate) % 4 );
                                 end
                                 (OPCODE_SH) : begin
                                     write <= 1;  //  Enable write so that memory can be written upon
@@ -460,17 +457,15 @@ module mips_cpu_bus
                                             writedata = {tempWire[15:0], 16'd0};
                                         end
                                     endcase
+                                    address <= ((register[rs] + address_immediate) - ((register[rs] + address_immediate) % 4 ));
                                 end
                                 (OPCODE_SW) : begin
-                                    if(byteEnableOutOfBound == 0) begin
-                                        byteenable <= 4'd15;           //  Byte enable all bytes
-                                    end
-                                    else begin
-                                        byteenable <= 4'd0;         //  Not wrote
-                                    end
+                                    if(byteEnableOutOfBound == 0) byteenable <= 4'd15;           //  Byte enable all bytes
+                                    else byteenable <= 4'd0;         //  Not wrote
+
                                     write <= 1;                  //  Enable write so that memory can be written upon
                                     read <= 0;
-                                    writedata <= tempWire;   //  Write
+                                    writedata <= register[rt];   //  Write
                                     address <= (register[rs] + address_immediate);
                                 end
                 endcase
@@ -620,8 +615,6 @@ module mips_cpu_bus
 //  always block. Exclusively for testing! TODO:    DELET when not using
         always @(posedge clk) begin
             if (state == EXEC1)  begin
-
-                $display("BEOOB\t%d\n", byteEnableOutOfBound);
                 for(integer a = 0; (a < 32) && (opcode != 0); a++) begin
                     //$display("Register %d:\t%d\n", a, register[a]);
                     //$display("write data %d:\t", writedata);
