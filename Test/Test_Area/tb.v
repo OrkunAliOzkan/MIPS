@@ -11,17 +11,16 @@ module tb_cpu();
     logic [3:0] byteenable;
     logic clk;
 
-    logic [8:0] r1;
-    logic [8:0] r2;
-    logic [8:0] r3;
-    logic [8:0] r4;
-    logic [8:0] w1;
-    logic [8:0] w2;
-    logic [8:0] w3;
-    logic [8:0] w4;
-    logic [32:0] tempVal;
+    logic [7:0] r1;
+    logic [7:0] r2;
+    logic [7:0] r3;
+    logic [7:0] r4;
+    logic [7:0] w1;
+    logic [7:0] w2;
+    logic [7:0] w3;
+    logic [7:0] w4;
 
-    logic [8:0] RAM[0:200];
+    logic [7:0] RAM[0:200];
     initial begin
         //Data We Will Utilize:
         RAM[4] = 8'hFC;
@@ -74,13 +73,19 @@ module tb_cpu();
         repeat (100) begin
             #2;
             //$display("Working?");
-            $display("R4:\t%d", r4);
-            $display("R3:\t%d", r3);
-            $display("R2:\t%d", r2);
-            $display("R1:\t%d", r1);
-            $display("DATA BACK:\t%d", {r1,r2,r3,r4});
+            //$display("R4:\t%h", r4);
+            //$display("R3:\t%h", r3);
+            //$display("R2:\t%h", r2);
+            //$display("R1:\t%h", r1);
+            $display("DATA BACK:\t%h", {r1,r2,r3,r4});
+            $display("DATA TO WRITE:\t%h", {w1,w2,w3,w4});
 
-            $display("address:\t%d", address - 3217031068);
+            //$display("address:\t%d", address - 3217031068);
+
+            $display("%d %d",8, RAM[8]);
+            $display("%d %d",9, RAM[9]);
+            $display("%d %d",10, RAM[10]);
+            $display("%d %d",11, RAM[11]);
         end
         
     end

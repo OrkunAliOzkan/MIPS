@@ -466,7 +466,7 @@ module mips_cpu_bus
                                     end
                                     write <= 1;                  //  Enable write so that memory can be written upon
                                     read <= 0;
-                                    writedata <= register[rt];   //  Write
+                                    writedata <= tempWire;   //  Write
                                     address <= (register[rs] + address_immediate);
                                 end
                 endcase
@@ -616,23 +616,12 @@ module mips_cpu_bus
 //  always block. Exclusively for testing! TODO:    DELET when not using
         always @(posedge clk) begin
             if (state == EXEC1)  begin
-                //$display("OPCODE:\t%d", opcode);
-                //$display("readdata:\t%d", readdata);
-                //$display("address:\t%d", address - 3217031068);
+                for(integer a = 0; (a < 32) && (opcode != 0); a++) begin
+                    //$display("Register %d:\t%d\n", a, register[a]);
+                    //$display("write data %d:\t", writedata);
+                end
             end
         end
-    /*
-                //$display("FCODE:\t%d", f_code);
-
-                for(integer a = 0; (a < 32) && (opcode != 0); a++) begin
-                    //$display("Register %d:\t%d", a, register[a]);
-                    //$display("Byte Enable out of bound\t%d\n", byteEnableOutOfBound);
-                    //$display("Byte Enable \t\t%d\n\n", byteenable);
-                    //$display("Read data \t\t%d\n", readdata);
-                end
-            end   
-        end
-    */
 
             //$display("LO:\t%d", LO);
             //$display("HI:\t%d", HI);
