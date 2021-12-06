@@ -592,10 +592,9 @@ module mips_cpu_bus
                                 endcase
                             end
                             (OPCODE_LW) :  begin
-                                if(byteenable == 15) begin
-                                    byteenable <= 4'b1111;
+                                if((byteEnableOutOfBound == 2'd0) && (byteenable == 4'd15)) begin
+                                    register[rt] <= readdata;
                                 end
-                                register[rt] <= readdata;
                             end
                     endcase
                 //  Next state
@@ -622,6 +621,9 @@ module mips_cpu_bus
 
                 for(integer a = 0; (a < 32) && (opcode != 0); a++) begin
                     $display("Register %d:\t%d", a, register[a]);
+                    $display("Byte Enable out of bound\t%d\n", byteEnableOutOfBound);
+                    $display("Byte Enable \t\t%d\n\n", byteenable);
+                    $display("Read data \t\t%d\n", readdata);
                 end
             end   
         end

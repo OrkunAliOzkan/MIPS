@@ -60,7 +60,6 @@ module tb_cpu();
             $display(" ");
             #2;
         end*/
-        #500;
         passed=1;
         for(int i=0;i<200;i++) begin
             if (RAM[i]!=TESTRAM[i]) begin
@@ -68,6 +67,7 @@ module tb_cpu();
                 passed=0;
             end
         end
+        #500;
 
         if (passed==1) begin
             $display("%s passed",RAM_FILE);
@@ -110,10 +110,11 @@ module tb_cpu();
             readdata = {rd1,rd2,rd3,rd4};
         end
         if (write) begin
-            RAM[address] = wd4;
-            RAM[address+1] = wd3;
-            RAM[address+2] = wd2;
-            RAM[address+3] = wd1;
+            RAM[address-1] = wd4;
+            RAM[address] = wd3;
+            RAM[address+1] = wd2;
+            RAM[address+2] = wd1;
+            
         end
     end
 
