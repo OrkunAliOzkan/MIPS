@@ -12,7 +12,7 @@ module tb_cpu();
     logic [3:0] byteenable;
     logic clk;
 
-    logic [7:0] RAM [0:1999];
+    logic [7:0] RAM [0:199];
     logic [7:0] TESTRAM [0:1999];
     logic passed;
     logic [31:0] rdata;
