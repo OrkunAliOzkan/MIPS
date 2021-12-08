@@ -130,8 +130,6 @@ module mips_cpu_bus(
             logic[5:0] IR_funct;
             logic[15:0] IR_address_immediate;
             logic[25:0] IR_targetAddress;
-        //  Reset wire
-            logic[1:0] isReset;
 
     //  Initialisation of CPU
         initial begin
@@ -140,7 +138,6 @@ module mips_cpu_bus(
                 register[i] <= 32'h0;
             end
             state = IF;
-            isReset = 2'd0;
         end
 
     //  Combinatioral
@@ -207,29 +204,18 @@ module mips_cpu_bus(
         always_ff @(posedge clk) begin
             //  Reset
                 if(reset) begin
-                    if(isReset == 2'd1) begin
-                        state <= IF;
-                        active <= 1;
-                        PC_next <= 32'hBFC00000;
-                        for(integer i = 0; i < 32; i++) begin
-                            register[i] <= 32'h00;
-                        end
-                        isReset <= 2'd2;
-                    end
-                    else begin
-                        isReset <= 2'd1;
+                    active = 1;
+                    PC <= 32'hBFC00000;
+                    PC_next <= 32'hBFC00004;
+                    PC_jump <= 32'h0;
+                    state <= IF;
+                    for(integer i = 0; i < 32; i++) begin
+                        register[i] <= 32'h00;
                     end
                 end
 
             case(state)
                 (IF): begin
-                    //  Post reset handling
-                        if((isReset == 2'd2) && (!active)) begin
-                            isReset <= 2'd0;
-                            state <= HALT;
-                        end
-                        else if (isReset == 2'd2)
-                            isReset <= 2'd0;
                     //Fetching nest instruction from memory using PC as address. So need to read from RAM
                         byteenable <= 4'b1111;
 
@@ -486,16 +472,14 @@ module mips_cpu_bus(
         end
 
 //  Testing purpose
-    //
+    /*
     always @(*) begin
-
-
-            $display("isReset:%d\nReset:\t%d\n", isReset, reset);
+            $display("Reset:\t%d\n", reset);
             if(state == IF) begin
-                //$display("address %d", address - 3217031068);
-                //$display("in IF");
+                $display("address %d", address -  3217031068);
+                $display("in IF");
                 for(integer a = 0; a < 32; a++) begin
-                    $display("register %d : %h", a, register[a]);
+                    //$display("register %d : %h", a, register[a]);
                 end
             end
             else if(state == ID) begin
@@ -506,7 +490,7 @@ module mips_cpu_bus(
                 //$display("fn code %d", IR_funct);
                 //$display("In ID lop is %d", lOp);
                 //$display("In ID sop is %d", sOp);
-                //$display("in ID");
+                $display("in ID");
             end
             else if(state == EX) begin
                 //$display("In EX readdata %h", readdata);
@@ -516,7 +500,7 @@ module mips_cpu_bus(
                 //$display("In EX sop is %d", sOp);
                 //$display("In EX byteenable is %b", byteenable);
                 //$display("ALUout: %h", ALUoutLO);
-                //$display("in EX");
+                $display("in EX");
                 //if (sOp == 1) begin
                     //$display("SW occuring");
                 //end
@@ -526,7 +510,7 @@ module mips_cpu_bus(
                 //$display("write %d", write);
                 //$display("writedata %d", writedata);
                 //$display("In MEM byteenable is %b", byteenable);
-                //$display("in MEM");
+                $display("in MEM");
             end
             else if(state == WB) begin
                 //$display("read %d", read);
@@ -535,9 +519,9 @@ module mips_cpu_bus(
                 //$display("ByteEnableLogic %d", ByteEnableLogic);
                 //$display("data is: %h " , { { 16{readdata[15]} } , readdata[15:0] });
                 //$display("ALUOUT %h", ALUout);
-                //$display("in WB");
+                $display("in WB");
             end
         end
-    //
+    */
 
 endmodule

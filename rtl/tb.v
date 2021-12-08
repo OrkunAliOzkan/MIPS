@@ -199,7 +199,7 @@ module tb_cpu();
 
     initial begin
         clk=0;
-        repeat (300) begin
+        repeat (51) begin
             #1;
             clk=!clk;
         end
@@ -212,7 +212,7 @@ module tb_cpu();
         repeat (20) begin
             #2;
             //  Displays
-                $display("1\tAddress %d", address - 3217031068);
+                $display("1\tAddress %d", address - 3217030668);
                 //$display("Combined Output of CPU: %d", {r1, r2, r3, r4});
                 //$display("%d %h",8, RAM[8]);
                 //$display("%d %h",9, RAM[9]);
@@ -222,24 +222,24 @@ module tb_cpu();
                 //    $display("Writing at location: %d with data %h with byteenable %b", address, writedata, byteenable);
                 //end
         end
-        repeat (2) begin
+        repeat (1) begin
             reset = 1;
-            $display("2\tAddress %d", address - 3217031068);
+            $display("2\tAddress %d", address - 3217030668);
             #2;
-        end
-        repeat(30) begin
             reset = 0;
-            $display("3\tAddress %d", address - 3217031068);
+        end
+        repeat(50) begin
+            $display("3\tAddress %d", address - 3217030668);
             #2;
         end
     end
 
     always_ff @(posedge clk) begin
         if (read) begin
-            r4 = (address > 3217031167) ? (RAM[address - 3217031068]) :     (RAM[address]) * (byteenable[0]);
-            r3 = (address > 3217031167) ? (RAM[address + 1 - 3217031068]) : (RAM[address + 1]) * (byteenable[1]);
-            r2 = (address > 3217031167) ? (RAM[address + 2 - 3217031068]) : (RAM[address + 2]) * (byteenable[2]);
-            r1 = (address > 3217031167) ? (RAM[address + 3 - 3217031068]) : (RAM[address + 3]) * (byteenable[3]);
+            r4 = (address > 3217031167) ? (RAM[address -    3217030668]) :     (RAM[address]) * (byteenable[0]);
+            r3 = (address > 3217031167) ? (RAM[address + 1 - 3217030668]): (RAM[address + 1]) * (byteenable[1]);
+            r2 = (address > 3217031167) ? (RAM[address + 2 - 3217030668]): (RAM[address + 2]) * (byteenable[2]);
+            r1 = (address > 3217031167) ? (RAM[address + 3 - 3217030668]): (RAM[address + 3]) * (byteenable[3]);
             readdata = {r1, r2, r3, r4};
         end
         if (write) begin
