@@ -464,56 +464,57 @@ module mips_cpu_bus(
         end
 
 //  Testing purpose
+    /*
     always @(*) begin
-        
 
-        if(state == IF) begin
-            //$display("address %d", address - 3217031068);
-            //$display("in IF");
-            for(integer a = 0; a < 32; a++) begin
-                $display("register %d : %h", a, register[a]);
+
+            if(state == IF) begin
+                //$display("address %d", address - 3217031068);
+                //$display("in IF");
+                for(integer a = 0; a < 32; a++) begin
+                    $display("register %d : %h", a, register[a]);
+                end
+            end
+            else if(state == ID) begin
+                $display("address %d", address - 3217031068);
+                //$display("readdata %d", readdata);
+                //$display("IR %d", InstructionReg);
+                //$display("IR opcode %d", IR_opcode);
+                //$display("fn code %d", IR_funct);
+                //$display("In ID lop is %d", lOp);
+                //$display("In ID sop is %d", sOp);
+                $display("in ID");
+            end
+            else if(state == EX) begin
+                //$display("In EX readdata %h", readdata);
+                //$display("In EX IR %h", InstructionReg);
+                //$display("In EX IR opcode %d", IR_opcode);
+                //$display("In EX lop is %d", lOp);
+                //$display("In EX sop is %d", sOp);
+                //$display("In EX byteenable is %b", byteenable);
+                //$display("ALUout: %h", ALUoutLO);
+                $display("in EX");
+                //if (sOp == 1) begin
+                    //$display("SW occuring");
+                //end
+            end
+            else if(state == MEM) begin
+                //$display("read %d", read);
+                //$display("write %d", write);
+                //$display("writedata %d", writedata);
+                //$display("In MEM byteenable is %b", byteenable);
+                $display("in MEM");
+            end
+            else if(state == WB) begin
+                //$display("read %d", read);
+                //$display("write %d", write);
+                //$display("In WB byteenable is %b", byteenable);
+                //$display("ByteEnableLogic %d", ByteEnableLogic);
+                //$display("data is: %h " , { { 16{readdata[15]} } , readdata[15:0] });
+                //$display("ALUOUT %h", ALUout);
+                $display("in WB");
             end
         end
-        else if(state == ID) begin
-            $display("address %d", address - 3217031068);
-            //$display("readdata %d", readdata);
-            //$display("IR %d", InstructionReg);
-            //$display("IR opcode %d", IR_opcode);
-            //$display("fn code %d", IR_funct);
-            //$display("In ID lop is %d", lOp);
-            //$display("In ID sop is %d", sOp);
-            $display("in ID");
-        end
-        else if(state == EX) begin
-            //$display("In EX readdata %h", readdata);
-            //$display("In EX IR %h", InstructionReg);
-            //$display("In EX IR opcode %d", IR_opcode);
-            //$display("In EX lop is %d", lOp);
-            //$display("In EX sop is %d", sOp);
-            //$display("In EX byteenable is %b", byteenable);
-            //$display("ALUout: %h", ALUoutLO);
-            $display("in EX");
-            //if (sOp == 1) begin
-                //$display("SW occuring");
-            //end
-        end
-        else if(state == MEM) begin
-            //$display("read %d", read);
-            //$display("write %d", write);
-            //$display("writedata %d", writedata);
-            //$display("In MEM byteenable is %b", byteenable);
-            $display("in MEM");
-        end
-        else if(state == WB) begin
-            //$display("read %d", read);
-            //$display("write %d", write);
-            //$display("In WB byteenable is %b", byteenable);
-            //$display("ByteEnableLogic %d", ByteEnableLogic);
-            //$display("data is: %h " , { { 16{readdata[15]} } , readdata[15:0] });
-            //$display("ALUOUT %h", ALUout);
-            $display("in WB");
-        end
-    end
-    
+    */
 
 endmodule
