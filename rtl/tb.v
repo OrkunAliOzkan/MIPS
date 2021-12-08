@@ -183,6 +183,7 @@ module tb_cpu();
             RAM[653] = 8'h12;
             RAM[654] = 8'hB0;
             RAM[655] = 8'h38;
+        //  
 
         //SW $4, 8, $0
         /*(RAM[104] = 8'h08;
@@ -208,17 +209,28 @@ module tb_cpu();
     initial begin
         waitrequest=0;
         reset=0;
-        repeat (150) begin
+        repeat (20) begin
             #2;
-            //$display("Address %d", address - 3217031068);
-            //$display("Combined Output of CPU: %d", {r1, r2, r3, r4});
-            //$display("%d %h",8, RAM[8]);
-            //$display("%d %h",9, RAM[9]);
-            //$display("%d %h",10, RAM[10]);
-            //$display("%d %h",11, RAM[11]);
-            //if (write) begin
-            //    $display("Writing at location: %d with data %h with byteenable %b", address, writedata, byteenable);
-            //end
+            //  Displays
+                $display("1\tAddress %d", address - 3217031068);
+                //$display("Combined Output of CPU: %d", {r1, r2, r3, r4});
+                //$display("%d %h",8, RAM[8]);
+                //$display("%d %h",9, RAM[9]);
+                //$display("%d %h",10, RAM[10]);
+                //$display("%d %h",11, RAM[11]);
+                //if (write) begin
+                //    $display("Writing at location: %d with data %h with byteenable %b", address, writedata, byteenable);
+                //end
+        end
+        repeat (2) begin
+            reset = 1;
+            $display("2\tAddress %d", address - 3217031068);
+            #2;
+        end
+        repeat(30) begin
+            reset = 0;
+            $display("3\tAddress %d", address - 3217031068);
+            #2;
         end
     end
 

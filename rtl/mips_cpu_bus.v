@@ -105,22 +105,22 @@ module mips_cpu_bus(
     } fcode_t;
 
     //  Declarations
-        //Create register file
+        //  Create register file
             logic signed [31:0] register [31:0] ; //  This is defined as signed to emphasise operations may be unsigned
             logic RegWrite;
-        //Create HI, LO registers
+        //  Create HI, LO registers
             logic[31:0] HI;
             logic[31:0] LO;
-        //Program counter logic
+        //  Program counter logic
             logic[31:0] PC, PC_next, PC_jump;
-        //Byte Enable logic
+        //  Byte Enable logic
             logic[1:0] ByteEnableLogic;
-        //Memory access logic
+        //  Memory access logic
             logic lOp;
             logic sOp;
-        //ALU output
+        //  ALU output
             logic [63:0] ALUout;
-        //Create IR Block to hold information through all cycles.
+        //  Create IR Block to hold information through all cycles.
             logic[31:0] InstructionReg;
             logic[5:0] IR_opcode;
             logic[4:0] IR_rs;
@@ -130,6 +130,8 @@ module mips_cpu_bus(
             logic[5:0] IR_funct;
             logic[15:0] IR_address_immediate;
             logic[25:0] IR_targetAddress;
+        //  Reset wire
+            logic[1:0] isReset;
 
     //  Initialisation of CPU
         initial begin
@@ -138,9 +140,10 @@ module mips_cpu_bus(
                 register[i] <= 32'h0;
             end
             state = IF;
+            isReset = 2'd0;
         end
 
-    //  Combinatioral state
+    //  Combinatioral
         always_comb begin
             case(state)
                 (IF): begin
@@ -200,28 +203,33 @@ module mips_cpu_bus(
             endcase
         end
 
-    //  Combinatorial state
+    //  Clocked
         always_ff @(posedge clk) begin
             //  Reset
                 if(reset) begin
-                    if(isReset == 2'd1)
+                    if(isReset == 2'd1) begin
                         state <= IF;
                         active <= 1;
-                        address <= 32'hBFC00000;
+                        PC_next <= 32'hBFC00000;
                         for(integer i = 0; i < 32; i++) begin
                             register[i] <= 32'h00;
                         end
-                        isReset = 2'd2;
+                        isReset <= 2'd2;
                     end
-                    else if(reset == 2'd2)
-                        isReset = 2'd0;
                     else begin
-                        isReset = 2'd1;
+                        isReset <= 2'd1;
                     end
                 end
 
             case(state)
                 (IF): begin
+                    //  Post reset handling
+                        if((isReset == 2'd2) && (!active)) begin
+                            isReset <= 2'd0;
+                            state <= HALT;
+                        end
+                        else if (isReset == 2'd2)
+                            isReset <= 2'd0;
                     //Fetching nest instruction from memory using PC as address. So need to read from RAM
                         byteenable <= 4'b1111;
 
@@ -246,7 +254,7 @@ module mips_cpu_bus(
                         IR_targetAddress = InstructionReg[25:0];
                         IR_address_immediate = InstructionReg[15:0];
 
-                    state <= EX;
+                        state <= EX;
                 end
                 (EX): begin
                     //ALU Calcuations   Get Address with offset. Make sure the address is multiple of 4. 
@@ -478,10 +486,11 @@ module mips_cpu_bus(
         end
 
 //  Testing purpose
-    /*
+    //
     always @(*) begin
 
 
+            $display("isReset:%d\nReset:\t%d\n", isReset, reset);
             if(state == IF) begin
                 //$display("address %d", address - 3217031068);
                 //$display("in IF");
@@ -490,14 +499,14 @@ module mips_cpu_bus(
                 end
             end
             else if(state == ID) begin
-                $display("address %d", address - 3217031068);
+                //$display("address %d", address - 3217031068);
                 //$display("readdata %d", readdata);
                 //$display("IR %d", InstructionReg);
                 //$display("IR opcode %d", IR_opcode);
                 //$display("fn code %d", IR_funct);
                 //$display("In ID lop is %d", lOp);
                 //$display("In ID sop is %d", sOp);
-                $display("in ID");
+                //$display("in ID");
             end
             else if(state == EX) begin
                 //$display("In EX readdata %h", readdata);
@@ -507,7 +516,7 @@ module mips_cpu_bus(
                 //$display("In EX sop is %d", sOp);
                 //$display("In EX byteenable is %b", byteenable);
                 //$display("ALUout: %h", ALUoutLO);
-                $display("in EX");
+                //$display("in EX");
                 //if (sOp == 1) begin
                     //$display("SW occuring");
                 //end
@@ -517,7 +526,7 @@ module mips_cpu_bus(
                 //$display("write %d", write);
                 //$display("writedata %d", writedata);
                 //$display("In MEM byteenable is %b", byteenable);
-                $display("in MEM");
+                //$display("in MEM");
             end
             else if(state == WB) begin
                 //$display("read %d", read);
@@ -526,9 +535,9 @@ module mips_cpu_bus(
                 //$display("ByteEnableLogic %d", ByteEnableLogic);
                 //$display("data is: %h " , { { 16{readdata[15]} } , readdata[15:0] });
                 //$display("ALUOUT %h", ALUout);
-                $display("in WB");
+                //$display("in WB");
             end
         end
-    */
+    //
 
 endmodule
