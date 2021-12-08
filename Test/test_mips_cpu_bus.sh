@@ -24,10 +24,10 @@
 
 if [ $# -eq 1 ]
 then
-    testcases="test/testcases/*.txt"
+    testcases="test/*_test.txt"
 elif [ $# -eq 2 ]
 then
-    testcases="test/testcases/${2^^}.txt" #IF YOU HAVE MULTIPLE TEST CASES, YOU MAY NEED TO ADD AN ASTERISK, LIKE _*
+    testcases="test/${2^^}_test.txt" #IF YOU HAVE MULTIPLE TEST CASES, YOU MAY NEED TO ADD AN ASTERISK, LIKE _*
 else
     echo too many/few arguments
     exit 1
@@ -37,19 +37,23 @@ fi
 
 #echo $testcases
 
-for test_dir in $testcases #directory containing all the RAM outputs so we can compare against. iterate since it could be one, or all
+for test in $testcases #directory containing all the RAM outputs so we can compare against. iterate since it could be one, or all
     do
+    #
+    test=$(basename ${test} _test.txt)
+    echo $test
+    expected_dir="${test}_expected.txt"
+    test_dir="${test}_test.txt"
     echo $test_dir
-    test=$(basename ${test_dir} .txt)
-    expected_dir="test/testcases_expected/${test}expected.txt"
+    echo $expected_dir
 
     iverilog -Wall -g 2012 -s tb_cpu -o test/tb_cpu \
     -P tb.RAM_FILE=\"${test_dir}\" \
     -P tb.OUT_FILE=\"${expected_dir}\" \
-    test/tb_cpu.v ${1}/*.v  #> /dev/null 2>&1 #change mips_avlong to *.v
+    test/tb_cpu.v ${1}/mips_cpu_bus.v  #> /dev/null 2>&1 #change mips_cpu_bus to *.v LKJSDFHSD;LIFHSD
     
     #cd /test/Test_Area
-    ./test/tb_cpu
+    #./test/tb_cpu
     #cd ..
     #cd ..
     #test/Test_Area/tb_cpu
