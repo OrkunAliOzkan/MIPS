@@ -1,3 +1,5 @@
+memo = {}
+
 def tobin(integer,bits):
       return bin(int(integer))[2:].zfill(bits)
 
@@ -170,18 +172,57 @@ def translator(command):
       elif op=="XORI":
             B = "001110" + tobin(oprd[2],5) + tobin(oprd[1],5) + tobin(oprd[3],16)
 
+
       H1, H2, H3, H4 = tohex(B)
+
+      memo[H1+H2+H3+H4] = command
+
       return H1, H2, H3, H4
 
-def mips_cpu_bus(RAM):
-      return 0
+def mips_cpu_bus(TESTRAM,startline):
+      RAM = TESTRAM
+      register = ["00000000"]*32
+      i=startline
+      while(i!=len(RAM)-4):
+            print(RAM[i+3] + RAM[i+2] + RAM[i+1] + RAM[i])
+            if RAM[i+3] + RAM[i+2] + RAM[i+1] + RAM[i] == "00000000":
+                  i = i + 4
+            else:
+                  command = memo[RAM[i+3] + RAM[i+2] + RAM[i+1] + RAM[i]]
+                  op = command.split(" ")[0]
+                  oprd = command.split(" ")
+                  for j in range(len(oprd)):
+                        if oprd[j][len(oprd[j])-1]==",":
+                              oprd[j]=oprd[j][:-1]
+                  print(oprd)
+                  if op == "SW":
+                        n = int(oprd[2])+int(oprd[3])
+                        RAM[n], RAM[n+1], RAM[n+2], RAM[n+3] = register[int(oprd[1])][6:8], register[int(oprd[1])][4:6], register[int(oprd[1])][2:4], register[int(oprd[1])][0:2]
+                  elif op == "LW":
+                        n = int(oprd[2])+int(oprd[3])
+                        register[int(oprd[1])] = RAM[n+3] + RAM[n+2] + RAM[n+1] + RAM[n]
+                        print(register)
+                  i = i + 4
+            
+      return RAM
 
-RAM = ["0"]*200
+#Start Initializing RAM below here
 
+#Multiply by the size of RAM
+RAM = ["00"]*200
+
+#Initialize memory here
 RAM[4], RAM[5], RAM[6], RAM[7] = "AA", "BB", "CC", "DD"
-RAM[103], RAM[102], RAM[101], RAM[100] = translator("LW 1, 4, 0")
-RAM[107], RAM[106], RAM[105], RAM[104] = translator("SW 1, 4, 0")
 
-for i in range(100, 108):
-      print(RAM[i])
+#Start writing instructions here
+RAM[103], RAM[102], RAM[101], RAM[100] = translator("LW 1, 4, 0")
+RAM[107], RAM[106], RAM[105], RAM[104] = translator("SW 1, 8, 0")
+
+#Leave this
+TESTRAM = RAM.copy()
+TESTRAM = mips_cpu_bus(TESTRAM,100)#<- put where the instructions start to read here, now it is 100
+
+for i in range(200):
+      print(i, RAM[i], TESTRAM[i])
+
 
