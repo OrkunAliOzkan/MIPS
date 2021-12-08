@@ -195,17 +195,30 @@ module mips_cpu_bus(
                         RegWrite = 1;
                 end
                 (HALT): begin
-
                 end
 
             endcase
         end
 
     //  Combinatorial state
-       always_ff @(posedge clk) begin
-
-            if(reset) begin   
-            end
+        always_ff @(posedge clk) begin
+            //  Reset
+                if(reset) begin
+                    if(isReset == 2'd1)
+                        state <= IF;
+                        active <= 1;
+                        address <= 32'hBFC00000;
+                        for(integer i = 0; i < 32; i++) begin
+                            register[i] <= 32'h00;
+                        end
+                        isReset = 2'd2;
+                    end
+                    else if(reset == 2'd2)
+                        isReset = 2'd0;
+                    else begin
+                        isReset = 2'd1;
+                    end
+                end
 
             case(state)
                 (IF): begin
@@ -458,7 +471,8 @@ module mips_cpu_bus(
                         PC <= PC_next;
                 end
                 (HALT): begin
-
+                    register_v0 <= (!active) ? register[2] : register_v0;
+                    active <= (!active) ? 0 : active;
                 end
             endcase
         end
