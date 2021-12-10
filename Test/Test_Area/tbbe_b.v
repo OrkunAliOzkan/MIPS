@@ -26,12 +26,12 @@ module tb_cpu();
         /*RAM[4] = 8'hFC;
         RAM[5] = 8'hF8;
         RAM[6] = 8'h3A;
-        RAM[7] = 8'h5C;*/
+        RAM[7] = 8'h5C;
         
         RAM[8] = 8'h52;
         RAM[9] = 8'h06;
         RAM[10] = 8'hAC;
-        RAM[11] = 8'hE1;
+        RAM[11] = 8'hE1;*/
 
         RAM[4] = 8'h00;
         RAM[5] = 8'h00;
