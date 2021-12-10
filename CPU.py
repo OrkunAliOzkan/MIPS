@@ -362,7 +362,7 @@ RAM = ["00"]*200
 RAM[4], RAM[5], RAM[6], RAM[7] = "AA", "BB", "CC", "DD"
 
 #Start writing instructions here
-RAM[103], RAM[102], RAM[101], RAM[100] = translator("LW 1, 4, 0")
+RAM[103], RAM[102], RAM[101], RAM[100] = translator("LW 1, 4, 0") #8C010004
 RAM[107], RAM[106], RAM[105], RAM[104] = translator("SW 1, 8, 0")
 
 #Leave this
