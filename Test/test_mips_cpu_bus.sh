@@ -41,11 +41,11 @@ for test in $testcases #directory containing all the RAM outputs so we can compa
     do
     #
     test=$(basename ${test} _test.txt)
-    echo $test
+    #echo $test
     expected_dir="${test}_expected.txt"
     test_dir="${test}_test.txt"
-    echo $test_dir
-    echo $expected_dir
+    #echo $test_dir
+    #echo $expected_dir
 
     iverilog -Wall -g 2012 -s tb_cpu -o test/tb_cpu \
     -P tb.RAM_FILE=\"${test_dir}\" \
@@ -53,7 +53,7 @@ for test in $testcases #directory containing all the RAM outputs so we can compa
     test/tb_cpu.v ${1}/mips_cpu_bus.v  #> /dev/null 2>&1 #change mips_cpu_bus to *.v LKJSDFHSD;LIFHSD
     
     #cd /test/Test_Area
-    #./test/tb_cpu
+    ./test/tb_cpu
     #cd ..
     #cd ..
     #test/Test_Area/tb_cpu
