@@ -130,6 +130,20 @@ def translator(command):
 
       return H1, H2, H3, H4
 
+def create(RAM,TESTRAM,inst):
+      FILE1 = ""
+      FILE2 = ""
+      for i in range(len(RAM)):
+            FILE1 = FILE1 + RAM[i].upper() + "\n"
+            FILE2 = FILE2 + TESTRAM[i].upper() + "\n"
+
+      f = open(inst+".txt","a+")
+      f.write(FILE1)
+      f.close()
+      f = open(inst+"expected.txt","a+")
+      f.write(FILE2)
+      f.close()
+
 def mips_cpu_bus(TESTRAM,startline):
       RAM = TESTRAM
       register = ["00000000"]*32
@@ -357,3 +371,6 @@ TESTRAM = mips_cpu_bus(TESTRAM,100)#<- put where the instructions start to read 
 
 for i in range(200):
       print(i, RAM[i], TESTRAM[i])
+
+create(RAM, TESTRAM, "LW")
+create(RAM, TESTRAM, "SW")
