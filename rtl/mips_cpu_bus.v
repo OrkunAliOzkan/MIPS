@@ -383,30 +383,30 @@ module mips_cpu_bus(
                     case(IR_opcode)
                         (OPCODE_LB) : begin //SIGNED EXTENDED
                             case(ByteEnableLogic)
-                                (0) : register[IR_rt] <= { readdata[31:24] , { 24{readdata[24]} } };
-                                (1) : register[IR_rt] <= { readdata[23:16] , { 24{readdata[16]} } };       
-                                (2) : register[IR_rt] <= { readdata[15:8] , { 24{readdata[8]} } };               
-                                (3) : register[IR_rt] <= { readdata[7:0] , { 24{readdata[0]} } };                   
+                                (0) : register[IR_rt] <= { { 24{readdata[31]} } , readdata[31:24] };
+                                (1) : register[IR_rt] <= { { 24{readdata[23]} } , readdata[23:16] };       
+                                (2) : register[IR_rt] <= { { 24{readdata[15]} } , readdata[15:8] };               
+                                (3) : register[IR_rt] <= { { 24{readdata[7]} } , readdata[7:0] };                   
                             endcase
                         end
                         (OPCODE_LBU) : begin
                             case(ByteEnableLogic)
-                                (0) : register[IR_rt] <= { readdata[31:24] , 24'd0 };
-                                (1) : register[IR_rt] <= { readdata[23:16] , 24'd0 };       
-                                (2) : register[IR_rt] <= { readdata[15:8] , 24'd0 };               
-                                (3) : register[IR_rt] <= { readdata[7:0] , 24'd0 };                
+                                (0) : register[IR_rt] <= { 24'd0 , readdata[31:24] };
+                                (1) : register[IR_rt] <= { 24'd0 , readdata[23:16] };       
+                                (2) : register[IR_rt] <= { 24'd0 , readdata[15:8] };               
+                                (3) : register[IR_rt] <= { 24'd0 , readdata[7:0] };                
                             endcase
                         end
                         (OPCODE_LH) : begin
                             case(ByteEnableLogic)
-                                (0) : register[IR_rt] <= { readdata[31:16] , { 16{readdata[16]} } };
-                                (2) : register[IR_rt] <= { readdata[15:0] , { 16{readdata[0]} } };
+                                (0) : register[IR_rt] <= { { 16{readdata[31]} } , readdata[31:16]};
+                                (2) : register[IR_rt] <= { { 16{readdata[15]} } , readdata[15:0]};
                             endcase
                         end
                         (OPCODE_LHU) : begin
                             case(ByteEnableLogic)
-                                (0) : register[IR_rt] <= { readdata[31:16] , 16'd0 };
-                                (2) : register[IR_rt] <= { readdata[15:0] , 16'd0 };              
+                                (0) : register[IR_rt] <= { 16'd0 , readdata[31:16] };
+                                (2) : register[IR_rt] <= { 16'd0 , readdata[15:0] };              
                             endcase
                         end
                         (OPCODE_LW) : begin
