@@ -90,7 +90,7 @@ module tb_cpu();
             RAM[143] = 8'h00;
         //LB $5, 6, $0          $5 = 3A     WORKING
             RAM[144] = 8'h06;
-            RAM[145] = 8'h00;
+            RAM[145] = 8'h01;
             RAM[146] = 8'h05;
             RAM[147] = 8'h80;
         //LH $6, 10, $0          $6 = 2EAC    WORKING
