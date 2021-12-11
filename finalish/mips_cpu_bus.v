@@ -281,6 +281,10 @@ module mips_cpu_bus(
                         (FC_ADDU): ALUout <= (IR_rd != 0) ? ($unsigned(register[IR_rs]) + $unsigned(register[IR_rt])) : (32'h00);
                         (FC_SUBU): ALUout <= (IR_rd != 0) ? ($unsigned(register[IR_rs]) - $unsigned(register[IR_rt])) : (0);
                         (FC_DIV): begin
+                            ALUout[63:32] <= $signed(register[IR_rs]) % $signed(register[IR_rt]);
+                            ALUout[31:0] <= $signed(register[IR_rs]) / $signed(register[IR_rt]);
+                        end
+                        (FC_DIVU): begin
                             ALUout[63:32] <= $unsigned(register[IR_rs]) % $unsigned(register[IR_rt]);
                             ALUout[31:0] <= $unsigned(register[IR_rs]) / $unsigned(register[IR_rt]);
                         end
@@ -432,7 +436,7 @@ module mips_cpu_bus(
                     // LOAD INSTRUCTIONS END
                 end
                 else if (IR_opcode == 0) begin
-                    if ((IR_funct == FC_DIV) || (IR_funct == FC_MULT) || (IR_funct == FC_MULTU)) begin
+                    if ((IR_funct == FC_DIV) || (IR_funct == FC_DIVU) || (IR_funct == FC_MULT) || (IR_funct == FC_MULTU)) begin
                         HI <= ALUout[63:32];
                         LO <= ALUout[31:0];
                     end

@@ -19,8 +19,8 @@ module tb_cpu();
     logic [7:0] RAM[0:199];
     logic [7:0] EXPECTEDRAM[0:199];
 
-    parameter INPUT_FILE="DIV_test.txt";
-    parameter EXPECTED_FILE="DIV_expected.txt";
+    parameter INPUT_FILE="SLL_test.txt";
+    parameter EXPECTED_FILE="SLL_expected.txt";
 
     logic passed;
 
@@ -57,10 +57,10 @@ module tb_cpu();
 
         passed=1;
         for(int i=0;i<200;i++) begin
-            //if(RAM[i]!=EXPECTEDRAM[i])begin
-            //    $display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
-            //    passed = 1'b0;
-            //end
+            if(RAM[i]!=EXPECTEDRAM[i])begin
+                //$display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
+                passed = 1'b0;
+            end
             $display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
         end
         if (passed==1'b1) begin
