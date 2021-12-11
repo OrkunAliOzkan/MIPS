@@ -127,6 +127,14 @@ module mips_cpu_bus(
     end
 
     always @(*) begin
+        /*
+        Variables used:
+                read
+                write
+                RegWrite
+                InstructionReg
+                address
+        */
         case(state)
             (IF): begin
                 //Fetching next instruction from memory using PC as address. So need to read from RAM
@@ -220,18 +228,33 @@ module mips_cpu_bus(
             (ID): begin
                 // Set up instruction register
                 
-                IR_opcode = InstructionReg[31:26];
-                IR_rs = InstructionReg[25:21];
-                IR_rt = InstructionReg[20:16];
-                IR_rd = InstructionReg[15:11];
-                IR_shmat = InstructionReg[10:6];
-                IR_funct = InstructionReg[5:0];
-                IR_targetAddress = InstructionReg[25:0];
-                IR_address_immediate = InstructionReg[15:0];
+                IR_opcode =             InstructionReg[31:26];
+                IR_rs =                 InstructionReg[25:21];
+                IR_rt =                 InstructionReg[20:16];
+                IR_rd =                 InstructionReg[15:11];
+                IR_shmat =              InstructionReg[10:6];
+                IR_funct =              InstructionReg[5:0];
+                IR_targetAddress =      InstructionReg[25:0];
+                IR_address_immediate =  InstructionReg[15:0];
 
                 state <= EX;
             end
             (EX): begin
+                /*
+                    Uses:
+                    -   OPCODE
+                    -   RT
+                    -   RS
+                    -   IR_Shmat
+                    -   RD
+                    Outputs:
+                    -   byteenable
+                    -   ALUOut
+                    -   PC_Jump
+                    -   register[31]
+                    -   PC
+                    -   state
+                */
                 //ALU Calcuations
                 // Get Address with offset. Make sure the address is multiple of 4. 
                 if (sOp || lOp) begin                        
