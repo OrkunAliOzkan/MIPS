@@ -517,7 +517,6 @@ module mips_cpu_bus(
             //$display("ALUOUT %h", ALUout);
             $display("in WB");
         end
-    end
-    
+    end 
 
 endmodule
