@@ -255,7 +255,7 @@ module mips_cpu_bus(
                     end
                     else if ((IR_opcode == OPCODE_SW) || (IR_opcode == OPCODE_LW)) begin
                         byteenable <= (4'd15);
-                        writedata = register[IR_rt];
+                        writedata = { register[IR_rt][7:0] , register[IR_rt][15:8] , register[IR_rt][23:16] , register[IR_rt][31:24] } ;
                     end
                     else if (IR_opcode == OPCODE_LWL) begin 
                         case(ByteEnableLogic)
@@ -466,13 +466,13 @@ module mips_cpu_bus(
         endcase
     end
     
-    /*always @(*) begin
+    always @(*) begin
         if(state == IF) begin
             //$display("address %d", address - 3217031068);
             $display("in IF");
-            for(integer a = 0; a < 32; a++) begin
-                $display("register %d : %h", a, register[a]);
-            end
+            //for(integer a = 0; a < 32; a++) begin
+            //    $display("register %d : %h", a, register[a]);
+            //end
         end
         else if(state == ID) begin
             //$display("address %d", address - 3217031068);
@@ -490,9 +490,11 @@ module mips_cpu_bus(
             //$display("In EX IR opcode %d", IR_opcode);
             //$display("In EX lop is %d", lOp);
             //$display("In EX sop is %d", sOp);
-            //$display("In EX byteenable is %b", byteenable);
             //$display("ALUout: %h", ALUoutLO);
             //$display("Address to write to: %d", IR_address_immediate);
+            //$display("Register Rt: %h", register[IR_rt]);
+            //$display("Writedata: %h", writedata);
+            $display("In EX byteenable is %b", byteenable);
             $display("in EX");
             //if (sOp == 1) begin
                 //$display("SW occuring");
@@ -515,7 +517,6 @@ module mips_cpu_bus(
             //$display("ALUOUT %h", ALUout);
             $display("in WB");
         end
-    end*/
-    
+    end 
 
 endmodule
