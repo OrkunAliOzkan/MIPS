@@ -19,8 +19,8 @@ module tb_cpu();
     logic [7:0] RAM[0:199];
     logic [7:0] EXPECTEDRAM[0:199];
 
-    parameter INPUT_FILE="";
-    parameter EXPECTED_FILE="";
+    parameter INPUT_FILE="DIV_test.txt";
+    parameter EXPECTED_FILE="DIV_expected.txt";
 
     logic passed;
 
@@ -31,7 +31,7 @@ module tb_cpu();
 
     initial begin
         clk=0;
-        repeat (40) begin
+        repeat (300) begin
             #1;
             clk=!clk;
         end
@@ -53,7 +53,7 @@ module tb_cpu();
     initial begin
         waitrequest=0;
         reset=0;
-        #40;
+        #300;
 
         passed=1;
         for(int i=0;i<200;i++) begin

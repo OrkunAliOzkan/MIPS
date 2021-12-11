@@ -73,7 +73,7 @@ module mips_cpu_bus(
         FC_SRL = 6'd2,
         FC_SRLV = 6'd6,
         FC_DIV = 6'd26,
-        FC_DIVU = 6'd27,
+        FC_DIVU = 6'd27, //NOT INCLUDED?
         FC_MULT = 6'd24,
         FC_MULTU = 6'd25,
 
@@ -281,8 +281,8 @@ module mips_cpu_bus(
                         (FC_ADDU): ALUout <= (IR_rd != 0) ? ($unsigned(register[IR_rs]) + $unsigned(register[IR_rt])) : (32'h00);
                         (FC_SUBU): ALUout <= (IR_rd != 0) ? ($unsigned(register[IR_rs]) - $unsigned(register[IR_rt])) : (0);
                         (FC_DIV): begin
-                            ALUout[63:32] <= register[IR_rs] % register[IR_rt];
-                            ALUout[31:0] <= register[IR_rs] / register[IR_rt];
+                            ALUout[63:32] <= $unsigned(register[IR_rs]) % $unsigned(register[IR_rt]);
+                            ALUout[31:0] <= $unsigned(register[IR_rs]) / $unsigned(register[IR_rt]);
                         end
                         (FC_MULT):   ALUout <= ($signed(register[IR_rs]) * $signed(register[IR_rt]));
                         (FC_MULTU):  ALUout <= ($unsigned(register[IR_rs]) * $unsigned(register[IR_rt]));
@@ -470,9 +470,9 @@ module mips_cpu_bus(
         if(state == IF) begin
             //$display("address %d", address - 3217031068);
             $display("in IF");
-            //for(integer a = 0; a < 32; a++) begin
-            //    $display("register %d : %h", a, register[a]);
-            //end
+            for(integer a = 0; a < 32; a++) begin
+                $display("register %d : %h", a, register[a]);
+            end
         end
         else if(state == ID) begin
             //$display("address %d", address - 3217031068);
