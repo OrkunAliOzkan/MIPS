@@ -19,8 +19,8 @@ module tb_cpu();
     logic [7:0] RAM[0:199];
     logic [7:0] EXPECTEDRAM[0:199];
 
-    parameter INPUT_FILE="SLL_test.txt";
-    parameter EXPECTED_FILE="SLL_expected.txt";
+    parameter INPUT_FILE="SLTU_test.txt";
+    parameter EXPECTED_FILE="SLTU_expected.txt";
 
     logic passed;
 

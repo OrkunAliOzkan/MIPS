@@ -301,8 +301,8 @@ module mips_cpu_bus(
                         //  Logical
                         (FC_SLL):    ALUout <= (IR_rd != 0) ? (register[IR_rt] << IR_shmat) : (0);
                         (FC_SLLV):   ALUout <= (IR_rd != 0) ? (register[IR_rt] << register[IR_rs]) : (0);
-                        (FC_SRL):    ALUout <= (IR_rd != 0) ? (register[IR_rt] >> IR_shmat) : (0);
-                        (FC_SRLV):   ALUout <= (IR_rd != 0) ? (register[IR_rt] >> register[IR_rs]) : (0);
+                        (FC_SRL):    ALUout <= (IR_rd != 0) ? ($unsigned(register[IR_rt]) >> IR_shmat) : (0);
+                        (FC_SRLV):   ALUout <= (IR_rd != 0) ? ($unsigned(register[IR_rt]) >> register[IR_rs]) : (0);
                         //  Arithmetic
                         (FC_SRA):    ALUout <= (IR_rd != 0) ? (register[IR_rt] >>> IR_shmat) : (0);
                         (FC_SRAV):   ALUout <= (IR_rd != 0) ? (register[IR_rt] >>> register[IR_rs]) : (0);
@@ -496,6 +496,7 @@ module mips_cpu_bus(
             //$display("In EX sop is %d", sOp);
             //$display("ALUout: %h", ALUoutLO);
             //$display("Address to write to: %d", IR_address_immediate);
+            //$display("Register Rt: %h", register[IR_rt]);
             //$display("Register Rt: %h", register[IR_rt]);
             //$display("Writedata: %h", writedata);
             $display("In EX byteenable is %b", byteenable);
