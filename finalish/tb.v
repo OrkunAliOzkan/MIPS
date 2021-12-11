@@ -19,8 +19,8 @@ module tb_cpu();
     logic [7:0] RAM[0:199];
     logic [7:0] EXPECTEDRAM[0:199];
 
-    parameter INPUT_FILE="SLTU_test.txt";
-    parameter EXPECTED_FILE="SLTU_expected.txt";
+    parameter INPUT_FILE="BEQ_test.txt";
+    parameter EXPECTED_FILE="BEQ_expected.txt";
 
     logic passed;
 
@@ -31,7 +31,7 @@ module tb_cpu();
 
     initial begin
         clk=0;
-        repeat (300) begin
+        repeat (400) begin
             #1;
             clk=!clk;
         end
@@ -53,7 +53,7 @@ module tb_cpu();
     initial begin
         waitrequest=0;
         reset=0;
-        #300;
+        #400;
 
         passed=1;
         for(int i=0;i<200;i++) begin

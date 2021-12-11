@@ -472,7 +472,7 @@ module mips_cpu_bus(
     
     always @(*) begin
         if(state == IF) begin
-            //$display("address %d", address - 3217031068);
+            $display("address %d", address - 3217031068);
             $display("in IF");
             for(integer a = 0; a < 32; a++) begin
                 $display("register %d : %h", a, register[a]);
@@ -495,7 +495,6 @@ module mips_cpu_bus(
             //$display("In EX lop is %d", lOp);
             //$display("In EX sop is %d", sOp);
             //$display("ALUout: %h", ALUoutLO);
-            //$display("Address to write to: %d", IR_address_immediate);
             //$display("Register Rt: %h", register[IR_rt]);
             //$display("Register Rt: %h", register[IR_rt]);
             //$display("Writedata: %h", writedata);
