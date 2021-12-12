@@ -1,1 +1,4 @@
-
+Not Yet Passed
+- JUMP Instructions: working on it
+- ORI: Not changing value
+- SLTI and SLTIU: Writing 1 to register regardless of values
