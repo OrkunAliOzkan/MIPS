@@ -313,15 +313,15 @@ module mips_cpu_bus(
                         (FC_MTLO):   ALUout <= (register[IR_rs]);
                         // Jump instructions
                         //(FC_JR):    
-                        (FC_JALR):  ALUout <= PC + 32'd4;
+                        (FC_JALR):  ALUout <= PC + 32'd8;
                     endcase
                     state <= WB;
                 end
-                else if ((IR_opcode == 6'd2) || (IR_opcode == 6'd3)) begin //JUMP Types
-                    if (IR_opcode == 6'd3) register[31] <= PC + 32'd8;
-                    PC_jump <= {PC_next[31:28], (IR_targetAddress << 2)};
+                else if ((IR_opcode == 6'd2) || (IR_opcode == 6'd3)) begin //JUMP Types (J and JAL respectively.)
+                    if (IR_opcode == 6'd3) register[IR_rd] <= PC + 32'd8;
+                    PC_jump <= {PC_next[31:28], IR_targetAddress, 2'd0}; //Cant shift since only 26 bits
                     PC <= PC_next;
-                    state <= IF;  
+                    state <= IF;
                 end
                 else begin //immediate types
                     case(IR_opcode)
@@ -346,12 +346,12 @@ module mips_cpu_bus(
                                 (6'd1) :    PC_jump <= ($signed(register[IR_rs]) >= 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (0);// BGEZ
                                 (6'd17) : begin //  BGEZAL
                                     PC_jump <= ($signed(register[IR_rs]) >= 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (0);
-                                    register[31] = PC + 32'd4;
+                                    register[31] = PC + 32'd8;
                                 end
                                 (6'd0) :    PC_jump <= ($signed(register[IR_rs]) < 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (0); // BLTZ 
                                 (6'd16) : begin 
                                     PC_jump <= ($signed(register[IR_rs]) < 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (0); // BLTZAL
-                                    register[31] <= PC + 32'd4;
+                                    register[31] <= PC + 32'd8;
                                 end
                             endcase
                         end
@@ -473,9 +473,12 @@ module mips_cpu_bus(
     always @(*) begin
         if(state == IF) begin
             $display("address %d", address - 3217031068);
-            $display("in IF");
+            //$display("in IF");
+            //$display("PC: %h", PC);
+            //$display("PC_next: %h /n first 4 bits: %h", PC_next , PC_next[31:28]);
+            //$display("PC_jump: %h", PC_jump);
             for(integer a = 0; a < 32; a++) begin
-                $display("register %d : %h", a, register[a]);
+                //$display("register %d : %h", a, register[a]);
             end
         end
         else if(state == ID) begin
@@ -486,7 +489,7 @@ module mips_cpu_bus(
             //$display("fn code %d", IR_funct);
             //$display("In ID lop is %d", lOp);
             //$display("In ID sop is %d", sOp);
-            $display("in ID");
+            //$display("in ID");
         end
         else if(state == EX) begin
             //$display("In EX readdata %h", readdata);
@@ -498,8 +501,8 @@ module mips_cpu_bus(
             //$display("Register Rt: %h", register[IR_rt]);
             //$display("Register Rt: %h", register[IR_rt]);
             //$display("Writedata: %h", writedata);
-            $display("In EX byteenable is %b", byteenable);
-            $display("in EX");
+            //$display("In EX byteenable is %b", byteenable);
+            //$display("in EX");
             //if (sOp == 1) begin
                 //$display("SW occuring");
             //end
@@ -510,7 +513,7 @@ module mips_cpu_bus(
             //$display("write %d", write);
             //$display("writedata %d", writedata);
             //$display("In MEM byteenable is %b", byteenable);
-            $display("in MEM");
+            //$display("in MEM");
         end
         else if(state == WB) begin
             //$display("read %d", read);
@@ -519,7 +522,7 @@ module mips_cpu_bus(
             //$display("ByteEnableLogic %d", ByteEnableLogic);
             //$display("data is: %h " , { { 16{readdata[15]} } , readdata[15:0] });
             //$display("ALUOUT %h", ALUout);
-            $display("in WB");
+            //$display("in WB");
         end
     end 
 
