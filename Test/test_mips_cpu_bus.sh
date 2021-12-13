@@ -44,13 +44,18 @@ for test in $testcases #directory containing all the RAM outputs so we can compa
     #echo $test
     expected_dir="${testname}_expected.txt"
     test_dir="${testname}_test.txt"
+    test_id_lowercase=${testname,,}
+    test_lowercase=${test_id_lowercase%_*}
     #echo $test_dir
     #echo $expected_dir
-
+    echo -n ${test_id_lowercase} 
+    echo -n " "
+    echo -n ${test_lowercase} 
+    echo -n " "
     iverilog -Wall -g 2012 -s tb_cpu -o test/tb_cpu \
-    -P tb_cpu.RAM_FILE=\"${test}\" \
-    -P tb_cpu.OUT_FILE=\"${expected_dir}\" \
-    test/tb_cpu.v ${1}/mips_cpu_bus.v  #> /dev/null 2>&1 #change mips_cpu_bus to *.v LKJSDFHSD;LIFHSD
+    -P tb_cpu.INPUT_FILE=\"${test}\" \
+    -P tb_cpu.EXPECTED_FILE=\"${expected_dir}\" \
+    test/tb_cpu.v ${1}/*.v  > /dev/null 2>&1 #change mips_cpu_bus to *.v LKJSDFHSD;LIFHSD
     
     #cd /test/Test_Area
     ./test/tb_cpu

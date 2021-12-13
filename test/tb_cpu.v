@@ -11,52 +11,27 @@ module tb_cpu();
     logic [3:0] byteenable;
     logic clk;
 
+    logic [7:0] r0;
     logic [7:0] r1;
     logic [7:0] r2;
     logic [7:0] r3;
-    logic [7:0] r4;
-    logic [7:0] w1;
-    logic [7:0] w2;
-    logic [7:0] w3;
-    logic [7:0] w4;
 
     logic [7:0] RAM[0:199];
-    logic [7:0] TESTRAM[0:199];
+    logic [7:0] EXPECTEDRAM[0:199];
 
-    parameter RAM_FILE="";
-    parameter OUT_FILE="";
+    parameter INPUT_FILE="ORI.txt";
+    parameter EXPECTED_FILE="ORIexpected.txt";
 
     logic passed;
 
     initial begin
-        /*//Data We Will Utilize:
-        RAM[4] = 8'hFC;
-        RAM[5] = 8'h18;
-        RAM[6] = 8'h3A;
-        RAM[7] = 8'h5C;
-        // we write to here:
-        //RAM[8] = 8'h0;
-        //RAM[9] = 8'h0;
-        //RAM[10] = 8'h0;
-        //RAM[11] = 8'h0;
-
-        //LW $1, 4, $0
-        RAM[100] = 8'h04;
-        RAM[101] = 8'h00;
-        RAM[102] = 8'h01;
-        RAM[103] = 8'h8C;
-        //SW $1, 8, $0
-        RAM[104] = 8'h08;
-        RAM[105] = 8'h00;
-        RAM[106] = 8'h01;
-        RAM[107] = 8'hAC;*/
-        $readmemh(RAM_FILE, RAM);
-        $readmemh(OUT_FILE, TESTRAM);
+        $readmemh(INPUT_FILE, RAM);
+        $readmemh(EXPECTED_FILE, EXPECTEDRAM);
     end
 
     initial begin
         clk=0;
-        repeat (40) begin
+        repeat (100) begin
             #1;
             clk=!clk;
         end
@@ -78,15 +53,16 @@ module tb_cpu();
     initial begin
         waitrequest=0;
         reset=0;
-        #30;
+        #100;
 
         passed=1;
+
         for(int i=0;i<200;i++) begin
-            if(RAM[i]!=TESTRAM[i])begin
-                $display("RAM %d expected %h given %h",i,TESTRAM[i],RAM[i]);
+            if(RAM[i]!=EXPECTEDRAM[i])begin
+                //$display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
                 passed = 1'b0;
             end
-            //$display("RAM %d expected %d given %d",i,TESTRAM[i],RAM[i]);
+            //$display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
         end
         if (passed==1'b1) begin
             $display("Pass");
@@ -96,74 +72,19 @@ module tb_cpu();
         end
     end
 
-    assign r4 = (address > 3217031167) ? (RAM[address - 3217031068]) : (RAM[address]);
-    assign r3 = (address > 3217031167) ? (RAM[address + 1 - 3217031068]) : (RAM[address + 1]);
-    assign r2 = (address > 3217031167) ? (RAM[address + 2 - 3217031068]) : (RAM[address + 2]);
-    assign r1 = (address > 3217031167) ? (RAM[address + 3 - 3217031068]) : (RAM[address + 3]);
-    /*
-    */
-    assign w1 = writedata[31:24];
-    assign w2 = writedata[23:16];
-    assign w3 = writedata[15:8];
-    assign w4 = writedata[7:0];
-
-    always_comb begin
+    always_ff @(posedge clk) begin
         if (read) begin
-            if (address > 3217031167) begin
-                /*
-                r4 = RAM[address - 3217031068] * byteenable[0];
-                r3 = RAM[address + 1 - 3217031068] * byteenable[1];
-                r2 = RAM[address + 2 - 3217031068] * byteenable[2];
-                r1 = RAM[address + 3 - 3217031068] * byteenable[3];
-                
-                r4 = RAM[address - 3217031068];
-                r3 = RAM[address + 1 - 3217031068];
-                r2 = RAM[address + 2 - 3217031068];
-                r1 = RAM[address + 3 - 3217031068];
-                */
-                readdata = {r1, r2, r3, r4};
-            end
-            else begin
-                /*
-                r4 = RAM[address] * byteenable[0];
-                r3 = RAM[address + 1] * byteenable[1];
-                r2 = RAM[address + 2] * byteenable[2];
-                r1 = RAM[address + 3] * byteenable[3];
-                
-                r4 = RAM[address];
-                r3 = RAM[address + 1];
-                r2 = RAM[address + 2];
-                r1 = RAM[address + 3];
-                */
-                readdata = {r1, r2, r3, r4};
-            end
+            r0 = (address > 3217031167) ? (RAM[address - 3217031068]) : (RAM[address]) * (byteenable[0]);
+            r1 = (address > 3217031167) ? (RAM[address + 1 - 3217031068]) : (RAM[address + 1]) * (byteenable[1]);
+            r2 = (address > 3217031167) ? (RAM[address + 2 - 3217031068]) : (RAM[address + 2]) * (byteenable[2]);
+            r3 = (address > 3217031167) ? (RAM[address + 3 - 3217031068]) : (RAM[address + 3]) * (byteenable[3]);
+            readdata = {r3, r2, r1, r0};
         end
         if (write) begin
-            /*
-            w1 = writedata[31:24] * byteenable[3];
-            w2 = writedata[23:16] * byteenable[2];
-            w3 = writedata[15:8] * byteenable[1];
-            w4 = writedata[7:0] * byteenable[0];
-            */
-            
-            RAM[address + 3] = w1;
-            RAM[address + 2] = w2;
-            RAM[address + 1] = w3;
-            RAM[address] = w4;
+            if (byteenable[0]) RAM[address] <= writedata[7:0];
+            if (byteenable[1]) RAM[address + 1] <= writedata[15:8];
+            if (byteenable[2]) RAM[address + 2] <= writedata[23:16];
+            if (byteenable[3]) RAM[address + 3] <= writedata[31:24];
         end
     end
 endmodule
-
-/*
-    input logic clk, V
-    input logic reset,
-    output logic active,
-    output logic[31:0] register_v0,
-    output logic[31:0] address,
-    output logic write, V
-    output logic read, V
-    input logic waitrequest,
-    output logic[31:0] writedata, V
-    output logic[3:0] byteenable,
-    input logic[31:0] readdata V
-*/
