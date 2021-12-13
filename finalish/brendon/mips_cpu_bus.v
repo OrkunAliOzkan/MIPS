@@ -126,7 +126,7 @@ module mips_cpu_bus(
         state = IF;
     end
 
-    always_comb begin
+    always @(*) begin
         case(state)
             (IF): begin
                 //Fetching next instruction from memory using PC as address. So need to read from RAM
@@ -134,6 +134,8 @@ module mips_cpu_bus(
                 write = 0;
                 RegWrite = 0;
                 
+                InstructionReg = { readdata[7:0] , readdata[15:8] , readdata[23:16] , readdata[31:24] };
+
                 address = PC;
             end
             (ID): begin
@@ -211,25 +213,22 @@ module mips_cpu_bus(
                     PC_next <= PC_jump;
                     PC_jump <= 0;
                 end
-                else begin
-                    PC_next <= PC + 32'd4;
-                end
+                else PC_next <= PC + 32'd4;
                 
-                InstructionReg = {readdata[7:0] , readdata[15:8] , readdata[23:16] , readdata[31:24] };
-
                 state <= ID;
             end
             (ID): begin
+                
                 // Set up instruction register
                 
-                IR_opcode = InstructionReg[31:26];
-                IR_rs = InstructionReg[25:21];
-                IR_rt = InstructionReg[20:16];
-                IR_rd = InstructionReg[15:11];
-                IR_shmat = InstructionReg[10:6];
-                IR_funct = InstructionReg[5:0];
-                IR_targetAddress = InstructionReg[25:0];
-                IR_address_immediate = InstructionReg[15:0];
+                IR_opcode <= InstructionReg[31:26];
+                IR_rs <= InstructionReg[25:21];
+                IR_rt <= InstructionReg[20:16];
+                IR_rd <= InstructionReg[15:11];
+                IR_shmat <= InstructionReg[10:6];
+                IR_funct <= InstructionReg[5:0];
+                IR_targetAddress <= InstructionReg[25:0];
+                IR_address_immediate <= InstructionReg[15:0];
 
                 state <= EX;
             end
@@ -421,12 +420,13 @@ module mips_cpu_bus(
                         (OPCODE_LWL) : begin    //FIXME:
                             case(ByteEnableLogic)
                                 (0) : register[IR_rt] <= readdata;
-                                (1) : register[IR_rt] <= { readdata[23:0], register[IR_rt][7:0] };     
+                                (1) : register[IR_rt] <= { readdata[23:0], register[IR_rt][7:0] };
                                 (2) : register[IR_rt] <= { readdata[15:0], register[IR_rt][15:0] };            
                                 (3) : register[IR_rt] <= { readdata[7:0], register[IR_rt][23:0] };                   
                             endcase
                         end
                         (OPCODE_LWR) : begin    //FIXME: Turn bigendian
+
                             case(ByteEnableLogic)
                                 (0) : register[IR_rt] <= { register[IR_rt][31:8], readdata[31:24] };
                                 (1) : register[IR_rt] <= { register[IR_rt][31:16], readdata[31:16] };     
@@ -476,23 +476,25 @@ module mips_cpu_bus(
         if(state == IF) begin
             $display("address %d", address - 3217031068);
             $display("readdata %h", readdata);
-            //$display("in IF");
             //$display("PC: %h", PC);
-            //$display("PC_next: %h /n first 4 bits: %h", PC_next , PC_next[31:28]);
+            //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
+            $display("in IF");
             for(integer a = 0; a < 32; a++) begin
-                //$display("register %d : %h", a, register[a]);
+                $display("register %d : %h", a, register[a]);
             end
         end
         else if(state == ID) begin
             //$display("address %d", address - 3217031068);
-            //$display("readdata %d", readdata);
+            //$display("readdata %h", readdata);
+            //$display("PC_next: %h", PC_next);
+            //$display("PC_jump: %h", PC_jump);
             //$display("IR %d", InstructionReg);
             //$display("IR opcode %d", IR_opcode);
             //$display("fn code %d", IR_funct);
             //$display("In ID lop is %d", lOp);
             //$display("In ID sop is %d", sOp);
-            //$display("in ID");
+            $display("in ID");
         end
         else if(state == EX) begin
             //$display("In EX readdata %h", readdata);
@@ -505,7 +507,9 @@ module mips_cpu_bus(
             //$display("Register Rt: %h", register[IR_rt]);
             //$display("Writedata: %h", writedata);
             //$display("In EX byteenable is %b", byteenable);
-            //$display("in EX");
+            //$display("PC_next: %h", PC_next);
+            //$display("PC_jump: %h", PC_jump);
+            $display("in EX");
             //if (sOp == 1) begin
                 //$display("SW occuring");
             //end
@@ -516,7 +520,9 @@ module mips_cpu_bus(
             //$display("write %d", write);
             //$display("writedata %d", writedata);
             //$display("In MEM byteenable is %b", byteenable);
-            //$display("in MEM");
+            //$display("PC_next: %h", PC_next);
+            //$display("PC_jump: %h", PC_jump);
+            $display("in MEM");
         end
         else if(state == WB) begin
             //$display("read %d", read);
@@ -525,7 +531,9 @@ module mips_cpu_bus(
             //$display("ByteEnableLogic %d", ByteEnableLogic);
             //$display("data is: %h " , { { 16{readdata[15]} } , readdata[15:0] });
             //$display("ALUOUT %h", ALUout);
-            //$display("in WB");
+            //$display("PC_next: %h", PC_next);
+            //$display("PC_jump: %h", PC_jump);
+            $display("in WB");
         end
     end 
 

@@ -19,8 +19,8 @@ module tb_cpu();
     logic [7:0] RAM[0:199];
     logic [7:0] EXPECTEDRAM[0:199];
 
-    parameter INPUT_FILE="JALR_test.txt";
-    parameter EXPECTED_FILE="JALR_expected.txt";
+    parameter INPUT_FILE="BEQ.txt";
+    parameter EXPECTED_FILE="BEQexpected.txt";
 
     logic passed;
 

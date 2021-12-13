@@ -19,8 +19,8 @@ module tb_cpu();
     logic [7:0] RAM[0:199];
     logic [7:0] EXPECTEDRAM[0:199];
 
-    parameter INPUT_FILE="test.txt";
-    parameter EXPECTED_FILE="expected.txt";
+    parameter INPUT_FILE="ORI.txt";
+    parameter EXPECTED_FILE="ORIexpected.txt";
 
     logic passed;
 
