@@ -368,8 +368,8 @@ module mips_cpu_bus(
                 if (!waitrequest) begin //FIXME: Made a change here
                     if (sOp) begin      //If store instuctions
                         PC <= PC_next;
-                        state <= IF;      
-                        // STORE INSTRUCTIONS END 
+                        state <= IF;
+                        // STORE INSTRUCTIONS END
                     end
                     else if (lOp) begin
                         //For load, just read and move to next step.
@@ -398,7 +398,7 @@ module mips_cpu_bus(
                                 (0) : register[IR_rt] <= { 24'd0 , readdata[31:24] };
                                 (1) : register[IR_rt] <= { 24'd0 , readdata[23:16] };       
                                 (2) : register[IR_rt] <= { 24'd0 , readdata[15:8] };               
-                                (3) : register[IR_rt] <= { 24'd0 , readdata[7:0] };                
+                                (3) : register[IR_rt] <= { 24'd0 , readdata[7:0] };
                             endcase
                         end
                         (OPCODE_LH) : begin
@@ -410,7 +410,7 @@ module mips_cpu_bus(
                         (OPCODE_LHU) : begin
                             case(ByteEnableLogic)
                                 (0) : register[IR_rt] <= { 16'd0 , readdata[31:16] };
-                                (2) : register[IR_rt] <= { 16'd0 , readdata[15:0] };              
+                                (2) : register[IR_rt] <= { 16'd0 , readdata[15:0] };
                             endcase
                         end
                         (OPCODE_LW) : begin
@@ -419,17 +419,17 @@ module mips_cpu_bus(
                         (OPCODE_LWL) : begin    //FIXME: Turn bigendian
                             case(ByteEnableLogic)
                                 (0) : register[IR_rt] <= readdata;
-                                (1) : register[IR_rt] <= { readdata[23:0], register[IR_rt][7:0] };     
-                                (2) : register[IR_rt] <= { readdata[15:0], register[IR_rt][15:0] };            
-                                (3) : register[IR_rt] <= { readdata[7:0], register[IR_rt][23:0] };                   
+                                (1) : register[IR_rt] <= { readdata[23:0], register[IR_rt][7:0] };
+                                (2) : register[IR_rt] <= { readdata[15:0], register[IR_rt][15:0] };
+                                (3) : register[IR_rt] <= { readdata[7:0], register[IR_rt][23:0] };
                             endcase
                         end
                         (OPCODE_LWR) : begin    //FIXME: Turn bigendian
                             case(ByteEnableLogic)
                                 (0) : register[IR_rt] <= { register[IR_rt][31:8], readdata[31:24] };
-                                (1) : register[IR_rt] <= { register[IR_rt][31:16], readdata[31:16] };     
-                                (2) : register[IR_rt] <= { register[IR_rt][31:24], readdata[31:8] };            
-                                (3) : register[IR_rt] <= readdata;            
+                                (1) : register[IR_rt] <= { register[IR_rt][31:16], readdata[31:16] };
+                                (2) : register[IR_rt] <= { register[IR_rt][31:24], readdata[31:8] };
+                                (3) : register[IR_rt] <= readdata;
                             endcase
                         end
                     endcase
