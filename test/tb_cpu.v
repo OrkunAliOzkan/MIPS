@@ -19,8 +19,8 @@ module tb_cpu();
     logic [7:0] RAM[0:199];
     logic [7:0] EXPECTEDRAM[0:199];
 
-    parameter INPUT_FILE="ORI.txt";
-    parameter EXPECTED_FILE="ORIexpected.txt";
+    parameter INPUT_FILE="";
+    parameter EXPECTED_FILE="";
 
     logic passed;
 
@@ -62,7 +62,7 @@ module tb_cpu();
                 //$display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
                 passed = 1'b0;
             end
-            //$display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
+            $display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
         end
         if (passed==1'b1) begin
             $display("Pass");
