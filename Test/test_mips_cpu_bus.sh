@@ -27,7 +27,7 @@ then
     testcases="*_test.txt"
 elif [ $# -eq 2 ]
 then
-    testcases="${2^^}*.txt" #IF YOU HAVE MULTIPLE TEST CASES, YOU MAY NEED TO ADD AN ASTERISK, LIKE _*
+    testcases="${2^^}*_test.txt" #IF YOU HAVE MULTIPLE TEST CASES, YOU MAY NEED TO ADD AN ASTERISK, LIKE _*
 else
     echo too many/few arguments
     exit 1
@@ -55,7 +55,7 @@ for test in $testcases #directory containing all the RAM outputs so we can compa
     iverilog -Wall -g 2012 -s tb_cpu -o test/tb_cpu \
     -P tb_cpu.INPUT_FILE=\"${test}\" \
     -P tb_cpu.EXPECTED_FILE=\"${expected_dir}\" \
-    test/tb_cpu.v ${1}/*.v  #> /dev/null 2>&1 #change mips_cpu_bus to *.v LKJSDFHSD;LIFHSD
+    test/tb_cpu.v ${1}/*.v  > /dev/null 2>&1 #change mips_cpu_bus to *.v LKJSDFHSD;LIFHSD
     
     #cd /test/Test_Area
     ./test/tb_cpu

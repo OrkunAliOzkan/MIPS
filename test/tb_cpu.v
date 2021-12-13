@@ -62,7 +62,7 @@ module tb_cpu();
                 //$display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
                 passed = 1'b0;
             end
-            $display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
+            //$display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
         end
         if (passed==1'b1) begin
             $display("Pass");
