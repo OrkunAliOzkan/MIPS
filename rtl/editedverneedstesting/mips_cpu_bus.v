@@ -336,11 +336,14 @@ module mips_cpu_bus(
                         (OPCODE_ADDIU) :    ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) + $unsigned(IR_address_immediate)) : (0);
                         //  Bitwise operations
                         //(OPCODE_ANDI) :     ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) & $unsigned(IR_address_immediate)) : (0); //FIXME: 0 extended
-                        (OPCODE_ANDI) :     ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) & $unsigned(IR_address_immediate)) : (0);
-                        (OPCODE_ORI) :      ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) | $unsigned(IR_address_immediate)) : (0);
-                        (OPCODE_XORI) :     ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) ^ $unsigned(IR_address_immediate)) : (0);
+                        //(OPCODE_ORI) :      ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) | $unsigned(IR_address_immediate)) : (0);
+                        //(OPCODE_XORI) :     ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) ^ $unsigned(IR_address_immediate)) : (0);
+                        (OPCODE_ANDI) :     ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) & { 16'd0 , IR_address_immediate }) : (0);
+                        (OPCODE_ORI) :      ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) | { 16'd0 , IR_address_immediate }) : (0);
+                        (OPCODE_XORI) :     ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) ^ { 16'd0 , IR_address_immediate }) : (0);
                         //  Load and sets
-                        (OPCODE_LUI) :      ALUout <= (IR_rt != 0) ? (IR_address_immediate << 16) : (0);
+                        //(OPCODE_LUI) :      ALUout <= (IR_rt != 0) ? (IR_address_immediate << 16) : (0);
+                        (OPCODE_LUI) :      ALUout <= (IR_rt != 0) ? ({ IR_address_immediate , 16'd0 }) : (0);
                         (OPCODE_SLTI) :     ALUout <= ((IR_rt != 0) && ($signed(register[IR_rs]) < $signed(IR_address_immediate))) ?  (1) : (0);
                         (OPCODE_SLTIU) :    ALUout <= ((IR_rt != 0) && ($unsigned(register[IR_rs]) < $unsigned(IR_address_immediate))) ? (1) : (0);
                         

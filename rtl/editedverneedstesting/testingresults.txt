@@ -37,10 +37,29 @@ Changes:
 					subsequent instructions that write to them, like this one, by two or more other instructions.
 
 	AND	CORRECT
+	OR	CORRECT
+	XOR	CORRECT
 
-	ANDI	CORRECT (0 extended)
-			Changes: Line 338	OLD: ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) & $unsigned(IR_address_immediate)) : (0);
-						NEW: ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) & { 16'd0 , IR_address_immediate }) : (0);
+	SLT	CORRECT
+	SLTU	CORRECT
+
+	SLL, SLLV, SRL, SRLV Think all are correct. Double check with group. ISA is weird with sign extension.
+	SRA, SRAV Think all are correct. Double check with group. ISA is weird with sign extension.
+
+	ANDI	CHANGED (0 extended) Changes: Line 338
+	ORI	CHANGED (0 extended) Changes: Line 338
+	XORI	CHANGED (0 extended) Changes: Line 338
+
+	MFHI, HFLO, MTHI, MTLO	CORRECT - Look at warning: 	The two instructions that follow an MFHI instruction must not be instructions that
+								modify the HI register: DDIV, DDIVU, DIV, DIVU, DMULT, DMULTU, MTHI, MULT,
+								MULTU. If this restriction is violated, the result of the MFHI is undefined.
+
+	LUI CORRECT - CHANGED Line 345. Changed from shift to concatonation.
+	
+	SLTI , SLTIU CORRECT. Double check with tesbenches.
+
+
+				
 	
 
 
