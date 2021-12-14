@@ -24,10 +24,10 @@
 
 if [ $# -eq 1 ]
 then
-    testcases="*_test.txt"
+    testcases="./test/testcasesnew/*_test.txt"
 elif [ $# -eq 2 ]
 then
-    testcases="${2^^}*_test.txt" #IF YOU HAVE MULTIPLE TEST CASES, YOU MAY NEED TO ADD AN ASTERISK, LIKE _*
+    testcases="./test/testcasesnew/${2^^}*_test.txt" #IF YOU HAVE MULTIPLE TEST CASES, YOU MAY NEED TO ADD AN ASTERISK, LIKE _*
 else
     echo too many/few arguments
     exit 1
@@ -41,7 +41,7 @@ for test in $testcases #directory containing all the RAM outputs so we can compa
     do
     #
     testname=$(basename ${test} _test.txt)
-    #echo $test
+    echo $test
     expected_dir="${testname}_expected.txt"
     test_dir="${testname}_test.txt"
     test_id_lowercase=${testname,,}
@@ -52,10 +52,13 @@ for test in $testcases #directory containing all the RAM outputs so we can compa
     echo -n " "
     echo -n ${test_lowercase} 
     echo -n " "
+
+
+
     iverilog -Wall -g 2012 -s tb_cpu -o test/tb_cpu \
     -P tb_cpu.INPUT_FILE=\"${test}\" \
     -P tb_cpu.EXPECTED_FILE=\"${expected_dir}\" \
-    test/tb_cpu.v ${1}/*.v  > /dev/null 2>&1 #change mips_cpu_bus to *.v LKJSDFHSD;LIFHSD
+    test/tb_cpu.v ${1}/*.v  > /dev/null 2>&1 #change mips_cpu_bus to *.v
     
     #cd /test/Test_Area
     ./test/tb_cpu
