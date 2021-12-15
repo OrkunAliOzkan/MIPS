@@ -158,7 +158,7 @@ module mips_cpu_bus(
                 if(IR_opcode == 6'd3) RegWrite = 1;
                 else RegWrite = 0;
                 address = PC;
-            end
+            end 
             (MEM): begin
                 // Read or write to memory if Load/Store. no other instructions go here.
                 //address = (register[IR_rs] + { 16'd0, IR_address_immediate }) - ByteEnableLogic;
