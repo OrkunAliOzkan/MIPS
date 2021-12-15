@@ -127,6 +127,7 @@ module mips_cpu_bus(
     end
 
     always @(*) begin
+        register_v0 = register[2];
         case(state)
             (IF): begin
                 //Fetching next instruction from memory using PC as address. So need to read from RAM
