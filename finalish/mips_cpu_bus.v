@@ -87,44 +87,44 @@ module mips_cpu_bus(
     } fcode_t;
 
     //Create register file
-    logic signed [31:0] register [31:0] ; //  This is defined as signed to emphasise operations may be unsigned
-    logic RegWrite;
+        logic signed [31:0] register [31:0] ; //  This is defined as signed to emphasise operations may be unsigned
+        logic RegWrite;
 
     //Create HI, LO registers
-    logic[31:0] HI;
-    logic[31:0] LO;
+        logic[31:0] HI;
+        logic[31:0] LO;
 
     //Program counter logic
-    logic[31:0] PC, PC_next, PC_jump;
+        logic[31:0] PC, PC_next, PC_jump;
 
     //Byte Enable logic
-    logic[1:0] ByteEnableLogic;
+        logic[1:0] ByteEnableLogic;
     //Memory access logic
-    logic lOp;
-    logic sOp;
+        logic lOp;
+        logic sOp;
 
     //ALU output
-    logic [63:0] ALUout;
+        logic [63:0] ALUout;
 
     //Create IR Block to hold information through all cycles.
-    logic[31:0] InstructionReg;
+        logic[31:0] InstructionReg;
+        logic[5:0] IR_opcode;
+        logic[4:0] IR_rs;
+        logic[4:0] IR_rt;
+        logic[4:0] IR_rd;
+        logic[4:0] IR_shmat;
+        logic[5:0] IR_funct;
+        logic[15:0] IR_address_immediate;
+        logic[25:0] IR_targetAddress;
 
-    logic[5:0] IR_opcode;
-    logic[4:0] IR_rs;
-    logic[4:0] IR_rt;
-    logic[4:0] IR_rd;
-    logic[4:0] IR_shmat;
-    logic[5:0] IR_funct;
-    logic[15:0] IR_address_immediate;
-    logic[25:0] IR_targetAddress;
-
-    initial begin
-        PC = 32'hBFC00000;
-        for(integer i = 0; i < 32; i++) begin
-            register[i] <= 32'h0;
+    //  Initialising
+        initial begin
+            PC = 32'hBFC00000;
+            for(integer i = 0; i < 32; i++) begin
+                register[i] <= 32'h0;
+            end
+            state = IF;
         end
-        state = IF;
-    end
 
     always_comb begin
         case(state)

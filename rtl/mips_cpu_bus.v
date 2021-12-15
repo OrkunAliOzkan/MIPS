@@ -133,7 +133,7 @@ module mips_cpu_bus(
                 read = 1;
                 write = 0;
                 RegWrite = 0;
-                
+
                 InstructionReg = { readdata[7:0] , readdata[15:8] , readdata[23:16] , readdata[31:24] };
 
                 address = PC;
@@ -184,7 +184,6 @@ module mips_cpu_bus(
                 RegWrite = 1;
             end
             (HALT): begin
-                
             end
 
         endcase
@@ -234,8 +233,8 @@ module mips_cpu_bus(
             end
             (EX): begin
                 //ALU Calcuations
-                // Get Address with offset. Make sure the address is multiple of 4. 
-                if (sOp || lOp) begin                        
+                // Get Address with offset. Make sure the address is multiple of 4.
+                if (sOp || lOp) begin
                     if ((IR_opcode == OPCODE_SB) || (IR_opcode == OPCODE_LB) || (IR_opcode == OPCODE_LBU)) begin
                         case(ByteEnableLogic)
                             (0) : byteenable <= (4'd1);                   //  Byte enable the first byte
@@ -261,10 +260,10 @@ module mips_cpu_bus(
                     else if (IR_opcode == OPCODE_LWL) begin //FIXME: turn to normal
                         case(ByteEnableLogic)
                             (0) : byteenable <= (4'd15);
-                            (1) : byteenable <= (4'd7);                    
-                            (2) : byteenable <= (4'd3);                     
-                            (3) : byteenable <= (4'd1);                    
-                        endcase 
+                            (1) : byteenable <= (4'd7);
+                            (2) : byteenable <= (4'd3);
+                            (3) : byteenable <= (4'd1);
+                        endcase
                     end
                     else if (IR_opcode == OPCODE_LWR) begin //FIXME: turn to normal
                         case(ByteEnableLogic)
@@ -369,8 +368,8 @@ module mips_cpu_bus(
                 if (!waitrequest) begin
                     if (sOp) begin      //If store instuctions
                         PC <= PC_next;
-                        state <= IF;      
-                        // STORE INSTRUCTIONS END 
+                        state <= IF;
+                        // STORE INSTRUCTIONS END
                     end
                     else if (lOp) begin
                         //For load, just read and move to next step.
