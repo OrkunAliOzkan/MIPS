@@ -118,22 +118,39 @@ module mips_cpu_bus(
     logic[15:0] IR_address_immediate;
     logic[25:0] IR_targetAddress;
 
+    assign register_v0 = register[2];
+
     initial begin
+        state = HALT;
+        active = 0;     // Start with CPU not active, in halt state. We then reset.
         PC = 32'hBFC00000;
         for(integer i = 0; i < 32; i++) begin
             register[i] <= 32'h0;
         end
-        state = IF;
     end
 
     always @(*) begin
+        
+        if(reset) begin
+            active <= 1;
+            PC <= 32'hBFC00000;
+            PC_next <= 32'hBFC00004;
+            PC_jump <= 32'h1;
+            state <= IF;
+            for(integer i = 0; i < 32; i++) begin
+                register[i] <= 32'd0;
+            end
+            HI = 0;
+            LO = 0;
+        end
+
         case(state)
             (IF): begin
                 //Fetching next instruction from memory using PC as address. So need to read from RAM
                 read = 1;
                 write = 0;
                 RegWrite = 0;
-
+                
                 InstructionReg = { readdata[7:0] , readdata[15:8] , readdata[23:16] , readdata[31:24] };
 
                 address = PC;
@@ -150,17 +167,20 @@ module mips_cpu_bus(
                 lOp = ((IR_opcode == OPCODE_LB) || (IR_opcode == OPCODE_LBU) || (IR_opcode == OPCODE_LH) || (IR_opcode == OPCODE_LHU) || (IR_opcode == OPCODE_LW)
                         || (IR_opcode == OPCODE_LWL) || (IR_opcode == OPCODE_LWR));
                 sOp = ((IR_opcode == OPCODE_SB) || (IR_opcode == OPCODE_SW) || (IR_opcode == OPCODE_SH));
-                ByteEnableLogic = (register[IR_rs] + { 16'd0, IR_address_immediate }) % 4;
-
+                //ByteEnableLogic = (register[IR_rs] + { 16'd0, IR_address_immediate }) % 4;
+                //ByteEnableLogic = (register[IR_rs] + { { 16{IR_address_immediate[15]} }, IR_address_immediate }) % 4; //FIXME: Changed here. This is correct.
+                ByteEnableLogic = (register[IR_rs] + $signed(IR_address_immediate)) % 4;
                 read = 0;
                 write = 0;
                 if(IR_opcode == 6'd3) RegWrite = 1;
                 else RegWrite = 0;
                 address = PC;
-            end
+            end 
             (MEM): begin
                 // Read or write to memory if Load/Store. no other instructions go here.
-                address = (register[IR_rs] + { 16'd0, IR_address_immediate }) - ByteEnableLogic;
+                //address = (register[IR_rs] + { 16'd0, IR_address_immediate }) - ByteEnableLogic;
+                //address = (register[IR_rs] + { { 16{IR_address_immediate[15]} }   , IR_address_immediate }) - ByteEnableLogic; //FIXME: Changed here. This is correct.
+                address = (register[IR_rs] + $signed(IR_address_immediate)) - ByteEnableLogic;
                 if (lOp) begin
                     read = 1;
                     write = 0;
@@ -184,23 +204,12 @@ module mips_cpu_bus(
                 RegWrite = 1;
             end
             (HALT): begin
+                
             end
-
         endcase
     end
 
    always_ff @(posedge clk) begin
-        
-        if(reset) begin
-            active <= 1;
-            PC <= 32'hBFC00000;
-            PC_next <= 32'hBFC00004;
-            PC_jump <= 32'h0;
-            state <= IF;
-            for(integer i = 0; i < 32; i++) begin
-                register[i] <= 32'd0;
-            end
-        end
 
         case(state)
             (IF): begin
@@ -208,13 +217,30 @@ module mips_cpu_bus(
                 byteenable <= 4'b1111;
 
                 //Define next state.
-                if(PC_jump != 32'd0) begin
+                /*if(PC_jump != 32'd0) begin
                     PC_next <= PC_jump;
+                    jumping 
                     PC_jump <= 0;
                 end
                 else PC_next <= PC + 32'd4;
                 
-                state <= ID;
+                state <= ID;*/
+
+                if (PC_jump == 32'd1) begin
+                    PC_next <= PC + 32'd4;
+                    state <= ID;
+                end
+                else begin
+                    PC_next <= PC_jump; 
+                    PC_jump <= 1;
+                    state <= ID;
+                end 
+
+                /*if (address == 32'h00000000) begin
+                    state <= HALT;
+                    active <= 0;
+                end
+                else state <= ID;*/
             end
             (ID): begin
                 
@@ -229,12 +255,16 @@ module mips_cpu_bus(
                 IR_targetAddress <= InstructionReg[25:0];
                 IR_address_immediate <= InstructionReg[15:0];
 
-                state <= EX;
+                if (address == 32'h00000000) begin
+                    state <= HALT;
+                    active <= 0;
+                end
+                else state <= EX;
             end
             (EX): begin
                 //ALU Calcuations
-                // Get Address with offset. Make sure the address is multiple of 4.
-                if (sOp || lOp) begin
+                // Get Address with offset. Make sure the address is multiple of 4. 
+                if (sOp || lOp) begin                        
                     if ((IR_opcode == OPCODE_SB) || (IR_opcode == OPCODE_LB) || (IR_opcode == OPCODE_LBU)) begin
                         case(ByteEnableLogic)
                             (0) : byteenable <= (4'd1);                   //  Byte enable the first byte
@@ -257,15 +287,15 @@ module mips_cpu_bus(
                         byteenable <= (4'd15);
                         writedata = { register[IR_rt][7:0] , register[IR_rt][15:8] , register[IR_rt][23:16] , register[IR_rt][31:24] } ;
                     end
-                    else if (IR_opcode == OPCODE_LWL) begin //FIXME: turn to normal
+                    else if (IR_opcode == OPCODE_LWL) begin
                         case(ByteEnableLogic)
                             (0) : byteenable <= (4'd15);
-                            (1) : byteenable <= (4'd7);
-                            (2) : byteenable <= (4'd3);
-                            (3) : byteenable <= (4'd1);
-                        endcase
+                            (1) : byteenable <= (4'd7);                    
+                            (2) : byteenable <= (4'd3);                     
+                            (3) : byteenable <= (4'd1);                    
+                        endcase 
                     end
-                    else if (IR_opcode == OPCODE_LWR) begin //FIXME: turn to normal
+                    else if (IR_opcode == OPCODE_LWR) begin
                         case(ByteEnableLogic)
                             (0) : byteenable <= (4'd8);                    //  Byte enable all bytes
                             (1) : byteenable <= (4'd12);                     //  Byte enable the first 3 bytes
@@ -278,15 +308,19 @@ module mips_cpu_bus(
                 else if (IR_opcode == 6'd0) begin //R Type instructions
                     case(IR_funct)
                         //Add, sub, mult, div
-                        (FC_ADDU): ALUout <= (IR_rd != 0) ? ($unsigned(register[IR_rs]) + $unsigned(register[IR_rt])) : (32'h00);
+                        (FC_ADDU): ALUout <= (IR_rd != 0) ? ($unsigned(register[IR_rs]) + $unsigned(register[IR_rt])) : (0); //FIXME: Small change from 32h'00->0
                         (FC_SUBU): ALUout <= (IR_rd != 0) ? ($unsigned(register[IR_rs]) - $unsigned(register[IR_rt])) : (0);
                         (FC_DIV): begin
-                            ALUout[63:32] <= $signed(register[IR_rs]) % $signed(register[IR_rt]);
-                            ALUout[31:0] <= $signed(register[IR_rs]) / $signed(register[IR_rt]);
+                            if (register[IR_rt] != 0) begin                                             //FIXME: Added IF statements
+                                ALUout[63:32] <= $signed(register[IR_rs]) % $signed(register[IR_rt]);
+                                ALUout[31:0] <= $signed(register[IR_rs]) / $signed(register[IR_rt]);
+                            end
                         end
                         (FC_DIVU): begin
-                            ALUout[63:32] <= $unsigned(register[IR_rs]) % $unsigned(register[IR_rt]);
-                            ALUout[31:0] <= $unsigned(register[IR_rs]) / $unsigned(register[IR_rt]);
+                            if (register[IR_rt] != 0) begin                                             //FIXME: Added IF statements
+                                ALUout[63:32] <= $unsigned(register[IR_rs]) % $unsigned(register[IR_rt]);
+                                ALUout[31:0] <= $unsigned(register[IR_rs]) / $unsigned(register[IR_rt]);
+                            end
                         end
                         (FC_MULT):   ALUout <= ($signed(register[IR_rs]) * $signed(register[IR_rt]));
                         (FC_MULTU):  ALUout <= ($unsigned(register[IR_rs]) * $unsigned(register[IR_rt]));
@@ -328,29 +362,33 @@ module mips_cpu_bus(
                         //  Basic Arithmetic
                         (OPCODE_ADDIU) :    ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) + $unsigned(IR_address_immediate)) : (0);
                         //  Bitwise operations
-                        (OPCODE_ANDI) :     ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) & $unsigned(IR_address_immediate)) : (0);
-                        (OPCODE_ORI) :      ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) | $unsigned(IR_address_immediate)) : (0);
-                        (OPCODE_XORI) :     ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) ^ $unsigned(IR_address_immediate)) : (0);
+                        //(OPCODE_ANDI) :     ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) & $unsigned(IR_address_immediate)) : (0); //FIXME: 0 extended
+                        //(OPCODE_ORI) :      ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) | $unsigned(IR_address_immediate)) : (0);
+                        //(OPCODE_XORI) :     ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) ^ $unsigned(IR_address_immediate)) : (0);
+                        (OPCODE_ANDI) :     ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) & { 16'd0 , IR_address_immediate }) : (0);
+                        (OPCODE_ORI) :      ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) | { 16'd0 , IR_address_immediate }) : (0);
+                        (OPCODE_XORI) :     ALUout <= (IR_rt != 0) ? ($unsigned(register[IR_rs]) ^ { 16'd0 , IR_address_immediate }) : (0);
                         //  Load and sets
-                        (OPCODE_LUI) :      ALUout <= (IR_rt != 0) ? (IR_address_immediate << 16) : (0);
+                        //(OPCODE_LUI) :      ALUout <= (IR_rt != 0) ? (IR_address_immediate << 16) : (0);
+                        (OPCODE_LUI) :      ALUout <= (IR_rt != 0) ? ({ IR_address_immediate , 16'd0 }) : (0);
                         (OPCODE_SLTI) :     ALUout <= ((IR_rt != 0) && ($signed(register[IR_rs]) < $signed(IR_address_immediate))) ?  (1) : (0);
                         (OPCODE_SLTIU) :    ALUout <= ((IR_rt != 0) && ($unsigned(register[IR_rs]) < $unsigned(IR_address_immediate))) ? (1) : (0);
                         
-                        (OPCODE_BEQ) :      PC_jump <= (register[IR_rs] == register[IR_rt]) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (0);
-                        (OPCODE_BGTZ) :     PC_jump <= ($signed(register[IR_rs]) > 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (0);
-                        (OPCODE_BNE) :      PC_jump <= (register[IR_rs] != register[IR_rt]) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (0);
-                        (OPCODE_BLEZ) :     PC_jump <= ($signed(register[IR_rs]) <= 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (0);
+                        (OPCODE_BEQ) :      PC_jump <= (register[IR_rs] == register[IR_rt]) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (1);
+                        (OPCODE_BGTZ) :     PC_jump <= ($signed(register[IR_rs]) > 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (1);
+                        (OPCODE_BNE) :      PC_jump <= (register[IR_rs] != register[IR_rt]) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (1);
+                        (OPCODE_BLEZ) :     PC_jump <= ($signed(register[IR_rs]) <= 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (1);
                         
                         (6'd1): begin   //  Is instruction BGEZ; BGEZAL; BLTZ; BLTZAL
                             case (IR_rt)
-                                (6'd1) :    PC_jump <= ($signed(register[IR_rs]) >= 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (0);// BGEZ
+                                (6'd1) :    PC_jump <= ($signed(register[IR_rs]) >= 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (1);// BGEZ
                                 (6'd17) : begin //  BGEZAL
-                                    PC_jump <= ($signed(register[IR_rs]) >= 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (0);
+                                    PC_jump <= ($signed(register[IR_rs]) >= 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (1);
                                     register[31] = PC + 32'd8;
                                 end
-                                (6'd0) :    PC_jump <= ($signed(register[IR_rs]) < 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (0); // BLTZ 
+                                (6'd0) :    PC_jump <= ($signed(register[IR_rs]) < 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (1); // BLTZ 
                                 (6'd16) : begin 
-                                    PC_jump <= ($signed(register[IR_rs]) < 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (0); // BLTZAL
+                                    PC_jump <= ($signed(register[IR_rs]) < 0) ? (PC + 32'd4 + ({{ 16{IR_address_immediate[15]} } , IR_address_immediate} << 2)) : (1); // BLTZAL
                                     register[31] <= PC + 32'd8;
                                 end
                             endcase
@@ -368,8 +406,8 @@ module mips_cpu_bus(
                 if (!waitrequest) begin
                     if (sOp) begin      //If store instuctions
                         PC <= PC_next;
-                        state <= IF;
-                        // STORE INSTRUCTIONS END
+                        state <= IF;      
+                        // STORE INSTRUCTIONS END 
                     end
                     else if (lOp) begin
                         //For load, just read and move to next step.
@@ -416,7 +454,7 @@ module mips_cpu_bus(
                         (OPCODE_LW) : begin
                             register[IR_rt] <= { readdata[7:0] ,  readdata[15:8] , readdata[23:16] , readdata[31:24] };
                         end
-                        (OPCODE_LWL) : begin    //FIXME:
+                        (OPCODE_LWL) : begin
                             case(ByteEnableLogic)
                                 (0) : register[IR_rt] <= readdata;
                                 (1) : register[IR_rt] <= { readdata[23:0], register[IR_rt][7:0] };
@@ -424,7 +462,7 @@ module mips_cpu_bus(
                                 (3) : register[IR_rt] <= { readdata[7:0], register[IR_rt][23:0] };                   
                             endcase
                         end
-                        (OPCODE_LWR) : begin    //FIXME: Turn bigendian
+                        (OPCODE_LWR) : begin
 
                             case(ByteEnableLogic)
                                 (0) : register[IR_rt] <= { register[IR_rt][31:8], readdata[31:24] };
@@ -448,6 +486,10 @@ module mips_cpu_bus(
                         LO <= ALUout[31:0];
                     end
                     else if ((IR_funct == FC_JR) || (IR_funct == FC_JALR)) begin //Jump stuff
+                        if (register[IR_rs] == 32'd0) begin
+                            state <= HALT;
+                            active <= 0;
+                        end
                         PC_jump <= register[IR_rs];
                         if (IR_funct == FC_JALR) register[IR_rd] <= ALUout[31:0];
                     end
@@ -465,20 +507,24 @@ module mips_cpu_bus(
                 PC <= PC_next;
             end
             (HALT): begin
-                register_v0 <= (!active) ? register[2] : register_v0;
-                active <= (!active) ? 0 : active;
+                //active <= (!active) ? 0 : active;
+                active <= 0;
             end
         endcase
     end
     
     always @(*) begin
+        //if (clk) begin
+        //    $display("state %d", state);
+        //    $display("reset %d", reset);
+        //end
         if(state == IF) begin
             //$display("address %d", address - 3217031068);
             //$display("readdata %h", readdata);
             //$display("PC: %h", PC);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            //$display("in IF");
+            $display("in IF");
             //for(integer a = 0; a < 32; a++) begin
             //    $display("register %d : %h", a, register[a]);
             //end
@@ -490,10 +536,10 @@ module mips_cpu_bus(
             //$display("PC_jump: %h", PC_jump);
             //$display("IR %d", InstructionReg);
             //$display("IR opcode %d", IR_opcode);
-            //$display("fn code %d", IR_funct);
+            $display("fn code %d", IR_funct);
             //$display("In ID lop is %d", lOp);
             //$display("In ID sop is %d", sOp);
-            //$display("in ID");
+            $display("in ID");
         end
         else if(state == EX) begin
             //$display("In EX readdata %h", readdata);
@@ -503,12 +549,12 @@ module mips_cpu_bus(
             //$display("In EX sop is %d", sOp);
             //$display("ALUout: %h", ALUoutLO);
             //$display("Register Rt: %h", register[IR_rt]);
-            //$display("Register Rt: %h", register[IR_rt]);
+            //$display("Register Rs: %h", register[IR_rt]);
             //$display("Writedata: %h", writedata);
             //$display("In EX byteenable is %b", byteenable);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            //$display("in EX");
+            $display("in EX");
             //if (sOp == 1) begin
                 //$display("SW occuring");
             //end
@@ -521,7 +567,7 @@ module mips_cpu_bus(
             //$display("In MEM byteenable is %b", byteenable);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            //$display("in MEM");
+            $display("in MEM");
         end
         else if(state == WB) begin
             //$display("read %d", read);
@@ -532,8 +578,12 @@ module mips_cpu_bus(
             //$display("ALUOUT %h", ALUout);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            //$display("in WB");
+            //$display("Register Rs: %h", register[IR_rt]);
+            $display("in WB");
         end
-    end 
+        else if (state == HALT) begin
+            $display("in HALT");
+        end
+    end
 
 endmodule

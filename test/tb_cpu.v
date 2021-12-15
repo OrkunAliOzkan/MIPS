@@ -19,8 +19,8 @@ module tb_cpu();
     logic [7:0] RAM[0:199];
     logic [7:0] EXPECTEDRAM[0:199];
 
-    parameter INPUT_FILE="";
-    parameter EXPECTED_FILE="";
+    parameter INPUT_FILE="LH_1_test.txt";
+    parameter EXPECTED_FILE="LH_1_expected.txt";
 
     logic passed;
 
@@ -30,11 +30,22 @@ module tb_cpu();
     end
 
     initial begin
-        clk=0;
-        repeat (100) begin
+        clk = 1;
+        reset = 1;
+        waitrequest=0;
+        
+        repeat (2) begin
             #1;
             clk=!clk;
         end
+
+        reset = 0;
+
+        repeat (98) begin
+            #1;
+            clk=!clk;
+        end
+
         $finish(0);
     end
 
@@ -51,8 +62,6 @@ module tb_cpu();
                                 .readdata(readdata));
 
     initial begin
-        waitrequest=0;
-        reset=0;
         #100;
 
         passed=1;
@@ -64,6 +73,7 @@ module tb_cpu();
             end
             //$display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
         end
+        $display("register_v0: %h", register_v0);
         if (passed==1'b1) begin
             $display("Pass");
         end
