@@ -59,7 +59,9 @@ Changes:
 	SLTI , SLTIU CORRECT. Double check with tesbenches.
 
 
-				
+HALT Stuff
+	ACTIVE:	HIGH when reset
+		Remains HIGH until HALT
 	
 
 
