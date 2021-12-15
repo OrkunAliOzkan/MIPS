@@ -419,8 +419,8 @@ module mips_cpu_bus(
                         (OPCODE_LWL) : begin    //FIXME:
                             case(ByteEnableLogic)
                                 (0) : register[IR_rt] <= readdata;
-                                (1) : register[IR_rt] <= { readdata[23:0], register[IR_rt][7:0] };
-                                (2) : register[IR_rt] <= { readdata[15:0], register[IR_rt][15:0] };            
+                                (1) : register[IR_rt] <= { readdata[23:0], register[IR_rt][7:0] };  //  15
+                                (2) : register[IR_rt] <= { readdata[15:0], register[IR_rt][15:0] }; //  7           
                                 (3) : register[IR_rt] <= { readdata[7:0], register[IR_rt][23:0] };                   
                             endcase
                         end

@@ -16,75 +16,75 @@ module mips_cpu_bus(
 );
 
     //Define all states
-    typedef enum logic[2:0]
-    {
-        IF = 3'd0,      //Instruction Fetch
-        ID = 3'd1,      //Instruction decode/Register fetch cycle
-        EX = 3'd2,      //Execution/Effective address cycle
-        MEM = 3'd3,     //Memory access 
-        WB = 3'd4,      //Write-back cycle 
-        HALT = 3'd5
-    } state_t;
+        typedef enum logic[2:0]
+        {
+            IF = 3'd0,      //Instruction Fetch
+            ID = 3'd1,      //Instruction decode/Register fetch cycle
+            EX = 3'd2,      //Execution/Effective address cycle
+            MEM = 3'd3,     //Memory access 
+            WB = 3'd4,      //Write-back cycle 
+            HALT = 3'd5
+        } state_t;
     // define state variable
     state_t state;
 
     //Define Opcodes
-    typedef enum logic[5:0]
-    {
-        OPCODE_BEQ = 6'd4,
-        OPCODE_BGTZ = 6'd7,
-        OPCODE_BLEZ = 6'd6,
-        OPCODE_BNE = 6'd5,
+        typedef enum logic[5:0]
+        {
+            OPCODE_BEQ = 6'd4,
+            OPCODE_BGTZ = 6'd7,
+            OPCODE_BLEZ = 6'd6,
+            OPCODE_BNE = 6'd5,
 
-        OPCODE_ADDIU = 6'd9,
-        OPCODE_SLTIU = 6'd11,
-        OPCODE_LUI = 6'd15,
-        OPCODE_ANDI = 6'd12,
-        OPCODE_ORI = 6'd13,
-        OPCODE_SLTI = 6'd10,
-        OPCODE_XORI = 6'd14,
+            OPCODE_ADDIU = 6'd9,
+            OPCODE_SLTIU = 6'd11,
+            OPCODE_LUI = 6'd15,
+            OPCODE_ANDI = 6'd12,
+            OPCODE_ORI = 6'd13,
+            OPCODE_SLTI = 6'd10,
+            OPCODE_XORI = 6'd14,
 
-        OPCODE_LB = 6'd32,
-        OPCODE_LBU = 6'd36,
-        OPCODE_LH = 6'd33,
-        OPCODE_LHU = 6'd37,
-        OPCODE_LW = 6'd35,
-        OPCODE_SB = 6'd40,
-        OPCODE_SH = 6'd41,
-        OPCODE_SW = 6'd43,
+            OPCODE_LB = 6'd32,
+            OPCODE_LBU = 6'd36,
+            OPCODE_LH = 6'd33,
+            OPCODE_LHU = 6'd37,
+            OPCODE_LW = 6'd35,
+            OPCODE_SB = 6'd40,
+            OPCODE_SH = 6'd41,
+            OPCODE_SW = 6'd43,
 
-        OPCODE_LWR = 6'd38,
-        OPCODE_LWL = 6'd34
-    }opcode_t;
+            OPCODE_LWR = 6'd38,
+            OPCODE_LWL = 6'd34
+        }opcode_t;
 
-    typedef enum logic[5:0]
-    {
-        FC_ADDU = 6'd33,
-        FC_SUBU = 6'd35,
-        FC_AND = 6'd36,
-        FC_OR = 6'd37,
-        FC_SLT = 6'd42,
-        FC_SLTU = 6'd43,
-        FC_XOR = 6'd38,
-        FC_SLL = 6'd0,
-        FC_SLLV = 6'd4,
-        FC_SRA = 6'd3,
-        FC_SRAV = 6'd7,
-        FC_SRL = 6'd2,
-        FC_SRLV = 6'd6,
-        FC_DIV = 6'd26,
-        FC_DIVU = 6'd27, //NOT INCLUDED?
-        FC_MULT = 6'd24,
-        FC_MULTU = 6'd25,
+        typedef enum logic[5:0]
+        {
+            FC_ADDU = 6'd33,
+            FC_SUBU = 6'd35,
+            FC_AND = 6'd36,
+            FC_OR = 6'd37,
+            FC_SLT = 6'd42,
+            FC_SLTU = 6'd43,
+            FC_XOR = 6'd38,
+            FC_SLL = 6'd0,
+            FC_SLLV = 6'd4,
+            FC_SRA = 6'd3,
+            FC_SRAV = 6'd7,
+            FC_SRL = 6'd2,
+            FC_SRLV = 6'd6,
+            FC_DIV = 6'd26,
+            FC_DIVU = 6'd27, //NOT INCLUDED?
+            FC_MULT = 6'd24,
+            FC_MULTU = 6'd25,
 
-        FC_MFHI = 6'd16,
-        FC_MTHI = 6'd17,
-        FC_MFLO = 6'd18,
-        FC_MTLO = 6'd19,
+            FC_MFHI = 6'd16,
+            FC_MTHI = 6'd17,
+            FC_MFLO = 6'd18,
+            FC_MTLO = 6'd19,
 
-        FC_JALR = 6'd9,
-        FC_JR = 6'd8
-    } fcode_t;
+            FC_JALR = 6'd9,
+            FC_JR = 6'd8
+        } fcode_t;
 
     //Create register file
         logic signed [31:0] register [31:0] ; //  This is defined as signed to emphasise operations may be unsigned
@@ -116,6 +116,9 @@ module mips_cpu_bus(
         logic[5:0] IR_funct;
         logic[15:0] IR_address_immediate;
         logic[25:0] IR_targetAddress;
+    
+    //Branching block
+        logic branching;
 
     //  Initialising
         initial begin
@@ -126,6 +129,7 @@ module mips_cpu_bus(
             state = IF;
         end
 
+    
     always_comb begin
         case(state)
             (IF): begin
@@ -358,6 +362,7 @@ module mips_cpu_bus(
                     endcase
                     if ((IR_opcode == 6'd1) || (IR_opcode == OPCODE_BEQ) || (IR_opcode == OPCODE_BGTZ) || (IR_opcode == OPCODE_BNE) || (IR_opcode == OPCODE_BLEZ))  begin
                         PC <= PC_next;
+                        branching = 1;
                         state <= IF;
                     end
                     else state <= WB;
@@ -433,7 +438,7 @@ module mips_cpu_bus(
                             endcase
                         end
                     endcase
-                    // LOAD INSTRUCTIONS END
+                        // LOAD INSTRUCTIONS END
                 end
                 else if (IR_opcode == 0) begin
                     if ((IR_funct == FC_DIV) || (IR_funct == FC_DIVU) || (IR_funct == FC_MULT) || (IR_funct == FC_MULTU)) begin
@@ -448,13 +453,16 @@ module mips_cpu_bus(
                     end
                     else if ((IR_funct == FC_JR) || (IR_funct == FC_JALR)) begin //Jump stuff
                         PC_jump <= register[IR_rs];
-                        if (IR_funct == FC_JALR) register[IR_rd] <= ALUout[31:0];
+                        if (IR_funct == FC_JALR) begin
+                            register[IR_rd] <= ALUout[31:0];
+                            branching
+                        end
                     end
                     else begin
                         // $display("saving to register rd: %d with data ALUoutLO %h", IR_rd, ALUoutLO);
                         register[IR_rd] <= ALUout[31:0];
                     end
-                    // R TYPE INSTRUCTIONS END
+                        // R TYPE INSTRUCTIONS END
                 end
                 else begin
                     register[IR_rt] <= ALUout[31:0];
