@@ -151,7 +151,7 @@ module mips_cpu_bus(
                         || (IR_opcode == OPCODE_LWL) || (IR_opcode == OPCODE_LWR));
                 sOp = ((IR_opcode == OPCODE_SB) || (IR_opcode == OPCODE_SW) || (IR_opcode == OPCODE_SH));
                 //ByteEnableLogic = (register[IR_rs] + { 16'd0, IR_address_immediate }) % 4;
-                ByteEnableLogic = (register[IR_rs] + { 16{IR_address_immediate[15]}, IR_address_immediate }) % 4; //FIXME: Changed here. This is correct.
+                ByteEnableLogic = (register[IR_rs] + { { 16{IR_address_immediate[15]} }, IR_address_immediate }) % 4; //FIXME: Changed here. This is correct.
 
                 read = 0;
                 write = 0;
@@ -162,7 +162,7 @@ module mips_cpu_bus(
             (MEM): begin
                 // Read or write to memory if Load/Store. no other instructions go here.
                 //address = (register[IR_rs] + { 16'd0, IR_address_immediate }) - ByteEnableLogic;
-                address = (register[IR_rs] + { 16{IR_address_immediate[15]}, IR_address_immediate }) - ByteEnableLogic; //FIXME: Changed here. This is correct.
+                address = (register[IR_rs] + { { 16{IR_address_immediate[15]} }   , IR_address_immediate }) - ByteEnableLogic; //FIXME: Changed here. This is correct.
                 if (lOp) begin
                     read = 1;
                     write = 0;
