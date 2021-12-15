@@ -524,7 +524,7 @@ module mips_cpu_bus(
             //$display("PC: %h", PC);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            //$display("in IF");
+            $display("in IF");
             //for(integer a = 0; a < 32; a++) begin
             //    $display("register %d : %h", a, register[a]);
             //end
@@ -536,10 +536,10 @@ module mips_cpu_bus(
             //$display("PC_jump: %h", PC_jump);
             //$display("IR %d", InstructionReg);
             //$display("IR opcode %d", IR_opcode);
-            //$display("fn code %d", IR_funct);
+            $display("fn code %d", IR_funct);
             //$display("In ID lop is %d", lOp);
             //$display("In ID sop is %d", sOp);
-            //$display("in ID");
+            $display("in ID");
         end
         else if(state == EX) begin
             //$display("In EX readdata %h", readdata);
@@ -554,7 +554,7 @@ module mips_cpu_bus(
             //$display("In EX byteenable is %b", byteenable);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            //$display("in EX");
+            $display("in EX");
             //if (sOp == 1) begin
                 //$display("SW occuring");
             //end
@@ -567,7 +567,7 @@ module mips_cpu_bus(
             //$display("In MEM byteenable is %b", byteenable);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            //$display("in MEM");
+            $display("in MEM");
         end
         else if(state == WB) begin
             //$display("read %d", read);
@@ -579,10 +579,10 @@ module mips_cpu_bus(
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
             //$display("Register Rs: %h", register[IR_rt]);
-            //$display("in WB");
+            $display("in WB");
         end
         else if (state == HALT) begin
-            //$display("in HALT");
+            $display("in HALT");
         end
     end
 

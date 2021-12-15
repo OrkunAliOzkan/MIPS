@@ -26,7 +26,7 @@ then
     testcases="./test/testcasesnew/*_test.txt"
 elif [ $# -eq 2 ]
 then
-    testcases="./test/testcasesnew/${2^^}_*_test.txt" #IF YOU HAVE MULTIPLE TEST CASES, YOU MAY NEED TO ADD AN ASTERISK, LIKE _*
+    testcases="./test/testcasesnew/${2^^}*_test.txt" #IF YOU HAVE MULTIPLE TEST CASES, YOU MAY NEED TO ADD AN ASTERISK, LIKE _*
 else
     #echo too many/few arguments
     exit 1
