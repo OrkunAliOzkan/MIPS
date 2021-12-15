@@ -1,0 +1,65 @@
+todo:
+	Check each instruction, make sure sign extnesion stuff is done properly.
+	Add regwrite implementation in WB. (sort of already done though?)
+	Check spec for completeness in HALT/END state.
+
+BASE CODE:			18985/15408 (123%)	FAIL	
+Removed opcode==0 sec in WB:	15240/15408 (%)		PASS	Didnt finish?
+Removed if(lOp) in WB:		20206/15408 (131%)	FAIL	Got WORSE
+Byteenable -> if statements:	19792/15408 (128%)	FAIL	Got WORSE
+Remove if for JUMPs		18996/15408 (123%)	FAIL	Got WORSE???? HOW
+Remove comb stuff:		9651/15408  (63%)	PASS	Got BETTER
+Moved comb stuff to EX		18914/15408 (%)		FAIL	Got better slightly. Still Fail
+Removed read/write/regwrite	18995/15408 (123%)	FAIL	Got worse slighly.
+Remove jump instructions	18020/15408 (117%)	FAIL	Got better slightly. Still Fail
+
+Need to reduce maybe 30ish lines size if statement in order to pass.
+
+Changes:
+	Address at which we write at + bytenable logic. Needs to be sign extended.
+		line 153:	OLD: ByteEnableLogic = (register[IR_rs] + { 16'd0, IR_address_immediate }) % 4;
+				NEW: ByteEnableLogic = (register[IR_rs] + { 16{IR_address_immediate[15]}, IR_address_immediate }) % 4;
+
+		line 164:	OLD: address = (register[IR_rs] + { 16'd0, IR_address_immediate }) - ByteEnableLogic;
+				NEW: address = (register[IR_rs] + { 16{IR_address_immediate[15]}, IR_address_immediate }) - ByteEnableLogic;
+
+	ADDU	CORRECT
+	SUBU	CORRECT
+
+	DIV	? Sign extension required?
+	DIVU	? Sign extension required?
+			Changes: Line 287Need to add section to prevent 0 from being a value.
+	
+	MULT	? Sign extension required?
+	MULTU	? Sign extension required?
+			WARNING: 	If either of the two preceding instructions is MFHI or MFLO, the result of the MFHI or
+					MFLO is undefined. Reads of the HI or LO special registers must be separated from
+					subsequent instructions that write to them, like this one, by two or more other instructions.
+
+	AND	CORRECT
+	OR	CORRECT
+	XOR	CORRECT
+
+	SLT	CORRECT
+	SLTU	CORRECT
+
+	SLL, SLLV, SRL, SRLV Think all are correct. Double check with group. ISA is weird with sign extension.
+	SRA, SRAV Think all are correct. Double check with group. ISA is weird with sign extension.
+
+	ANDI	CHANGED (0 extended) Changes: Line 338
+	ORI	CHANGED (0 extended) Changes: Line 338
+	XORI	CHANGED (0 extended) Changes: Line 338
+
+	MFHI, HFLO, MTHI, MTLO	CORRECT - Look at warning: 	The two instructions that follow an MFHI instruction must not be instructions that
+								modify the HI register: DDIV, DDIVU, DIV, DIVU, DMULT, DMULTU, MTHI, MULT,
+								MULTU. If this restriction is violated, the result of the MFHI is undefined.
+
+	LUI CORRECT - CHANGED Line 345. Changed from shift to concatonation.
+	
+	SLTI , SLTIU CORRECT. Double check with tesbenches.
+
+
+				
+	
+
+
