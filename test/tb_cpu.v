@@ -73,7 +73,7 @@ module tb_cpu();
             end
             //$display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
         end
-        $display("register_v0: %h", register_v0);
+        //$display("register_v0: %h", register_v0);
         if (passed==1'b1) begin
             $display("Pass");
         end
