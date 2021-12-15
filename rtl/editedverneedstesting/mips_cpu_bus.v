@@ -118,16 +118,32 @@ module mips_cpu_bus(
     logic[15:0] IR_address_immediate;
     logic[25:0] IR_targetAddress;
 
+    assign register_v0 = register[2];
+
     initial begin
+        state = HALT;
+        active = 0;     // Start with CPU not active, in halt state. We then reset.
         PC = 32'hBFC00000;
         for(integer i = 0; i < 32; i++) begin
             register[i] <= 32'h0;
         end
-        state = IF;
     end
 
     always @(*) begin
-        register_v0 = register[2];
+        
+        if(reset) begin
+            active <= 1;
+            PC <= 32'hBFC00000;
+            PC_next <= 32'hBFC00004;
+            PC_jump <= 32'h0;
+            state <= IF;
+            for(integer i = 0; i < 32; i++) begin
+                register[i] <= 32'd0;
+            end
+            HI = 0;
+            LO = 0;
+        end
+
         case(state)
             (IF): begin
                 //Fetching next instruction from memory using PC as address. So need to read from RAM
@@ -152,8 +168,8 @@ module mips_cpu_bus(
                         || (IR_opcode == OPCODE_LWL) || (IR_opcode == OPCODE_LWR));
                 sOp = ((IR_opcode == OPCODE_SB) || (IR_opcode == OPCODE_SW) || (IR_opcode == OPCODE_SH));
                 //ByteEnableLogic = (register[IR_rs] + { 16'd0, IR_address_immediate }) % 4;
-                ByteEnableLogic = (register[IR_rs] + { { 16{IR_address_immediate[15]} }, IR_address_immediate }) % 4; //FIXME: Changed here. This is correct.
-
+                //ByteEnableLogic = (register[IR_rs] + { { 16{IR_address_immediate[15]} }, IR_address_immediate }) % 4; //FIXME: Changed here. This is correct.
+                ByteEnableLogic = (register[IR_rs] + $signed(IR_address_immediate)) % 4;
                 read = 0;
                 write = 0;
                 if(IR_opcode == 6'd3) RegWrite = 1;
@@ -163,7 +179,8 @@ module mips_cpu_bus(
             (MEM): begin
                 // Read or write to memory if Load/Store. no other instructions go here.
                 //address = (register[IR_rs] + { 16'd0, IR_address_immediate }) - ByteEnableLogic;
-                address = (register[IR_rs] + { { 16{IR_address_immediate[15]} }   , IR_address_immediate }) - ByteEnableLogic; //FIXME: Changed here. This is correct.
+                //address = (register[IR_rs] + { { 16{IR_address_immediate[15]} }   , IR_address_immediate }) - ByteEnableLogic; //FIXME: Changed here. This is correct.
+                address = (register[IR_rs] + $signed(IR_address_immediate)) - ByteEnableLogic;
                 if (lOp) begin
                     read = 1;
                     write = 0;
@@ -189,22 +206,10 @@ module mips_cpu_bus(
             (HALT): begin
                 
             end
-
         endcase
     end
 
    always_ff @(posedge clk) begin
-        
-        if(reset) begin
-            active <= 1;
-            PC <= 32'hBFC00000;
-            PC_next <= 32'hBFC00004;
-            PC_jump <= 32'h0;
-            state <= IF;
-            for(integer i = 0; i < 32; i++) begin
-                register[i] <= 32'd0;
-            end
-        end
 
         case(state)
             (IF): begin
@@ -214,11 +219,18 @@ module mips_cpu_bus(
                 //Define next state.
                 if(PC_jump != 32'd0) begin
                     PC_next <= PC_jump;
+                    jumping 
                     PC_jump <= 0;
                 end
                 else PC_next <= PC + 32'd4;
                 
                 state <= ID;
+
+                /*if (address == 32'h00000000) begin
+                    state <= HALT;
+                    active <= 0;
+                end
+                else state <= ID;*/
             end
             (ID): begin
                 
@@ -460,6 +472,10 @@ module mips_cpu_bus(
                         LO <= ALUout[31:0];
                     end
                     else if ((IR_funct == FC_JR) || (IR_funct == FC_JALR)) begin //Jump stuff
+                        if (register[IR_rs] == 32'd0) begin
+                            state <= HALT;
+                            active <= 0;
+                        end
                         PC_jump <= register[IR_rs];
                         if (IR_funct == FC_JALR) register[IR_rd] <= ALUout[31:0];
                     end
@@ -474,23 +490,28 @@ module mips_cpu_bus(
                     // I TYPE INSTRUCTIONS END
                 end
                 state <= IF;
+                state <= ( ((IR_funct == FC_JR) || (IR_funct == FC_JALR)) && (register[IR_rs] == 32'd0) ) ? (HALT) : (IF);
                 PC <= PC_next;
             end
             (HALT): begin
-                register_v0 <= (!active) ? register[2] : register_v0;
-                active <= (!active) ? 0 : active;
+                //active <= (!active) ? 0 : active;
+                active <= 0;
             end
         endcase
     end
     
-    /*always @(*) begin
+    always @(*) begin
+        //if (clk) begin
+        //    $display("state %d", state);
+        //    $display("reset %d", reset);
+        //end
         if(state == IF) begin
             //$display("address %d", address - 3217031068);
             //$display("readdata %h", readdata);
             //$display("PC: %h", PC);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            //$display("in IF");
+            $display("in IF");
             //for(integer a = 0; a < 32; a++) begin
             //    $display("register %d : %h", a, register[a]);
             //end
@@ -502,10 +523,10 @@ module mips_cpu_bus(
             //$display("PC_jump: %h", PC_jump);
             //$display("IR %d", InstructionReg);
             //$display("IR opcode %d", IR_opcode);
-            //$display("fn code %d", IR_funct);
+            $display("fn code %d", IR_funct);
             //$display("In ID lop is %d", lOp);
             //$display("In ID sop is %d", sOp);
-            //$display("in ID");
+            $display("in ID");
         end
         else if(state == EX) begin
             //$display("In EX readdata %h", readdata);
@@ -515,12 +536,12 @@ module mips_cpu_bus(
             //$display("In EX sop is %d", sOp);
             //$display("ALUout: %h", ALUoutLO);
             //$display("Register Rt: %h", register[IR_rt]);
-            //$display("Register Rt: %h", register[IR_rt]);
+            //$display("Register Rs: %h", register[IR_rt]);
             //$display("Writedata: %h", writedata);
             //$display("In EX byteenable is %b", byteenable);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            //$display("in EX");
+            $display("in EX");
             //if (sOp == 1) begin
                 //$display("SW occuring");
             //end
@@ -533,7 +554,7 @@ module mips_cpu_bus(
             //$display("In MEM byteenable is %b", byteenable);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            //$display("in MEM");
+            $display("in MEM");
         end
         else if(state == WB) begin
             //$display("read %d", read);
@@ -544,8 +565,12 @@ module mips_cpu_bus(
             //$display("ALUOUT %h", ALUout);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            //$display("in WB");
+            //$display("Register Rs: %h", register[IR_rt]);
+            $display("in WB");
         end
-    end*/
+        else if (state == HALT) begin
+            $display("in HALT");
+        end
+    end
 
 endmodule
