@@ -346,7 +346,7 @@ module mips_cpu_bus(
                         (FC_MTHI):   ALUout <= (register[IR_rs]);
                         (FC_MTLO):   ALUout <= (register[IR_rs]);
                         // Jump instructions
-                        //(FC_JR):    
+                        //(FC_JR):  
                         (FC_JALR):  ALUout <= PC + 32'd8;
                     endcase
                     state <= WB;
