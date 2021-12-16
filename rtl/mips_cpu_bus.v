@@ -352,7 +352,7 @@ module mips_cpu_bus(
                     state <= WB;
                 end
                 else if ((IR_opcode == 6'd2) || (IR_opcode == 6'd3)) begin //JUMP Types (J and JAL respectively.)
-                    if (IR_opcode == 6'd3) register[IR_rd] <= PC + 32'd8;
+                    if (IR_opcode == 6'd3) register[31] <= PC + 32'd8;
                     PC_jump <= {PC_next[31:28], IR_targetAddress, 2'd0}; //Cant shift since only 26 bits
                     PC <= PC_next;
                     state <= IF;
@@ -519,15 +519,15 @@ module mips_cpu_bus(
         //    $display("reset %d", reset);
         //end
         if(state == IF) begin
-            //$display("address %d", address - 3217031068);
+            $display("address %d", address - 3217031068);
             //$display("readdata %h", readdata);
             //$display("PC: %h", PC);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
             //$display("in IF");
-            //for(integer a = 0; a < 32; a++) begin
-            //    $display("register %d : %h", a, register[a]);
-            //end
+            for(integer a = 0; a < 32; a++) begin
+                //$display("register %d : %h", a, register[a]);
+            end
         end
         else if(state == ID) begin
             //$display("address %d", address - 3217031068);
@@ -560,6 +560,10 @@ module mips_cpu_bus(
             //end
         end
         else if(state == MEM) begin
+            $display("address writing at %h", ((register[IR_rs] + $signed(IR_address_immediate)) - ByteEnableLogic));
+            $display("address writing at %d", $signed(IR_address_immediate));
+            $display("address writing at %h", register[IR_rs] );
+
             //$display("ByteEnableLogic %d", ByteEnableLogic);
             //$display("read %d", read);
             //$display("write %d", write);
