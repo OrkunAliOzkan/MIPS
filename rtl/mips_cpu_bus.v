@@ -519,7 +519,7 @@ module mips_cpu_bus(
         //    $display("reset %d", reset);
         //end
         if(state == IF) begin
-            $display("address %d", address - 3217031068);
+            //$display("address %d", address - 3217031068);
             //$display("readdata %h", readdata);
             //$display("PC: %h", PC);
             //$display("PC_next: %h", PC_next);
@@ -560,9 +560,9 @@ module mips_cpu_bus(
             //end
         end
         else if(state == MEM) begin
-            $display("address writing at %h", ((register[IR_rs] + $signed(IR_address_immediate)) - ByteEnableLogic));
-            $display("address writing at %d", $signed(IR_address_immediate));
-            $display("address writing at %h", register[IR_rs] );
+            //$display("address writing at %h", ((register[IR_rs] + $signed(IR_address_immediate)) - ByteEnableLogic));
+            //$display("address writing at %d", $signed(IR_address_immediate));
+            //$display("address writing at %h", register[IR_rs] );
 
             //$display("ByteEnableLogic %d", ByteEnableLogic);
             //$display("read %d", read);
