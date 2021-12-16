@@ -19,10 +19,12 @@ module tb_cpu();
     logic [7:0] RAM[0:199];
     logic [7:0] EXPECTEDRAM[0:199];
 
-    parameter INPUT_FILE="ADDIU_1_test.txt";
-    parameter EXPECTED_FILE="ADDIU_1_expected.txt";
+    parameter string INPUT_FILE="";
+    parameter EXPECTED_FILE="";
 
     logic passed;
+    string testcase;
+    string t1,t2,t3;
 
     initial begin
         $readmemh(INPUT_FILE, RAM);
@@ -68,7 +70,13 @@ module tb_cpu();
 
         for(int i=0;i<200;i++) begin
             if(RAM[i]!=EXPECTEDRAM[i])begin
-                $display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
+                //$display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
+                // t1.itoa(i);
+                // t2.hextoa(EXPECTEDRAM[i]);
+                // t3.hextoa(RAM[i]);
+                //comment = {comment,"  ", "RAM ",t1," expected ",t2," given ",t3 };
+                // t1 = string'i;
+                // comment = {comment,"  ", "RAM ",t1," expected ",string'EXPECTEDRAM[i]," given ",string'RAM[i] };
                 passed = 1'b0;
             end
             //$display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
@@ -78,7 +86,21 @@ module tb_cpu();
             $display("Pass");
         end
         else begin
-            $display("Fail");
+            $write("Fail ");
+            //$write("%s",comment);
+            //testcase =string'INPUT_FILE;
+            // for (int j=0;j<24;j++ )begin
+            //     testcase[j] = INPUT_FILE[j+23];
+            // end
+            //testcase  =INPUT_FILE;
+            //int length = testcase.len();
+            //testcase = testcase.substr(0,-8);
+            case (INPUT_FILE)
+                "./test/testcasesnew/ADDIU_1_test.txt": $display("TEST");
+                default:  $display("Test return wrong value");
+            endcase
+
+            
         end
     end
 
