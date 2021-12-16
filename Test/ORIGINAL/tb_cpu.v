@@ -40,16 +40,8 @@ module tb_cpu();
         end
 
         reset = 0;
-        waitrequest = 1;
 
-        repeat (10) begin
-            #1;
-            clk=!clk;
-        end
-
-        waitrequest = 0;
-
-        repeat (88) begin
+        repeat (98) begin
             #1;
             clk=!clk;
         end

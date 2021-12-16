@@ -23,8 +23,7 @@ module mips_cpu_bus(
         EX = 3'd2,      //Execution/Effective address cycle
         MEM = 3'd3,     //Memory access 
         WB = 3'd4,      //Write-back cycle 
-        HALT = 3'd5,
-        STALL = 3'd6
+        HALT = 3'd5
     } state_t;
     // define state variable
     state_t state;
@@ -131,6 +130,19 @@ module mips_cpu_bus(
     end
 
     always @(*) begin
+        
+        if(reset) begin
+            active <= 1;
+            PC <= 32'hBFC00000;
+            PC_next <= 32'hBFC00004;
+            PC_jump <= 32'h1;
+            state <= IF;
+            for(integer i = 0; i < 32; i++) begin
+                register[i] <= 32'd0;
+            end
+            HI = 0;
+            LO = 0;
+        end
 
         case(state)
             (IF): begin
@@ -194,26 +206,10 @@ module mips_cpu_bus(
             (HALT): begin
                 
             end
-            (STALL): begin
-                
-            end
         endcase
     end
 
    always_ff @(posedge clk) begin
-
-        if(reset) begin
-            active <= 1;
-            PC <= 32'hBFC00000;
-            PC_next <= 32'hBFC00004;
-            PC_jump <= 32'h1;
-            state <= IF;
-            for(integer i = 0; i < 32; i++) begin
-                register[i] <= 32'd0;
-            end
-            HI <= 0;
-            LO <= 0;
-        end
 
         case(state)
             (IF): begin
@@ -406,13 +402,7 @@ module mips_cpu_bus(
                         state <= HALT;
                     end
                 end
-                else begin
-                    state <= STALL;
-                end
-            end
-            (STALL): begin
-                if (!waitrequest) state <= MEM;
-                else state <= STALL;
+                else state <= MEM;
             end
             (WB): begin
                 if (lOp) begin
@@ -484,6 +474,7 @@ module mips_cpu_bus(
                         if (IR_funct == FC_JALR) register[IR_rd] <= ALUout[31:0];
                     end
                     else begin
+                        // $display("saving to register rd: %d with data ALUoutLO %h", IR_rd, ALUoutLO);
                         register[IR_rd] <= ALUout[31:0];
                     end
                     // R TYPE INSTRUCTIONS END
@@ -502,20 +493,20 @@ module mips_cpu_bus(
         endcase
     end
     
-    /*always @(*) begin
+    always @(*) begin
         //if (clk) begin
         //    $display("state %d", state);
         //    $display("reset %d", reset);
         //end
         if(state == IF) begin
-            $display("address %d", address - 3217031068);
+            //$display("address %d", address - 3217031068);
             //$display("readdata %h", readdata);
             //$display("PC: %h", PC);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            $display("in IF");
+            //$display("in IF");
             for(integer a = 0; a < 32; a++) begin
-                $display("register %d : %h", a, register[a]);
+                //$display("register %d : %h", a, register[a]);
             end
         end
         else if(state == ID) begin
@@ -528,7 +519,7 @@ module mips_cpu_bus(
             //$display("fn code %d", IR_funct);
             //$display("In ID lop is %d", lOp);
             //$display("In ID sop is %d", sOp);
-            $display("in ID");
+            //$display("in ID");
         end
         else if(state == EX) begin
             //$display("In EX readdata %h", readdata);
@@ -543,7 +534,7 @@ module mips_cpu_bus(
             //$display("In EX byteenable is %b", byteenable);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            $display("in EX");
+            //$display("in EX");
             //if (sOp == 1) begin
                 //$display("SW occuring");
             //end
@@ -557,13 +548,10 @@ module mips_cpu_bus(
             //$display("read %d", read);
             //$display("write %d", write);
             //$display("writedata %d", writedata);
-            //if ((clk == 1) && (state == MEM)) begin
-            //    $display("waitrequest %d", waitrequest);
-            //end
             //$display("In MEM byteenable is %b", byteenable);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            $display("in MEM");
+            //$display("in MEM");
         end
         else if(state == WB) begin
             //$display("read %d", read);
@@ -575,14 +563,11 @@ module mips_cpu_bus(
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
             //$display("Register Rs: %h", register[IR_rt]);
-            $display("in WB");
+            //$display("in WB");
         end
         else if (state == HALT) begin
-            $display("in HALT");
+            //$display("in HALT");
         end
-        else if (state == STALL) begin
-            $display("in STALL");
-        end
-    end*/
+    end
 
 endmodule
