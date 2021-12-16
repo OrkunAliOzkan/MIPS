@@ -84,6 +84,63 @@ module tb_cpu();
         $display("register_v0: %h", register_v0);
         if (passed==1'b1) begin
             $display("Pass");
+            /*case (INPUT_FILE) <- Puts comments on each instruction
+                "./test/testcasesnew/ADDIU_1_test.txt": $display("# Add by 1 immediate");
+                "./test/testcasesnew/ADDU_1_test.txt": $display("# Add unsigned value by 1");
+                "./test/testcasesnew/ANDI_1_test.txt": $display("# Bitwise xFFFF AND immediate value x00F0");
+                "./test/testcasesnew/AND_1_test.txt": $display("# Bitwise xFFFF AND x00F0");
+                "./test/testcasesnew/BEQ_1_test.txt": $display("# Does not branch if not equals");
+                "./test/testcasesnew/BEQ_2_test.txt": $display("# Branches if equals");
+                "./test/testcasesnew/BGEZAL_1_test.txt": $display("# Branches if greater than zero, and register 31 is set to prior address");
+                "./test/testcasesnew/BGEZ_1_test.txt": $display("# Branches if greater than equals to zero");
+                "./test/testcasesnew/BGEZ_2_test.txt": $display("# Does not branch if less than zero");
+                "./test/testcasesnew/BGTZ_1_test.txt": $display("# Branches if greater than zero");
+                "./test/testcasesnew/BGTZ_2_test.txt": $display("# Does not branch if 0");
+                "./test/testcasesnew/BLEZ_1_test.txt": $display("# Branches if 0");
+                "./test/testcasesnew/BLEZ_2_test.txt": $display("# Does not branch if greater than 0");
+                "./test/testcasesnew/BLTZAL_1_test.txt": $display("# Does not branch if 1");
+                "./test/testcasesnew/BLTZAL_2_test.txt": $display("# Branches if less than 0");
+                "./test/testcasesnew/BLTZ_1_test.txt": $display("# Branches if less than 0");
+                "./test/testcasesnew/BLTZ_2_test.txt": $display("# Does not branch if 0");
+                "./test/testcasesnew/BNE_1_test.txt": $display("# Branches if xFFFFFFFF not equals to 0");
+                "./test/testcasesnew/BNE_2_test.txt": $display("# Does not branch when 0 equal 0");
+                "./test/testcasesnew/JALR_1_test.txt": $display("# Jumps to register’s value address, register value is correctly changed");
+                "./test/testcasesnew/JAL_1_test.txt": $display("# Jumps to immediate value address, register 31 changes to prior address");
+                "./test/testcasesnew/JR_1_test.txt": $display("# Jumps to register value address");
+                "./test/testcasesnew/J_1_test.txt": $display("# Jumps to immediate value address");
+                "./test/testcasesnew/LBU_1_test.txt": $display("# Loads 1 byte to register");
+                "./test/testcasesnew/LB_1_test.txt": $display("# Loads 1 byte to register");
+                "./test/testcasesnew/LHU_1_test.txt": $display("# Loads 2 bytes to register");
+                "./test/testcasesnew/LH_1_test.txt": $display("# Loads 2 bytes to register");
+                "./test/testcasesnew/LUI_1_test.txt": $display("# Loads immediate value, xFF, to the upper half of word");
+                "./test/testcasesnew/LWL_1_test.txt": $display("# Loads left side bytes xAABB from memory");
+                "./test/testcasesnew/LWR_1_test.txt": $display("# Loads right side bytes xBBCCDD from memory");
+                "./test/testcasesnew/MTHI_1_test.txt": $display("# Changes value of HI to xAABBCCDD");
+                "./test/testcasesnew/MTLO_1_test.txt": $display("# Changes value of LO to xAABBCCDD");
+                "./test/testcasesnew/MULTU_1_test.txt": $display("# Multiplies FFFFFFF with FFFFFF");
+                "./test/testcasesnew/ORI_1_test.txt": $display("# Bitwise xFFFF OR immediate value x00F0");
+                "./test/testcasesnew/OR_1_test.txt": $display("# Bitwise xFFFF OR x00F0");
+                "./test/testcasesnew/SB_1_test.txt": $display("# Store byte xDD to memory");
+                "./test/testcasesnew/SH_1_test.txt": $display("# Stores half word xCCDD to memory");
+                "./test/testcasesnew/SLLV_1_test.txt": $display("# Shifts xF000 by variable with 4 value");
+                "./test/testcasesnew/SLL_1_test.txt": $display("# Shifts xF000 by 4");
+                "./test/testcasesnew/SLTIU_1_test.txt": $display("# Stores memory with 0 when rs < immediate");
+                "./test/testcasesnew/SLTIU_2_test.txt": $display("# Stores memory with 1 when rs >= immediate");
+                "./test/testcasesnew/SLTI_1_test.txt": $display("# Stores memory with 0 when rs < immediate");
+                "./test/testcasesnew/SLTI_2_test.txt": $display("# Stores memory with 1 when rs >= immediate");
+                "./test/testcasesnew/SLTU_1_test.txt": $display("# Stores memory with 0 when rs < immediate");
+                "./test/testcasesnew/SLTU_2_test.txt": $display("# Stores memory with 1 when rs >= immediate");
+                "./test/testcasesnew/SLT_1_test.txt": $display("# Stores memory with 0 when rs < immediate");
+                "./test/testcasesnew/SLT_2_test.txt": $display("# Stores memory with 1 when rs >= immediate");
+                "./test/testcasesnew/SRAV_1_test.txt": $display("# Performs an arithmetic right shift on xFF000000 by variable of value 16");
+                "./test/testcasesnew/SRA_1_test.txt": $display("# Performs an arithmetic right shift on xFF000000 by immediate value 16");
+                "./test/testcasesnew/SRLV_1_test.txt": $display("# Performs an logical right shift on xFF000000 by variable of value 16");
+                "./test/testcasesnew/SRL_1_test.txt": $display("# Performs an logical right shift on xFF000000 by immediate value 16");
+                "./test/testcasesnew/SUBU_1_test.txt": $display("# Subtracts unsigned xFFFF0000 by xFF000000");
+                "./test/testcasesnew/SWLW_1_test.txt": $display("# Loads xAABBCCDD to register then stores in memory");
+                "./test/testcasesnew/XORI_1_test.txt": $display("# Performs bitwise xFFFF XOR immediate value x00F0");
+                "./test/testcasesnew/XOR_1_test.txt": $display("# Performs bitwise xFFFF XOR x00F0");
+            endcase*/
         end
         else begin
             $write("Fail ");
@@ -94,13 +151,7 @@ module tb_cpu();
             // end
             //testcase  =INPUT_FILE;
             //int length = testcase.len();
-            //testcase = testcase.substr(0,-8);
-            case (INPUT_FILE)
-                "./test/testcasesnew/ADDIU_1_test.txt": $display("TEST");
-                default:  $display("Test return wrong value");
-            endcase
-
-            
+            //testcase = testcase.substr(0,-8); 
         end
     end
 
