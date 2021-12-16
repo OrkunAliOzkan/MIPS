@@ -98,26 +98,26 @@
 00
 00
 00
-8C  //LW $1 4($0) -> $1 = 0000000C
-01
+8C  //  LW $v0 4($0) -> $1 = 0000000C
+02
 00
 04
-10 //BEQ
+10 //   BEQ $zero $at 0x0006
 01
 00
 06
-AC  //SW $1 8($0) -> mem[8] = 0C000000 ((Should work))
-01
+AC  //  SW $v0 8($0) -> mem[8] = 0C000000 ((Should work))
+02
 00
 08
-AC  //SW $1 12($0) -> mem[12] = 0C000000 (Should work) but it isn't
-01
+AC  //  SW $1v0 12($0) -> mem[12] = 0C000000 (Should work) but it isn't
+02
 00
 0C
+00  //  JR $zero
 00
 00
-00
-00
+08
 00
 00
 00
