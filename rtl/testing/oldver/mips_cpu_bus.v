@@ -16,110 +16,110 @@ module mips_cpu_bus(
 );
 
     //Define all states
-    typedef enum logic[2:0]
-    {
-        IF = 3'd0,      //Instruction Fetch
-        ID = 3'd1,      //Instruction decode/Register fetch cycle
-        EX = 3'd2,      //Execution/Effective address cycle
-        MEM = 3'd3,     //Memory access 
-        WB = 3'd4,      //Write-back cycle 
-        HALT = 3'd5,
-        STALL = 3'd6
-    } state_t;
+        typedef enum logic[2:0]
+        {
+            IF = 3'd0,      //Instruction Fetch
+            ID = 3'd1,      //Instruction decode/Register fetch cycle
+            EX = 3'd2,      //Execution/Effective address cycle
+            MEM = 3'd3,     //Memory access 
+            WB = 3'd4,      //Write-back cycle 
+            HALT = 3'd5
+        } state_t;
     // define state variable
     state_t state;
 
     //Define Opcodes
-    typedef enum logic[5:0]
-    {
-        OPCODE_BEQ = 6'd4,
-        OPCODE_BGTZ = 6'd7,
-        OPCODE_BLEZ = 6'd6,
-        OPCODE_BNE = 6'd5,
+        typedef enum logic[5:0]
+        {
+            OPCODE_BEQ = 6'd4,
+            OPCODE_BGTZ = 6'd7,
+            OPCODE_BLEZ = 6'd6,
+            OPCODE_BNE = 6'd5,
 
-        OPCODE_ADDIU = 6'd9,
-        OPCODE_SLTIU = 6'd11,
-        OPCODE_LUI = 6'd15,
-        OPCODE_ANDI = 6'd12,
-        OPCODE_ORI = 6'd13,
-        OPCODE_SLTI = 6'd10,
-        OPCODE_XORI = 6'd14,
+            OPCODE_ADDIU = 6'd9,
+            OPCODE_SLTIU = 6'd11,
+            OPCODE_LUI = 6'd15,
+            OPCODE_ANDI = 6'd12,
+            OPCODE_ORI = 6'd13,
+            OPCODE_SLTI = 6'd10,
+            OPCODE_XORI = 6'd14,
 
-        OPCODE_LB = 6'd32,
-        OPCODE_LBU = 6'd36,
-        OPCODE_LH = 6'd33,
-        OPCODE_LHU = 6'd37,
-        OPCODE_LW = 6'd35,
-        OPCODE_SB = 6'd40,
-        OPCODE_SH = 6'd41,
-        OPCODE_SW = 6'd43,
+            OPCODE_LB = 6'd32,
+            OPCODE_LBU = 6'd36,
+            OPCODE_LH = 6'd33,
+            OPCODE_LHU = 6'd37,
+            OPCODE_LW = 6'd35,
+            OPCODE_SB = 6'd40,
+            OPCODE_SH = 6'd41,
+            OPCODE_SW = 6'd43,
 
-        OPCODE_LWR = 6'd38,
-        OPCODE_LWL = 6'd34
-    }opcode_t;
+            OPCODE_LWR = 6'd38,
+            OPCODE_LWL = 6'd34
+        }opcode_t;
 
-    typedef enum logic[5:0]
-    {
-        FC_ADDU = 6'd33,
-        FC_SUBU = 6'd35,
-        FC_AND = 6'd36,
-        FC_OR = 6'd37,
-        FC_SLT = 6'd42,
-        FC_SLTU = 6'd43,
-        FC_XOR = 6'd38,
-        FC_SLL = 6'd0,
-        FC_SLLV = 6'd4,
-        FC_SRA = 6'd3,
-        FC_SRAV = 6'd7,
-        FC_SRL = 6'd2,
-        FC_SRLV = 6'd6,
-        FC_DIV = 6'd26,
-        FC_DIVU = 6'd27, //NOT INCLUDED?
-        FC_MULT = 6'd24,
-        FC_MULTU = 6'd25,
+    //  Function codes
+        typedef enum logic[5:0]
+        {
+            FC_ADDU = 6'd33,
+            FC_SUBU = 6'd35,
+            FC_AND = 6'd36,
+            FC_OR = 6'd37,
+            FC_SLT = 6'd42,
+            FC_SLTU = 6'd43,
+            FC_XOR = 6'd38,
+            FC_SLL = 6'd0,
+            FC_SLLV = 6'd4,
+            FC_SRA = 6'd3,
+            FC_SRAV = 6'd7,
+            FC_SRL = 6'd2,
+            FC_SRLV = 6'd6,
+            FC_DIV = 6'd26,
+            FC_DIVU = 6'd27, //NOT INCLUDED?
+            FC_MULT = 6'd24,
+            FC_MULTU = 6'd25,
 
-        FC_MFHI = 6'd16,
-        FC_MTHI = 6'd17,
-        FC_MFLO = 6'd18,
-        FC_MTLO = 6'd19,
+            FC_MFHI = 6'd16,
+            FC_MTHI = 6'd17,
+            FC_MFLO = 6'd18,
+            FC_MTLO = 6'd19,
 
-        FC_JALR = 6'd9,
-        FC_JR = 6'd8
-    } fcode_t;
+            FC_JALR = 6'd9,
+            FC_JR = 6'd8
+        } fcode_t;
 
     //Create register file
-    logic signed [31:0] register [31:0] ; //  This is defined as signed to emphasise operations may be unsigned
-    logic RegWrite;
+        logic signed [31:0] register [31:0] ; //  This is defined as signed to emphasise operations may be unsigned
+        logic RegWrite;
 
     //Create HI, LO registers
-    logic[31:0] HI;
-    logic[31:0] LO;
+        logic[31:0] HI;
+        logic[31:0] LO;
 
     //Program counter logic
-    logic[31:0] PC, PC_next, PC_jump;
+        logic[31:0] PC, PC_next, PC_jump;
 
     //Byte Enable logic
-    logic[1:0] ByteEnableLogic;
+        logic[1:0] ByteEnableLogic;
     //Memory access logic
-    logic lOp;
-    logic sOp;
+        logic lOp;
+        logic sOp;
 
     //ALU output
-    logic [63:0] ALUout;
+        logic [63:0] ALUout;
 
     //Create IR Block to hold information through all cycles.
-    logic[31:0] InstructionReg;
+        logic[31:0] InstructionReg;
 
-    logic[5:0] IR_opcode;
-    logic[4:0] IR_rs;
-    logic[4:0] IR_rt;
-    logic[4:0] IR_rd;
-    logic[4:0] IR_shmat;
-    logic[5:0] IR_funct;
-    logic[15:0] IR_address_immediate;
-    logic[25:0] IR_targetAddress;
+        logic[5:0] IR_opcode;
+        logic[4:0] IR_rs;
+        logic[4:0] IR_rt;
+        logic[4:0] IR_rd;
+        logic[4:0] IR_shmat;
+        logic[5:0] IR_funct;
+        logic[15:0] IR_address_immediate;
+        logic[25:0] IR_targetAddress;
 
-    assign register_v0 = register[2];
+        assign register_v0 = register[2];
 
     initial begin
         state = HALT;
@@ -131,6 +131,19 @@ module mips_cpu_bus(
     end
 
     always @(*) begin
+        
+        if(reset) begin
+            active <= 1;
+            PC <= 32'hBFC00000;
+            PC_next <= 32'hBFC00004;
+            PC_jump <= 32'h1;
+            state <= IF;
+            for(integer i = 0; i < 32; i++) begin
+                register[i] <= 32'd0;
+            end
+            HI = 0;
+            LO = 0;
+        end
 
         case(state)
             (IF): begin
@@ -194,41 +207,41 @@ module mips_cpu_bus(
             (HALT): begin
                 
             end
-            (STALL): begin
-                
-            end
         endcase
     end
 
    always_ff @(posedge clk) begin
-
-        if(reset) begin
-            active <= 1;
-            PC <= 32'hBFC00000;
-            PC_next <= 32'hBFC00004;
-            PC_jump <= 32'h1;
-            state <= IF;
-            for(integer i = 0; i < 32; i++) begin
-                register[i] <= 32'd0;
-            end
-            HI <= 0;
-            LO <= 0;
-        end
 
         case(state)
             (IF): begin
                 //Fetching nest instruction from memory using PC as address. So need to read from RAM
                 byteenable <= 4'b1111;
 
+                //Define next state.
+                /*if(PC_jump != 32'd0) begin
+                    PC_next <= PC_jump;
+                    jumping 
+                    PC_jump <= 0;
+                end
+                else PC_next <= PC + 32'd4;
+                
+                state <= ID;*/
+
                 if (PC_jump == 32'd1) begin
                     PC_next <= PC + 32'd4;
-                    
+                    state <= ID;
                 end
                 else begin
                     PC_next <= PC_jump; 
                     PC_jump <= 1;
+                    state <= ID;
                 end 
-                state <= ID;
+
+                /*if (address == 32'h00000000) begin
+                    state <= HALT;
+                    active <= 0;
+                end
+                else state <= ID;*/
             end
             (ID): begin
                 
@@ -391,7 +404,6 @@ module mips_cpu_bus(
             end
             (MEM): begin 
                 //Write to RAM
-                $display("Readdata: %h", readdata);
                 if (!waitrequest) begin
                     if (sOp) begin      //If store instuctions
                         PC <= PC_next;
@@ -400,7 +412,6 @@ module mips_cpu_bus(
                     end
                     else if (lOp) begin
                         //For load, just read and move to next step.
-                        //$display("readdata: %h", readdata);
                         state <= WB;
                     end
                     else begin
@@ -408,13 +419,7 @@ module mips_cpu_bus(
                         state <= HALT;
                     end
                 end
-                else begin
-                    state <= STALL;
-                end
-            end
-            (STALL): begin
-                if (!waitrequest) state <= MEM;
-                else state <= STALL;
+                else state <= MEM;
             end
             (WB): begin
                 if (lOp) begin
@@ -482,6 +487,10 @@ module mips_cpu_bus(
                         LO <= ALUout[31:0];
                     end
                     else if ((IR_funct == FC_JR) || (IR_funct == FC_JALR)) begin //Jump stuff
+                        if (register[IR_rs] == 32'd0) begin
+                            state <= HALT;
+                            active <= 0;
+                        end
                         PC_jump <= register[IR_rs];
                         if (IR_funct == FC_JALR) register[IR_rd] <= ALUout[31:0];
                     end
@@ -511,14 +520,14 @@ module mips_cpu_bus(
         //    $display("reset %d", reset);
         //end
         if(state == IF) begin
-            $display("address %d", address - 3217031068);
+            //$display("address %d", address - 3217031068);
             //$display("readdata %h", readdata);
             //$display("PC: %h", PC);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            $display("in IF");
+            //$display("in IF");
             for(integer a = 0; a < 32; a++) begin
-                $display("register %d : %h", a, register[a]);
+                //$display("register %d : %h", a, register[a]);
             end
         end
         else if(state == ID) begin
@@ -531,7 +540,7 @@ module mips_cpu_bus(
             //$display("fn code %d", IR_funct);
             //$display("In ID lop is %d", lOp);
             //$display("In ID sop is %d", sOp);
-            $display("in ID");
+            //$display("in ID");
         end
         else if(state == EX) begin
             //$display("In EX readdata %h", readdata);
@@ -546,7 +555,7 @@ module mips_cpu_bus(
             //$display("In EX byteenable is %b", byteenable);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            $display("in EX");
+            //$display("in EX");
             //if (sOp == 1) begin
                 //$display("SW occuring");
             //end
@@ -560,13 +569,10 @@ module mips_cpu_bus(
             //$display("read %d", read);
             //$display("write %d", write);
             //$display("writedata %d", writedata);
-            //if ((clk == 1) && (state == MEM)) begin
-            //    $display("waitrequest %d", waitrequest);
-            //end
             //$display("In MEM byteenable is %b", byteenable);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            $display("in MEM");
+            //$display("in MEM");
         end
         else if(state == WB) begin
             //$display("read %d", read);
@@ -578,13 +584,10 @@ module mips_cpu_bus(
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
             //$display("Register Rs: %h", register[IR_rt]);
-            $display("in WB");
+            //$display("in WB");
         end
         else if (state == HALT) begin
-            $display("in HALT");
-        end
-        else if (state == STALL) begin
-            $display("in STALL");
+            //$display("in HALT");
         end
     end
 
