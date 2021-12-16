@@ -98,12 +98,12 @@
 00
 00
 00
-3C  //  LUI $at 0xFFFF
-01
+3C  //  LUI $v0 0xFFFF
+02
 FF
 FF
-AC  //  SW $at 0x000C
-01
+AC  //  SW $v0 0x000C
+02
 00
 0C
 00
