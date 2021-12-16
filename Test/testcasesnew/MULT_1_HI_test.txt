@@ -6,7 +6,7 @@
 FF
 FF
 FF
-0F
+00
 FF
 FF
 FF
@@ -117,7 +117,7 @@ FF
 AC  //  SW $v0 0x0008
 02
 00
-08
+0C
 00  //  JR $zero
 00
 00

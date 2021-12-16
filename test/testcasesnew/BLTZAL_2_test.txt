@@ -98,11 +98,11 @@ F0
 00
 00
 00
-8C  //  LW $v0  0x0004
+8C  //  LW $v0  0x0004 = F0 00 00 00
 02
 00
 04
-04  //  BLTZAL $v0 0x0002
+04  //  BLTZAL $v0 0x0002   DOES JUMP
 50
 00
 02
@@ -110,7 +110,7 @@ AC  //  SW $v0 0x0008
 02
 00
 08
-AC  //  SW $v0 0x000C
+AC  //  SW $v0 0x000C   SKIPPED
 02
 00
 0C

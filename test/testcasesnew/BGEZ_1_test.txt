@@ -103,7 +103,7 @@
 00
 04
 04  //  BGEZ $zero 0x0002
-02
+01
 00
 02
 AC  //  SW $v0 0x0008 $zero COMPUTED!
@@ -111,7 +111,7 @@ AC  //  SW $v0 0x0008 $zero COMPUTED!
 00
 08
 AC  //  SW $v0 0x000C $zero SKIPPED!
-01
+02
 00
 0C
 AC  //  SW $v0 0x0010 $zero COMPUTED!

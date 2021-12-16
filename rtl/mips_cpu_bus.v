@@ -505,7 +505,7 @@ module mips_cpu_bus(
         endcase
     end
     
-    always @(*) begin
+    /*always @(*) begin
         //if (clk) begin
         //    $display("state %d", state);
         //    $display("reset %d", reset);
@@ -518,7 +518,7 @@ module mips_cpu_bus(
             //$display("PC_jump: %h", PC_jump);
             $display("in IF");
             for(integer a = 0; a < 32; a++) begin
-                $display("register %d : %h", a, register[a]);
+                //$display("register %d : %h", a, register[a]);
             end
         end
         else if(state == ID) begin
@@ -586,6 +586,6 @@ module mips_cpu_bus(
         else if (state == STALL) begin
             $display("in STALL");
         end
-    end
+    end*/
 
 endmodule

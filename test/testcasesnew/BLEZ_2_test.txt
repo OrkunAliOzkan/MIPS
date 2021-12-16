@@ -102,8 +102,8 @@
 02
 00
 04
-18  //  BLEZ $zero 0x0002
-20
+18  //  BLEZ $v0 0x0002
+40
 00
 02
 AC  //  SW $v0 0x0008   COMPUTED!

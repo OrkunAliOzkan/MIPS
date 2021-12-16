@@ -10,10 +10,12 @@ FF
 FF
 FF
 FF
-E0  //  SOLN
+00  //  SOLN
+0F
+FF
+FF
 00
 00
-01
 00
 00
 00
@@ -96,28 +98,26 @@ E0  //  SOLN
 00
 00
 00
-00
-00
-8C  //  LW $at 0x0004 $zero
+8C  //  LW $at 0x0004 $zero = 0F FF FF FF
 01
 00
 04
-8C  //  LW $v0 0x0008
+8C  //  LW $v0 0x0008 = 00 FF FF FF
 02
 00
 08
-00  //  MULT $at $v0
+00  //  MULT $at $v0 = EF000001
 22
 00
 18
-00  //  MFHI $v0
+00  //  MFHI $v0 = EF00
 00
 10
 10
-AC  //  SW $v0 0x0008
+AC  //  SW $v0 0x0008 EF00
 02
 00
-08
+0C
 00  //  JR $zero
 00
 00
