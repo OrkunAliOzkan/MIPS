@@ -100,6 +100,7 @@ module mips_cpu_bus(
 
     //Byte Enable logic
     logic[1:0] ByteEnableLogic;
+    logic[31:0] address_calc;
     //Memory access logic
     logic lOp;
     logic sOp;
@@ -120,6 +121,7 @@ module mips_cpu_bus(
     logic[25:0] IR_targetAddress;
 
     assign register_v0 = register[2];
+    assign address_calc = register[IR_rs] + $signed(IR_address_immediate);
 
     initial begin
         state = HALT;
@@ -157,7 +159,8 @@ module mips_cpu_bus(
                 sOp = ((IR_opcode == OPCODE_SB) || (IR_opcode == OPCODE_SW) || (IR_opcode == OPCODE_SH));
                 //ByteEnableLogic = (register[IR_rs] + { 16'd0, IR_address_immediate }) % 4;
                 //ByteEnableLogic = (register[IR_rs] + { { 16{IR_address_immediate[15]} }, IR_address_immediate }) % 4; //FIXME: Changed here. This is correct.
-                ByteEnableLogic = (register[IR_rs] + $signed(IR_address_immediate)) % 4;
+                //ByteEnableLogic = (register[IR_rs] + $signed(IR_address_immediate)) % 4;
+                ByteEnableLogic = address_calc % 4;
                 read = 0;
                 write = 0;
                 if(IR_opcode == 6'd3) RegWrite = 1;
@@ -168,7 +171,8 @@ module mips_cpu_bus(
                 // Read or write to memory if Load/Store. no other instructions go here.
                 //address = (register[IR_rs] + { 16'd0, IR_address_immediate }) - ByteEnableLogic;
                 //address = (register[IR_rs] + { { 16{IR_address_immediate[15]} }   , IR_address_immediate }) - ByteEnableLogic; //FIXME: Changed here. This is correct.
-                address = (register[IR_rs] + $signed(IR_address_immediate)) - ByteEnableLogic;
+                //address = (register[IR_rs] + $signed(IR_address_immediate)) - ByteEnableLogic;
+                address = address_calc - ByteEnableLogic;
                 if (lOp) begin
                     read = 1;
                     write = 0;
