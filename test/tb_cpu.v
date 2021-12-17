@@ -70,7 +70,7 @@ module tb_cpu();
 
         for(int i=0;i<200;i++) begin
             if(RAM[i]!=EXPECTEDRAM[i])begin
-                //$display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
+                $display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
                 // t1.itoa(i);
                 // t2.hextoa(EXPECTEDRAM[i]);
                 // t3.hextoa(RAM[i]);

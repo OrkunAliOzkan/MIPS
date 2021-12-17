@@ -91,6 +91,8 @@ module mips_cpu_bus(
     logic signed [31:0] register [31:0] ; //  This is defined as signed to emphasise operations may be unsigned
     logic RegWrite;
 
+    logic[1:0] stalling;
+
     //Create HI, LO registers
     logic[31:0] HI;
     logic[31:0] LO;
@@ -100,6 +102,7 @@ module mips_cpu_bus(
 
     //Byte Enable logic
     logic[1:0] ByteEnableLogic;
+    logic[31:0] address_calc;
     //Memory access logic
     logic lOp;
     logic sOp;
@@ -120,11 +123,13 @@ module mips_cpu_bus(
     logic[25:0] IR_targetAddress;
 
     assign register_v0 = register[2];
+    assign address_calc = register[IR_rs] + $signed(IR_address_immediate);
 
     initial begin
         state = HALT;
         active = 0;     // Start with CPU not active, in halt state. We then reset.
         PC = 32'hBFC00000;
+        stalling = 0;
         for(integer i = 0; i < 32; i++) begin
             register[i] <= 32'h0;
         end
@@ -135,9 +140,17 @@ module mips_cpu_bus(
         case(state)
             (IF): begin
                 //Fetching next instruction from memory using PC as address. So need to read from RAM
-                read = 1;
-                write = 0;
+                
                 RegWrite = 0;
+
+                if (waitrequest) begin
+                    read = 0;
+                    write = 0;
+                end
+                else begin
+                    read = 1;
+                    write = 0;
+                end
                 
                 InstructionReg = { readdata[7:0] , readdata[15:8] , readdata[23:16] , readdata[31:24] };
 
@@ -157,7 +170,8 @@ module mips_cpu_bus(
                 sOp = ((IR_opcode == OPCODE_SB) || (IR_opcode == OPCODE_SW) || (IR_opcode == OPCODE_SH));
                 //ByteEnableLogic = (register[IR_rs] + { 16'd0, IR_address_immediate }) % 4;
                 //ByteEnableLogic = (register[IR_rs] + { { 16{IR_address_immediate[15]} }, IR_address_immediate }) % 4; //FIXME: Changed here. This is correct.
-                ByteEnableLogic = (register[IR_rs] + $signed(IR_address_immediate)) % 4;
+                //ByteEnableLogic = (register[IR_rs] + $signed(IR_address_immediate)) % 4;
+                ByteEnableLogic = address_calc % 4;
                 read = 0;
                 write = 0;
                 if(IR_opcode == 6'd3) RegWrite = 1;
@@ -168,7 +182,8 @@ module mips_cpu_bus(
                 // Read or write to memory if Load/Store. no other instructions go here.
                 //address = (register[IR_rs] + { 16'd0, IR_address_immediate }) - ByteEnableLogic;
                 //address = (register[IR_rs] + { { 16{IR_address_immediate[15]} }   , IR_address_immediate }) - ByteEnableLogic; //FIXME: Changed here. This is correct.
-                address = (register[IR_rs] + $signed(IR_address_immediate)) - ByteEnableLogic;
+                //address = (register[IR_rs] + $signed(IR_address_immediate)) - ByteEnableLogic;
+                address = address_calc - ByteEnableLogic;
                 if (lOp) begin
                     read = 1;
                     write = 0;
@@ -227,8 +242,14 @@ module mips_cpu_bus(
                 else begin
                     PC_next <= PC_jump; 
                     PC_jump <= 1;
-                end 
-                state <= ID;
+                end
+                if(!waitrequest) begin  //FIXME: ADDED THIS
+                    state <= ID;
+                end
+                else begin
+                    stalling = 2'd1;
+                    state <= STALL;
+                end
             end
             (ID): begin
                 
@@ -391,7 +412,6 @@ module mips_cpu_bus(
             end
             (MEM): begin 
                 //Write to RAM
-                $display("Readdata: %h", readdata);
                 if (!waitrequest) begin
                     if (sOp) begin      //If store instuctions
                         PC <= PC_next;
@@ -400,7 +420,6 @@ module mips_cpu_bus(
                     end
                     else if (lOp) begin
                         //For load, just read and move to next step.
-                        //$display("readdata: %h", readdata);
                         state <= WB;
                     end
                     else begin
@@ -409,11 +428,20 @@ module mips_cpu_bus(
                     end
                 end
                 else begin
+                    stalling = 2'd2;    //FIXME: CHANGED HERE
                     state <= STALL;
                 end
             end
             (STALL): begin
-                if (!waitrequest) state <= MEM;
+                if (!waitrequest) begin //FIXME: CHANGED HERE
+                    if (stalling == 2'd1) begin
+                        state <= IF;
+                    end
+                    else if (stalling == 2'd2) begin
+                        state <= MEM;
+                    end
+                    stalling = 2'd0;
+                end
                 else state <= STALL;
             end
             (WB): begin
@@ -486,7 +514,6 @@ module mips_cpu_bus(
                         if (IR_funct == FC_JALR) register[IR_rd] <= ALUout[31:0];
                     end
                     else begin
-                        // $display("saving to register rd: %d with data ALUoutLO %h", IR_rd, ALUoutLO);
                         register[IR_rd] <= ALUout[31:0];
                     end
                     // R TYPE INSTRUCTIONS END
@@ -518,7 +545,7 @@ module mips_cpu_bus(
             //$display("PC_jump: %h", PC_jump);
             $display("in IF");
             for(integer a = 0; a < 32; a++) begin
-                $display("register %d : %h", a, register[a]);
+                //$display("register %d : %h", a, register[a]);
             end
         end
         else if(state == ID) begin
