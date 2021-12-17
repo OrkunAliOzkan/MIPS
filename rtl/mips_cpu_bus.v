@@ -415,7 +415,7 @@ module mips_cpu_bus(
                 if (!waitrequest) begin
                     if (sOp) begin      //If store instuctions
                         PC <= PC_next;
-                        state <= IF;      
+                        //state <= IF;      
                         // STORE INSTRUCTIONS END 
                     end
                     else if (lOp) begin
@@ -433,12 +433,29 @@ module mips_cpu_bus(
                 end
             end
             (STALL): begin
-                if (!waitrequest) begin //FIXME: CHANGED HERE
+                if (!waitrequest) begin 
                     if (stalling == 2'd1) begin
-                        state <= IF;
+                        byteenable <= 4'b1111; //FIXME: CHANGED HERE
+                        read = 1;
+                        write = 0;
+                        state <= ID;
+                        //state <= IF;
                     end
                     else if (stalling == 2'd2) begin
-                        state <= MEM;
+                        if (sOp) begin      //FIXME: CHANGED HERE
+                            read = 0;
+                            write = 1;
+                            PC <= PC_next;
+                            state <= IF;      
+                            // STORE INSTRUCTIONS END 
+                        end
+                        else if (lOp) begin
+                            read = 1; //FIXME: CHANGED HERE
+                            write = 0;
+                            //For load, just read and move to next step.
+                            state <= WB;
+                        end
+                        //state <= MEM;
                     end
                     stalling = 2'd0;
                 end
