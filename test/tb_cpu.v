@@ -78,7 +78,7 @@ module tb_cpu();
 
         for(int i=0;i<200;i++) begin
             if(RAM[i]!=EXPECTEDRAM[i])begin
-                $display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
+                //$display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
                 // t1.itoa(i);
                 // t2.hextoa(EXPECTEDRAM[i]);
                 // t3.hextoa(RAM[i]);
@@ -89,7 +89,8 @@ module tb_cpu();
             end
             //$display("RAM %d expected %h given %h",i,EXPECTEDRAM[i],RAM[i]);
         end
-        $display("register_v0: %h", register_v0);
+        //$display("register_v0: %h", register_v0);
+        /*
         case (INPUT_FILE)
             "./test/testcasesnew/ADDIU_1_test.txt": begin
                     if (register_v0 == 32'h2) begin
@@ -111,7 +112,7 @@ module tb_cpu();
                     passed = 1'b1;
                 end
             end 
-            /*
+            
             "./test/testcasesnew/BEQ_1_test.txt": $write("# Does not branch if not equals");
             "./test/testcasesnew/BEQ_2_test.txt": $write("# Branches if equals");
             "./test/testcasesnew/BGEZAL_1_test.txt": $write("# Branches if greater than zero, and register 31 is set to prior address");
@@ -130,7 +131,7 @@ module tb_cpu();
             "./test/testcasesnew/JALR_1_test.txt": $write("# Jumps to register’s value address, register value is correctly changed");
             "./test/testcasesnew/JAL_1_test.txt": $write("# Jumps to immediate value address, register 31 changes to prior address");
             "./test/testcasesnew/JR_1_test.txt": $write("# Jumps to register value address");
-            "./test/testcasesnew/J_1_test.txt": $write("# Jumps to immediate value address");*/
+            "./test/testcasesnew/J_1_test.txt": $write("# Jumps to immediate value address");
             "./test/testcasesnew/LBU_1_test.txt": begin
                 if (register_v0 == 32'haa) begin
                     passed = 1'b1;
@@ -196,7 +197,7 @@ module tb_cpu();
                     passed = 1'b1;
                 end
             end 
-            /*
+            
             "./test/testcasesnew/SB_1_test.txt": $write("# Store byte xDD to memory");
             "./test/testcasesnew/SH_1_test.txt": $write("# Stores half word xCCDD to memory");
             "./test/testcasesnew/SLLV_1_test.txt": $write("# Shifts xF000 by variable with 4 value");
@@ -209,7 +210,7 @@ module tb_cpu();
             "./test/testcasesnew/SLTU_2_test.txt": $write("# Stores memory with 1 when rs >= immediate");
             "./test/testcasesnew/SLT_1_test.txt": $write("# Stores memory with 0 when rs < immediate");
             "./test/testcasesnew/SLT_2_test.txt": $write("# Stores memory with 1 when rs >= immediate");
-            */
+            
             "./test/testcasesnew/SRAV_1_test.txt": begin
                 if (register_v0 == 32'hffffff00) begin
                     passed = 1'b1;
@@ -251,8 +252,8 @@ module tb_cpu();
                 end
             end 
         endcase
-
-
+        */
+        
 
 
 
@@ -262,6 +263,7 @@ module tb_cpu();
         end
         else begin
             $write("Fail ");
+            $write("Final RAM is incorrect ");
             //$write("%s",comment);
             //testcase =string'INPUT_FILE;
             // for (int j=0;j<24;j++ )begin
@@ -333,6 +335,8 @@ module tb_cpu();
             "./test/testcasesnew/SWLW_1_test.txt": $display("# Loads xAABBCCDD to register then stores in memory");
             "./test/testcasesnew/XORI_1_test.txt": $display("# Performs bitwise xFFFF XOR immediate value x00F0");
             "./test/testcasesnew/XOR_1_test.txt": $display("# Performs bitwise xFFFF XOR x00F0");
+
+            default: $display("# Performs multiplication/division");
         endcase        
     end
 

@@ -66,6 +66,9 @@ for test in $testcases #directory containing all the RAM outputs so we can compa
     -P tb_cpu.EXPECTED_FILE=\"${expected_dir}\" \
     ./test/tb_cpu.v ${1}/*.v  > /dev/null 2>&1
     
+    
+
+        
     ./test/tb_cpu
 
     rm ./test/tb_cpu > /dev/null 2>&1
