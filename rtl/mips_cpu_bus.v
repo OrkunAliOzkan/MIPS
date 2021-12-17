@@ -210,7 +210,7 @@ module mips_cpu_bus(
                 
             end
             (STALL): begin
-                address = address_calc - ByteEnableLogic;
+                
             end
         endcase
     end
@@ -435,6 +435,7 @@ module mips_cpu_bus(
             (STALL): begin
                 if (!waitrequest) begin 
                     if (stalling == 2'd1) begin
+                        address = PC;
                         byteenable <= 4'b1111; //FIXME: CHANGED HERE
                         read = 1;
                         write = 0;
@@ -442,6 +443,7 @@ module mips_cpu_bus(
                         //state <= IF;
                     end
                     else if (stalling == 2'd2) begin
+                        address = address_calc - ByteEnableLogic;
                         if (sOp) begin      //FIXME: CHANGED HERE
                             read = 0;
                             write = 1;
@@ -450,7 +452,7 @@ module mips_cpu_bus(
                             // STORE INSTRUCTIONS END 
                         end
                         else if (lOp) begin
-                            read = 1; //FIXME: CHANGED HERE
+                            read = 1; 
                             write = 0;
                             //For load, just read and move to next step.
                             state <= WB;
