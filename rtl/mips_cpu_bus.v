@@ -391,7 +391,6 @@ module mips_cpu_bus(
             end
             (MEM): begin 
                 //Write to RAM
-                $display("Readdata: %h", readdata);
                 if (!waitrequest) begin
                     if (sOp) begin      //If store instuctions
                         PC <= PC_next;
@@ -400,7 +399,6 @@ module mips_cpu_bus(
                     end
                     else if (lOp) begin
                         //For load, just read and move to next step.
-                        //$display("readdata: %h", readdata);
                         state <= WB;
                     end
                     else begin
@@ -486,7 +484,6 @@ module mips_cpu_bus(
                         if (IR_funct == FC_JALR) register[IR_rd] <= ALUout[31:0];
                     end
                     else begin
-                        // $display("saving to register rd: %d with data ALUoutLO %h", IR_rd, ALUoutLO);
                         register[IR_rd] <= ALUout[31:0];
                     end
                     // R TYPE INSTRUCTIONS END
