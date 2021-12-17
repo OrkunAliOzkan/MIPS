@@ -210,7 +210,7 @@ module mips_cpu_bus(
                 
             end
             (STALL): begin
-                
+                address = address_calc - ByteEnableLogic;
             end
         endcase
     end
