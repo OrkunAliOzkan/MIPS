@@ -101,6 +101,7 @@ module mips_cpu_bus(
     //Byte Enable logic
     logic[1:0] ByteEnableLogic;
     logic[31:0] address_calc;
+    logic[3:0] ByteHold;
     //Memory access logic
     logic lOp;
     logic sOp;
@@ -183,10 +184,10 @@ module mips_cpu_bus(
                     write = 1;
                     RegWrite = 0;
                 end
-                //if (waitrequest) begin
-                //    read = 0;
-                //    write = 0;
-                //end
+                /*if (waitrequest) begin
+                    read = 0;
+                    write = 0;
+                end*/
             end
             (WB): begin
                 //Will be writing registers.
@@ -222,17 +223,27 @@ module mips_cpu_bus(
         case(state)
             (IF): begin
                 //Fetching nest instruction from memory using PC as address. So need to read from RAM
-                byteenable <= 4'b1111;
 
-                if (PC_jump == 32'd1) begin
-                    PC_next <= PC + 32'd4;
-                    
+                if (waitrequest) begin
+                    state <= IF;
+                    byteenable <= 0;
+                    $display("stalling in IF");
+                    $display("Byteenable in STALL IF : %b", byteenable);
                 end
                 else begin
-                    PC_next <= PC_jump; 
-                    PC_jump <= 1;
-                end 
-                state <= (waitrequest) ? (IF) : (ID);
+                    byteenable <= 4'b1111;
+
+                    if (PC_jump == 32'd1) begin
+                        PC_next <= PC + 32'd4;  
+                    end
+                    else begin
+                        PC_next <= PC_jump; 
+                        PC_jump <= 1;
+                    end 
+                    state <= ID;
+                     $display("Normal IF");
+                    $display("Byteenable in READ IF : %b", byteenable);
+                end
             end
             (ID): begin
                 
@@ -295,6 +306,7 @@ module mips_cpu_bus(
                             (3) : byteenable <= (4'd15);                     //  Byte enable the first byte
                         endcase
                     end
+                    ByteHold <= byteenable; 
                     state <= MEM;
                 end
                 else if (IR_opcode == 6'd0) begin //R Type instructions
@@ -395,28 +407,37 @@ module mips_cpu_bus(
             end
             (MEM): begin 
                 //Write to RAM
-                if (sOp) begin      //If store instuctions
-                    PC <= PC_next;
-                    //state <= IF; 
-                    //$display("doing store with data: %h" , writedata);     
-                    // STORE INSTRUCTIONS END 
-                    state <= (waitrequest) ? (MEM) : (IF);
-                end
-                else if (lOp) begin
-                    //For load, just read and move to next step.
-                    //$display("readdata: %h", readdata);
-                    //state <= WB;
-                    state <= (waitrequest) ? (MEM) : (WB);
+                if (!waitrequest) begin
+                    byteenable <= ByteHold;
+                    if (sOp) begin      //If store instuctions
+                        PC <= PC_next;
+                        state <= IF;      
+                        // STORE INSTRUCTIONS END 
+                    end
+                    else if (lOp) begin
+                        //For load, just read and move to next step.
+                        //$display("readdata: %h", readdata);
+                        state <= WB;
+                    end
+                    else begin
+                        //No other instrucitons should be here. If so, there is an error.
+                        state <= HALT;
+                    end
+                    $display("Doing MEM");
+                    $display("Byteenable in r/w MEM : %b", byteenable);
+                    $display("Bytehold in r/w MEM : %b", ByteHold);
                 end
                 else begin
-                    //No other instrucitons should be here. If so, there is an error.
-                    state <= HALT;
-                end
+                    $display("stalling in MEM");
+                    byteenable <= 0;
+                    state <= MEM;
+                    $display("Byteenable in STALL MEM : %b", byteenable);
+                end    
             end
-            (STALL): begin
-                if (!waitrequest) state <= MEM;
-                else state <= STALL;
-            end
+            //(STALL): begin
+            //    if (!waitrequest) state <= MEM;
+            //    else state <= STALL;
+            //end
             (WB): begin
                 if (lOp) begin
                     case(IR_opcode)
@@ -507,17 +528,17 @@ module mips_cpu_bus(
     end
     
     always @(*) begin
-        //if (clk) begin
-        //    $display("state %d", state);
-        //    //$display("reset %d", reset);
-        //end
-        /*if(state == IF) begin
-            $display("address %d", address - 3217031068);
+        if (clk) begin
+            //$display("state %d", state);
+            //$display("reset %d", reset);
+        end
+        if(state == IF) begin
+            //$display("address %d", address - 3217031068);
             //$display("readdata %h", readdata);
             //$display("PC: %h", PC);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            $display("in IF");
+            //$display("in IF");
             for(integer a = 0; a < 32; a++) begin
                 //$display("register %d : %h", a, register[a]);
             end
@@ -532,7 +553,7 @@ module mips_cpu_bus(
             //$display("fn code %d", IR_funct);
             //$display("In ID lop is %d", lOp);
             //$display("In ID sop is %d", sOp);
-            $display("in ID");
+            //$display("in ID");
         end
         else if(state == EX) begin
             //$display("In EX readdata %h", readdata);
@@ -547,7 +568,7 @@ module mips_cpu_bus(
             //$display("In EX byteenable is %b", byteenable);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            $display("in EX");
+            //$display("in EX");
             //if (sOp == 1) begin
                 //$display("SW occuring");
             //end
@@ -558,6 +579,7 @@ module mips_cpu_bus(
             //$display("address writing at %h", register[IR_rs] );
 
             //$display("ByteEnableLogic %d", ByteEnableLogic);
+            $display("readdata %h", readdata);
             //$display("read %d", read);
             //$display("write %d", write);
             //$display("writedata %d", writedata);
@@ -567,7 +589,7 @@ module mips_cpu_bus(
             //$display("In MEM byteenable is %b", byteenable);
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
-            $display("in MEM");
+            //$display("in MEM");
         end
         else if(state == WB) begin
             //$display("read %d", read);
@@ -579,14 +601,14 @@ module mips_cpu_bus(
             //$display("PC_next: %h", PC_next);
             //$display("PC_jump: %h", PC_jump);
             //$display("Register Rs: %h", register[IR_rt]);
-            $display("in WB");
+            //$display("in WB");
         end
         else if (state == HALT) begin
-            $display("in HALT");
+            //$display("in HALT");
         end
-        else if (state == STALL) begin
-            $display("in STALL");
-        end*/
+        //else if (state == STALL) begin
+        //    $display("in STALL");
+        //end
     end
 
 endmodule

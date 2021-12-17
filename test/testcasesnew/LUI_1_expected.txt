@@ -98,11 +98,11 @@ FF
 00
 00
 00
-3C
+3C  //  LUI $v0 0xFFFF
 02
 FF
 FF
-AC
+AC  //  SW $v0 0x000C
 02
 00
 0C

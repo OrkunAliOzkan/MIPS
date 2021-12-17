@@ -43,7 +43,34 @@ module tb_cpu();
 
         reset = 0;
 
-        repeat (98) begin
+        waitrequest = 1;
+        //$display("waitrequest high");
+
+        repeat (10) begin
+            #1;
+            clk=!clk;
+        end
+
+        waitrequest = 0;
+        //$display("waitrequest low");
+
+        repeat (2) begin
+            #1;
+            clk=!clk;
+        end
+
+        waitrequest = 1;
+        //$display("waitrequest high");
+
+        repeat (10) begin
+            #1;
+            clk=!clk;
+        end
+
+        waitrequest = 0;
+        //$display("waitrequest low");
+
+        repeat (88) begin
             #1;
             clk=!clk;
         end
