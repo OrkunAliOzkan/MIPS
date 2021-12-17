@@ -433,31 +433,12 @@ module mips_cpu_bus(
                 end
             end
             (STALL): begin
-                if (!waitrequest) begin 
+                if (!waitrequest) begin //FIXME: CHANGED HERE
                     if (stalling == 2'd1) begin
-                        address = PC;
-                        byteenable <= 4'b1111; //FIXME: CHANGED HERE
-                        read = 1;
-                        write = 0;
-                        state <= ID;
-                        //state <= IF;
+                        state <= IF;
                     end
                     else if (stalling == 2'd2) begin
-                        address = address_calc - ByteEnableLogic;
-                        if (sOp) begin      //FIXME: CHANGED HERE
-                            read = 0;
-                            write = 1;
-                            PC <= PC_next;
-                            state <= IF;      
-                            // STORE INSTRUCTIONS END 
-                        end
-                        else if (lOp) begin
-                            read = 1; 
-                            write = 0;
-                            //For load, just read and move to next step.
-                            state <= WB;
-                        end
-                        //state <= MEM;
+                        state <= MEM;
                     end
                     stalling = 2'd0;
                 end
