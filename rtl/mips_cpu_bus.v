@@ -15,7 +15,7 @@ module mips_cpu_bus(
     input logic[31:0] readdata
 );
 
-    //Define all states
+    ///Define all states
     typedef enum logic[2:0]
     {
         IF = 3'd0,      //Instruction Fetch
