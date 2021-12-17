@@ -196,6 +196,7 @@ module tb_cpu();
                     passed = 1'b1;
                 end
             end 
+            /*
             "./test/testcasesnew/SB_1_test.txt": $write("# Store byte xDD to memory");
             "./test/testcasesnew/SH_1_test.txt": $write("# Stores half word xCCDD to memory");
             "./test/testcasesnew/SLLV_1_test.txt": $write("# Shifts xF000 by variable with 4 value");
@@ -208,7 +209,7 @@ module tb_cpu();
             "./test/testcasesnew/SLTU_2_test.txt": $write("# Stores memory with 1 when rs >= immediate");
             "./test/testcasesnew/SLT_1_test.txt": $write("# Stores memory with 0 when rs < immediate");
             "./test/testcasesnew/SLT_2_test.txt": $write("# Stores memory with 1 when rs >= immediate");
-            
+            */
             "./test/testcasesnew/SRAV_1_test.txt": begin
                 if (register_v0 == 32'hffffff00) begin
                     passed = 1'b1;
